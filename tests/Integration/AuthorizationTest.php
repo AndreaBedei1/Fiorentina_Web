@@ -7,6 +7,7 @@ namespace Tests\Integration;
 use App\Models\User;
 use App\Services\AuthService;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\Fixtures;
 use Tests\Support\IntegrationTestCase;
 
 /** Permessi dei due ruoli. */
@@ -24,7 +25,7 @@ final class AuthorizationTest extends IntegrationTestCase
     #[Test]
     public function l_amministratore_gestisce_i_contenuti_ma_non_gli_account(): void
     {
-        $user = $this->createUser(['email' => 'admin@example.test', 'password' => 'PasswordDiProva2026!']);
+        $user = $this->createUser(['email' => 'admin@example.test', 'password' => Fixtures::PASSWORD]);
 
         $auth = self::app()->make(AuthService::class);
         $auth->login($user);
@@ -46,7 +47,7 @@ final class AuthorizationTest extends IntegrationTestCase
     #[Test]
     public function il_super_amministratore_puo_tutto(): void
     {
-        $user = $this->createSuperAdmin(['email' => 'super@example.test', 'password' => 'PasswordDiProva2026!']);
+        $user = $this->createSuperAdmin(['email' => 'super@example.test', 'password' => Fixtures::PASSWORD]);
 
         $auth = self::app()->make(AuthService::class);
         $auth->login($user);

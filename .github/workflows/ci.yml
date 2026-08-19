@@ -2,6 +2,11 @@
 #
 # Riproduce esattamente i controlli che si eseguono in locale prima di
 # pubblicare: test, tipi TypeScript, build degli asset e contrasti WCAG.
+#
+# Il database e un contenitore usa e getta, raggiungibile solo dal processo
+# che lo ha avviato e distrutto a fine esecuzione: non ha password perche non
+# c'e nulla da proteggere. Meglio dichiararlo che scrivere una credenziale
+# finta, che sembrerebbe vera a chi legge e agli scanner di segreti.
 name: Verifiche
 
 on:
@@ -18,12 +23,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
           MYSQL_DATABASE: baraonda
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
@@ -45,13 +50,13 @@ jobs:
           cache: npm
 
       - name: Database di test
-        run: mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS baraonda_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+        run: mysql -h 127.0.0.1 -uroot -e "CREATE DATABASE IF NOT EXISTS baraonda_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
       - name: Configurazione
         run: |
           cp .env.example .env
           sed -i 's/^DB_USERNAME=.*/DB_USERNAME=root/' .env
-          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=root/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
           sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=null/' .env
 
       - name: Dipendenze PHP

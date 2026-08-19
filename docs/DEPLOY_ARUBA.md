@@ -211,16 +211,16 @@ SESSION_SECURE=true
 
 DB_HOST=sql.tuodominio.it     # l'host indicato da Aruba, NON localhost
 DB_PORT=3306
-DB_DATABASE=Sql1234567_1
-DB_USERNAME=Sql1234567
-DB_PASSWORD=la-password-del-database
+DB_DATABASE=<nome del database, dal pannello Aruba>
+DB_USERNAME=<utente del database, dal pannello Aruba>
+DB_PASSWORD=<la password del database, dal pannello Aruba>
 
 MAIL_MAILER=smtp
 MAIL_HOST=smtps.aruba.it
 MAIL_PORT=465
 MAIL_ENCRYPTION=ssl
 MAIL_USERNAME=noreply@baraondafiorentina.it
-MAIL_PASSWORD=la-password-della-casella
+MAIL_PASSWORD=<la password della casella di posta>
 MAIL_FROM_ADDRESS=noreply@baraondafiorentina.it
 MAIL_FROM_NAME="Baraonda Fiorentina"
 MAIL_ORDERS_TO=merchandising@baraondafiorentina.it

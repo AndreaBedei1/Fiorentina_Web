@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Core\Security\Hash;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Fixtures;
 
 /**
  * Hashing delle password.
@@ -27,7 +28,7 @@ final class HashTest extends TestCase
     #[Test]
     public function la_password_non_compare_mai_in_chiaro_nell_hash(): void
     {
-        $password = 'PasswordDiProva2026!';
+        $password = Fixtures::PASSWORD;
         $hash = $this->hash->make($password);
 
         $this->assertStringNotContainsString($password, $hash);
@@ -38,7 +39,7 @@ final class HashTest extends TestCase
     #[Test]
     public function usa_argon2id_quando_disponibile_altrimenti_bcrypt(): void
     {
-        $hash = $this->hash->make('PasswordDiProva2026!');
+        $hash = $this->hash->make(Fixtures::PASSWORD);
 
         if ($this->hash->supportsArgon2id()) {
             $this->assertStringStartsWith('$argon2id$', $hash);
@@ -52,11 +53,15 @@ final class HashTest extends TestCase
     #[Test]
     public function la_verifica_accetta_la_password_giusta_e_rifiuta_le_altre(): void
     {
-        $hash = $this->hash->make('PasswordDiProva2026!');
+        $hash = $this->hash->make(Fixtures::PASSWORD);
 
-        $this->assertTrue($this->hash->verify('PasswordDiProva2026!', $hash));
-        $this->assertFalse($this->hash->verify('passworddiprova2026!', $hash));
-        $this->assertFalse($this->hash->verify('PasswordDiProva2026', $hash));
+        $this->assertTrue($this->hash->verify(Fixtures::PASSWORD, $hash));
+
+        // Le varianti sono derivate dalla password giusta invece che scritte a
+        // mano: cosi non possono restare indietro se il valore cambia.
+        $this->assertFalse($this->hash->verify(mb_strtoupper(Fixtures::PASSWORD), $hash), 'maiuscole e minuscole devono contare');
+        $this->assertFalse($this->hash->verify(mb_substr(Fixtures::PASSWORD, 0, -1), $hash), 'un carattere in meno non deve bastare');
+        $this->assertFalse($this->hash->verify(Fixtures::PASSWORD . 'x', $hash), 'un carattere in piu non deve bastare');
         $this->assertFalse($this->hash->verify('', $hash));
     }
 
@@ -65,12 +70,12 @@ final class HashTest extends TestCase
     {
         // Il sale casuale rende inutili le tabelle precalcolate: senza,
         // password identiche produrrebbero hash identici.
-        $primo = $this->hash->make('PasswordDiProva2026!');
-        $secondo = $this->hash->make('PasswordDiProva2026!');
+        $primo = $this->hash->make(Fixtures::PASSWORD);
+        $secondo = $this->hash->make(Fixtures::PASSWORD);
 
         $this->assertNotSame($primo, $secondo);
-        $this->assertTrue($this->hash->verify('PasswordDiProva2026!', $primo));
-        $this->assertTrue($this->hash->verify('PasswordDiProva2026!', $secondo));
+        $this->assertTrue($this->hash->verify(Fixtures::PASSWORD, $primo));
+        $this->assertTrue($this->hash->verify(Fixtures::PASSWORD, $secondo));
     }
 
     #[Test]
@@ -84,7 +89,7 @@ final class HashTest extends TestCase
     #[Test]
     public function riconosce_gli_hash_da_rigenerare(): void
     {
-        $debole = password_hash('PasswordDiProva2026!', PASSWORD_BCRYPT, ['cost' => 4]);
+        $debole = password_hash(Fixtures::PASSWORD, PASSWORD_BCRYPT, ['cost' => 4]);
         $forte = new Hash(bcryptCost: 12, argonMemoryCost: 65536, argonTimeCost: 4, argonThreads: 2);
 
         $this->assertTrue($forte->needsRehash($debole));

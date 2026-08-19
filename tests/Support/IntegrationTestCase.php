@@ -97,7 +97,7 @@ abstract class IntegrationTestCase extends TestCase
         $users = self::app()->get(UserRepository::class);
         $hash = self::app()->get(Hash::class);
 
-        $password = $overrides['password'] ?? 'PasswordDiProva2026!';
+        $password = $overrides['password'] ?? Fixtures::PASSWORD;
         unset($overrides['password']);
 
         $id = $users->create(array_merge([

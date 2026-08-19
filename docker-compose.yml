@@ -13,6 +13,10 @@
 #
 #  Docker serve SOLO in sviluppo: la produzione e un hosting condiviso Aruba e
 #  non ha bisogno di nulla di tutto questo.
+#
+#  NESSUNA CREDENZIALE E SCRITTA QUI. Nome utente e password del database
+#  arrivano dal file .env, che non e nel repository: Compose lo legge da solo e
+#  si ferma con un messaggio chiaro se le variabili mancano.
 # =============================================================================
 
 services:
@@ -32,8 +36,8 @@ services:
       DB_HOST: mysql
       DB_PORT: "3306"
       DB_DATABASE: baraonda
-      DB_USERNAME: baraonda
-      DB_PASSWORD: baraonda
+      DB_USERNAME: ${DB_USERNAME:?impostare DB_USERNAME nel file .env}
+      DB_PASSWORD: ${DB_PASSWORD:?impostare DB_PASSWORD nel file .env}
       DB_TEST_DATABASE: baraonda_test
       MAIL_MAILER: smtp
       MAIL_HOST: mailpit
@@ -52,17 +56,22 @@ services:
       # Esposto per poter usare un client esterno; in rete interna basta "mysql".
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      # Nessuno si collega mai come root: l'immagine ne genera una casuale e la
+      # scrive nel proprio log. Cosi non esiste una password di root da tenere
+      # da qualche parte, e tantomeno da scrivere qui dentro.
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_DATABASE: baraonda
-      MYSQL_USER: baraonda
-      MYSQL_PASSWORD: baraonda
+      MYSQL_USER: ${DB_USERNAME:?impostare DB_USERNAME nel file .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?impostare DB_PASSWORD nel file .env}
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       # L'app deve partire solo a database pronto, altrimenti la prima
       # migrazione fallisce con un errore di connessione poco chiaro.
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
+      # Le credenziali le legge dall'ambiente del contenitore ($$ evita che le
+      # espanda Compose): nel file non compare nessuna password.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u\"$$MYSQL_USER\" -p\"$$MYSQL_PASSWORD\" --silent"]
       interval: 5s
       timeout: 5s
       retries: 20

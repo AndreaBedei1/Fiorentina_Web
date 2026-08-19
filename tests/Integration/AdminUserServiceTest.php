@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\AdminUserService;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\Fixtures;
 use Tests\Support\IntegrationTestCase;
 
 /**
@@ -75,7 +76,7 @@ final class AdminUserServiceTest extends IntegrationTestCase
         $link = (string) $result->get('link');
         $token = substr($link, strrpos($link, '/') + 1);
 
-        $accepted = $this->service->acceptInvite($token, 'NuovaPasswordSicura2026!');
+        $accepted = $this->service->acceptInvite($token, Fixtures::PASSWORD_NUOVA);
 
         $this->assertTrue($accepted->successful, $accepted->message);
 

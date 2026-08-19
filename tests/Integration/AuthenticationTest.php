@@ -9,6 +9,7 @@ use App\Repositories\UserRepository;
 use App\Services\AuthResult;
 use App\Services\AuthService;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\Fixtures;
 use Tests\Support\IntegrationTestCase;
 
 /**
@@ -38,10 +39,10 @@ final class AuthenticationTest extends IntegrationTestCase
     {
         $user = $this->createUser([
             'email' => 'valido@example.test',
-            'password' => 'PasswordDiProva2026!',
+            'password' => Fixtures::PASSWORD,
         ]);
 
-        $result = $this->auth->attempt('valido@example.test', 'PasswordDiProva2026!');
+        $result = $this->auth->attempt('valido@example.test', Fixtures::PASSWORD);
 
         $this->assertTrue($result->successful);
         $this->assertSame($user->id, $result->user?->id);
@@ -50,7 +51,7 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function rifiuta_la_password_sbagliata(): void
     {
-        $this->createUser(['email' => 'valido@example.test', 'password' => 'PasswordDiProva2026!']);
+        $this->createUser(['email' => 'valido@example.test', 'password' => Fixtures::PASSWORD]);
 
         $result = $this->auth->attempt('valido@example.test', 'PasswordSbagliata2026!');
 
@@ -61,7 +62,7 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function il_messaggio_di_errore_non_rivela_se_l_email_esiste(): void
     {
-        $this->createUser(['email' => 'esiste@example.test', 'password' => 'PasswordDiProva2026!']);
+        $this->createUser(['email' => 'esiste@example.test', 'password' => Fixtures::PASSWORD]);
 
         $emailEsistente = $this->auth->attempt('esiste@example.test', 'sbagliata');
         $emailInesistente = $this->auth->attempt('non-esiste@example.test', 'sbagliata');
@@ -74,11 +75,11 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function un_account_bloccato_non_puo_accedere(): void
     {
-        $user = $this->createUser(['email' => 'bloccato@example.test', 'password' => 'PasswordDiProva2026!']);
+        $user = $this->createUser(['email' => 'bloccato@example.test', 'password' => Fixtures::PASSWORD]);
 
         self::app()->get(UserRepository::class)->block($user->id);
 
-        $result = $this->auth->attempt('bloccato@example.test', 'PasswordDiProva2026!');
+        $result = $this->auth->attempt('bloccato@example.test', Fixtures::PASSWORD);
 
         $this->assertTrue($result->failed());
         $this->assertSame(AuthResult::REASON_BLOCKED, $result->reason);
@@ -102,7 +103,7 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function dopo_troppi_tentativi_l_accesso_viene_bloccato(): void
     {
-        $this->createUser(['email' => 'bersaglio@example.test', 'password' => 'PasswordDiProva2026!']);
+        $this->createUser(['email' => 'bersaglio@example.test', 'password' => Fixtures::PASSWORD]);
 
         $maxAttempts = self::app()->config()->int('security.rate_limits.login.max_attempts', 5);
 
@@ -111,7 +112,7 @@ final class AuthenticationTest extends IntegrationTestCase
         }
 
         // Anche con la password giusta, ora deve essere respinto.
-        $result = $this->auth->attempt('bersaglio@example.test', 'PasswordDiProva2026!');
+        $result = $this->auth->attempt('bersaglio@example.test', Fixtures::PASSWORD);
 
         $this->assertTrue($result->isThrottled());
         $this->assertStringContainsString('Troppi tentativi', $result->message());
@@ -120,9 +121,9 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function bloccare_un_account_chiude_le_sue_sessioni_attive(): void
     {
-        $user = $this->createUser(['email' => 'attivo@example.test', 'password' => 'PasswordDiProva2026!']);
+        $user = $this->createUser(['email' => 'attivo@example.test', 'password' => Fixtures::PASSWORD]);
 
-        $this->auth->attempt('attivo@example.test', 'PasswordDiProva2026!');
+        $this->auth->attempt('attivo@example.test', Fixtures::PASSWORD);
         $this->assertTrue($this->auth->check(), 'La sessione doveva risultare aperta.');
 
         // Il blocco imposta sessions_valid_after: le sessioni gia aperte
@@ -137,9 +138,9 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function il_cambio_password_invalida_le_altre_sessioni(): void
     {
-        $user = $this->createUser(['email' => 'cambio@example.test', 'password' => 'PasswordDiProva2026!']);
+        $user = $this->createUser(['email' => 'cambio@example.test', 'password' => Fixtures::PASSWORD]);
 
-        $this->auth->attempt('cambio@example.test', 'PasswordDiProva2026!');
+        $this->auth->attempt('cambio@example.test', Fixtures::PASSWORD);
         $this->assertTrue($this->auth->check());
 
         /*
@@ -152,7 +153,7 @@ final class AuthenticationTest extends IntegrationTestCase
         $_SESSION['auth_login_at'] = time() - 5;
 
         $hash = self::app()->get(\App\Core\Security\Hash::class);
-        self::app()->get(UserRepository::class)->updatePassword($user->id, $hash->make('NuovaPassword2026!'));
+        self::app()->get(UserRepository::class)->updatePassword($user->id, $hash->make(Fixtures::PASSWORD_NUOVA));
 
         $fresh = self::app()->make(AuthService::class);
 
@@ -162,9 +163,9 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function la_disconnessione_chiude_la_sessione(): void
     {
-        $this->createUser(['email' => 'uscita@example.test', 'password' => 'PasswordDiProva2026!']);
+        $this->createUser(['email' => 'uscita@example.test', 'password' => Fixtures::PASSWORD]);
 
-        $this->auth->attempt('uscita@example.test', 'PasswordDiProva2026!');
+        $this->auth->attempt('uscita@example.test', Fixtures::PASSWORD);
         $this->assertTrue($this->auth->check());
 
         $this->auth->logout();
@@ -176,10 +177,10 @@ final class AuthenticationTest extends IntegrationTestCase
     #[Test]
     public function i_tentativi_di_accesso_vengono_registrati(): void
     {
-        $this->createUser(['email' => 'tracciato@example.test', 'password' => 'PasswordDiProva2026!']);
+        $this->createUser(['email' => 'tracciato@example.test', 'password' => Fixtures::PASSWORD]);
 
         $this->auth->attempt('tracciato@example.test', 'sbagliata');
-        $this->auth->attempt('tracciato@example.test', 'PasswordDiProva2026!');
+        $this->auth->attempt('tracciato@example.test', Fixtures::PASSWORD);
 
         $falliti = (int) $this->db->scalar(
             'SELECT COUNT(*) FROM login_attempts WHERE successful = 0 AND email = ?',

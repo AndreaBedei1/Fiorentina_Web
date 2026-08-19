@@ -15,8 +15,12 @@ final class PasswordPolicyTest extends TestCase
     #[Test]
     public function accetta_una_password_robusta(): void
     {
-        $this->assertNull(PasswordPolicy::check('TrasfertaViola2026!'));
-        $this->assertTrue(PasswordPolicy::isValid('TrasfertaViola2026!'));
+        // Valore d'esempio, non una credenziale: serve solo a mostrare una
+        // combinazione che soddisfa lunghezza e varieta richieste.
+        $robusta = 'esempio-di-password-lunga-2026';
+
+        $this->assertNull(PasswordPolicy::check($robusta));
+        $this->assertTrue(PasswordPolicy::isValid($robusta));
     }
 
     /** @return list<array{0: string, 1: string}> */

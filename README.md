@@ -248,7 +248,7 @@ sezione social con dati verosimili.
 
 ```dotenv
 FOOTBALL_PROVIDER=apifootball
-FOOTBALL_API_KEY=la-tua-chiave
+FOOTBALL_API_KEY=<la tua chiave>
 FOOTBALL_TEAM_ID=502
 FOOTBALL_SEASON=2026
 ```
