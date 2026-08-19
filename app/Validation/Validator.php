@@ -191,19 +191,25 @@ final class Validator
     }
 
     /** @param list<string> $allowed */
+    /**
+     * Il valore, se ammesso, finisce fra i dati validati: le altre regole fanno
+     * lo stesso e i controller leggono da li. Limitarsi a controllare senza
+     * conservare farebbe ricadere ogni campo sul proprio valore predefinito,
+     * in silenzio.
+     */
     public function in(string $field, array $allowed, string $label): self
     {
         $value = $this->current($field);
 
         if ($value === null || $value === '') {
-            return $this;
+            return $this->keep($field, null);
         }
 
         if (! in_array((string) $value, $allowed, true)) {
             return $this->addError($field, sprintf('%s contiene un valore non ammesso.', $label));
         }
 
-        return $this;
+        return $this->keep($field, (string) $value);
     }
 
     public function boolean(string $field): self
