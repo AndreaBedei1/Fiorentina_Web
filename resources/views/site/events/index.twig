@@ -59,7 +59,7 @@
             <ul class="grid gap-4 lg:grid-cols-2" role="list">
                 {% for event in paginator.items %}
                     <li data-reveal style="--reveal-delay: {{ (loop.index0 % 2) * 70 }}ms">
-                        {{ include('components/event-card.twig', { event: event }) }}
+                        {{ include('components/event-card.twig', { event: event, heading: 'h2' }) }}
                     </li>
                 {% endfor %}
             </ul>

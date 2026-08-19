@@ -4,7 +4,12 @@
   L'intera card e cliccabile grazie a un collegamento esteso (::after), ma il
   link vero resta sul titolo: la navigazione da tastiera e la lettura da parte
   degli screen reader restano corrette, e il testo della card resta selezionabile.
+  Il livello del titolo e un parametro: in una pagina d'elenco la card sta
+  subito sotto l'h1 e deve essere h2, mentre in una sezione della homepage
+  segue gia un h2 e deve essere h3. Saltare un livello confonde chi naviga
+  per intestazioni con uno screen reader.
 #}
+{% set livello = heading|default('h3') in ['h2', 'h3', 'h4'] ? heading|default('h3') : 'h3' %}
 <article class="group relative flex flex-col overflow-hidden rounded-card bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-lift motion-reduce:hover:transform-none">
     <div class="relative aspect-[16/10] overflow-hidden bg-sabbia-100">
         {{ include('components/responsive-image.twig', {
@@ -27,12 +32,12 @@
             {{ article.publishedAt|data }}
         </time>
 
-        <h3 class="mt-2 font-display text-lg font-bold leading-snug text-viola-900">
+        <{{ livello }} class="mt-2 font-display text-lg font-bold leading-snug text-viola-900">
             <a href="{{ route('news.show', { slug: article.slug }) }}"
                class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
                 {{ article.title }}
             </a>
-        </h3>
+        </{{ livello }}>
 
         <p class="mt-2.5 flex-1 text-sm leading-relaxed text-sabbia-700">{{ article.summary(140) }}</p>
 

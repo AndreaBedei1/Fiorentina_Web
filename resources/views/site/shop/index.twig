@@ -86,7 +86,7 @@
             <ul class="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4" role="list">
                 {% for product in paginator.items %}
                     <li data-reveal style="--reveal-delay: {{ (loop.index0 % 4) * 60 }}ms">
-                        {{ include('components/product-card.twig', { product: product }) }}
+                        {{ include('components/product-card.twig', { product: product, heading: 'h2' }) }}
                     </li>
                 {% endfor %}
             </ul>

@@ -9,7 +9,12 @@
         }) }}
     </div>
 
-    {# Sfumatura sotto il testo: garantisce il contrasto qualunque sia la foto. #}
+    {# Sfumatura sotto il testo: garantisce il contrasto qualunque sia la foto.   Il livello del titolo e un parametro: in una pagina d'elenco la card sta
+  subito sotto l'h1 e deve essere h2, mentre in una sezione della homepage
+  segue gia un h2 e deve essere h3. Saltare un livello confonde chi naviga
+  per intestazioni con uno screen reader.
+#}
+{% set livello = heading|default('h3') in ['h2', 'h3', 'h4'] ? heading|default('h3') : 'h3' %}
     <div class="absolute inset-0 bg-gradient-to-t from-viola-950 via-viola-950/55 to-transparent" aria-hidden="true"></div>
 
     <div class="absolute inset-x-0 bottom-0 p-5">
@@ -22,12 +27,12 @@
             </span>
         </div>
 
-        <h3 class="mt-2.5 font-display text-lg font-bold leading-snug text-white">
+        <{{ livello }} class="mt-2.5 font-display text-lg font-bold leading-snug text-white">
             <a href="{{ route('gallery.show', { slug: album.slug }) }}"
                class="rounded focus-ring after:absolute after:inset-0 after:content-['']">
                 {{ album.title }}
             </a>
-        </h3>
+        </{{ livello }}>
 
         {% if album.eventDate %}
             <time datetime="{{ album.eventDate|iso_data }}" class="mt-1 block text-sm text-viola-200">

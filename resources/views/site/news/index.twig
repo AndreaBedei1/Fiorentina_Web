@@ -19,7 +19,7 @@
             <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
                 {% for article in paginator.items %}
                     <li data-reveal style="--reveal-delay: {{ (loop.index0 % 3) * 80 }}ms">
-                        {{ include('components/news-card.twig', { article: article }) }}
+                        {{ include('components/news-card.twig', { article: article, heading: 'h2' }) }}
                     </li>
                 {% endfor %}
             </ul>
