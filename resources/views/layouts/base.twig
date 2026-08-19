@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#41215f">
 
-    <title>{{ seo is defined and seo ? seo.fullTitle(setting('site_group_name', app_name)) : app_name }}</title>
+    <title>{% block page_title %}{{ seo is defined and seo ? seo.fullTitle(setting('site_group_name', app_name)) : app_name }}{% endblock %}</title>
 
     {% if seo is defined and seo and seo.description %}
         <meta name="description" content="{{ seo.description }}">
