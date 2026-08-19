@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Configurazione PHPUnit.
+
+    Due suite separate:
+      - Unit:        logica pura, nessun database, esecuzione immediata;
+      - Integration: usa un database dedicato (DB_TEST_DATABASE) che viene
+                     ricostruito da zero a ogni avvio della suite.
+
+    Le variabili qui sotto sovrascrivono il file .env durante i test: cosi la
+    suite non puo toccare il database di sviluppo ne spedire email vere.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         failOnRisky="true"
+         failOnWarning="true"
+         beStrictAboutOutputDuringTests="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnPhpunitDeprecations="false">
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+
+    <php>
+        <env name="APP_ENV" value="testing" force="true"/>
+        <env name="APP_DEBUG" value="true" force="true"/>
+        <env name="APP_URL" value="http://localhost" force="true"/>
+        <env name="APP_KEY" value="base64:dGVzdC1rZXktbm9uLXVzYXRhLWluLXByb2R1emlvbmU=" force="true"/>
+
+        <!-- La posta non esce mai dai test. -->
+        <env name="MAIL_MAILER" value="null" force="true"/>
+
+        <!-- I fornitori esterni restano dimostrativi: i test non toccano la rete. -->
+        <env name="FOOTBALL_PROVIDER" value="mock" force="true"/>
+        <env name="SOCIAL_PROVIDER" value="mock" force="true"/>
+
+        <!-- Hashing piu leggero: con i parametri di produzione la suite
+             impiegherebbe minuti solo per creare utenti di prova. -->
+        <env name="ARGON_MEMORY_COST" value="8192" force="true"/>
+        <env name="ARGON_TIME_COST" value="1" force="true"/>
+        <env name="BCRYPT_COST" value="4" force="true"/>
+    </php>
+</phpunit>

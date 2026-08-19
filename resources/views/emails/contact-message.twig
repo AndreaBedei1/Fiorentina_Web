@@ -1,0 +1,29 @@
+{% extends 'emails/layout.twig' %}
+
+{% set preheader = 'Nuovo messaggio da ' ~ name ~ ': ' ~ subject %}
+{% set headerNote = 'Messaggio dal modulo contatti' %}
+
+{% block content %}
+    <p style="margin:0 0 18px; font-size:20px; font-weight:700; color:#2c1640;">Nuovo messaggio dal sito</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background-color:#f6f3fb; border:1px solid #d8c9ee; border-radius:10px; margin-bottom:20px;">
+        <tr>
+            <td style="padding:16px 18px; font-size:14px; line-height:1.7;">
+                <strong style="color:#2c1640;">{{ name }}</strong><br>
+                <a href="mailto:{{ email }}" style="color:#582d84;">{{ email }}</a>
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:0 0 6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#82766a;">Oggetto</p>
+    <p style="margin:0 0 18px; font-size:16px; font-weight:700; color:#2c1640;">{{ subject }}</p>
+
+    <p style="margin:0 0 6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#82766a;">Messaggio</p>
+    <p style="margin:0 0 22px; font-size:15px; line-height:1.7; color:#3d3833; white-space:pre-line;">{{ message }}</p>
+
+    <p style="margin:0; font-size:13px; line-height:1.6; color:#82766a;">
+        Rispondendo a questa email scrivi direttamente a chi ha inviato il messaggio.
+        Il testo e comunque salvato nel pannello, alla voce Messaggi.
+    </p>
+{% endblock %}

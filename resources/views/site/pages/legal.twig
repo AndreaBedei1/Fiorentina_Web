@@ -1,0 +1,27 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Informazioni legali',
+        title: page.title,
+        subtitle: page.subtitle
+    }) }}
+
+    <div class="mx-auto max-w-3xl px-4 py-section sm:px-6">
+        {% if page.intro %}
+            <p class="text-lg leading-relaxed text-viola-900">{{ page.intro }}</p>
+        {% endif %}
+
+        {% if page.content %}
+            <div class="contenuto mt-6">{{ page.content|raw }}</div>
+        {% endif %}
+
+        {{ include('components/page-blocks.twig', { blocks: page.visibleBlocks }) }}
+
+        {% if page.updatedAt %}
+            <p class="mt-10 border-t border-sabbia-200 pt-5 text-sm text-sabbia-500">
+                Ultimo aggiornamento: <time datetime="{{ page.updatedAt|iso }}">{{ page.updatedAt|data }}</time>
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

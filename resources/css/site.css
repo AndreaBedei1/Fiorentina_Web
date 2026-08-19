@@ -1,0 +1,208 @@
+/**
+ * Foglio di stile del sito pubblico.
+ *
+ * Tailwind fornisce le utility; qui vivono soltanto le poche cose che non
+ * hanno senso ripetere in ogni template: anelli di focus, animazioni allo
+ * scorrimento e la tipografia dei contenuti redazionali.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+    :root {
+        color-scheme: light;
+        /* Compensa l'altezza dell'intestazione fissa quando si arriva a un'ancora. */
+        scroll-padding-top: 5.5rem;
+    }
+
+    body {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        /* Evita lo scorrimento orizzontale accidentale su schermi stretti. */
+        overflow-x: hidden;
+    }
+
+    /*
+     * Focus visibile e coerente su tutto il sito.
+     * Rimuovere l'anello di focus renderebbe il sito inutilizzabile da
+     * tastiera: qui lo rendiamo piu evidente, non meno.
+     */
+    :focus-visible {
+        outline: 2px solid theme('colors.rosso.600');
+        outline-offset: 2px;
+        border-radius: 0.25rem;
+    }
+
+    /* I titoli non devono mai spezzarsi male sui bordi. */
+    h1, h2, h3, h4 {
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    /* Le immagini non escono mai dal loro contenitore. */
+    img, picture, video, svg {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /*
+     * Rispetto della preferenza di sistema per il movimento ridotto.
+     * Chi soffre di disturbi vestibolari deve poter usare il sito senza
+     * animazioni: le disattiviamo tutte, non le rallentiamo soltanto.
+     */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   Componenti
+   ========================================================================== */
+@layer components {
+    /* Anello di focus su fondo chiaro. */
+    .focus-ring {
+        @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rosso-600;
+    }
+
+    /* Anello di focus su fondo scuro: il rosso non avrebbe contrasto. */
+    .focus-ring-light {
+        @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+    }
+
+    /* Contenuti redazionali provenienti dall'editor. */
+    .contenuto {
+        @apply prose prose-baraonda max-w-prose-wide;
+    }
+
+    .contenuto :where(img) {
+        @apply rounded-card shadow-card;
+    }
+
+    .contenuto :where(table) {
+        @apply block w-full overflow-x-auto text-sm;
+    }
+
+    /* Etichetta di campo con indicatore di obbligatorieta. */
+    .campo-label {
+        @apply mb-1.5 block text-sm font-semibold text-viola-900;
+    }
+
+    .campo-label[data-required]::after {
+        content: ' *';
+        @apply text-rosso-700;
+    }
+
+    .campo-input {
+        @apply form-input w-full rounded-lg border-sabbia-500 bg-white px-3.5 py-2.5 text-base text-sabbia-900
+               placeholder:text-sabbia-400
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/30;
+    }
+
+    .campo-input[aria-invalid='true'] {
+        @apply border-rosso-500 focus:border-rosso-600 focus:ring-rosso-500/30;
+    }
+
+    .campo-select {
+        @apply form-select w-full rounded-lg border-sabbia-500 bg-white px-3.5 py-2.5 text-base text-sabbia-900
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/30;
+    }
+
+    .campo-textarea {
+        @apply form-textarea w-full rounded-lg border-sabbia-500 bg-white px-3.5 py-2.5 text-base text-sabbia-900
+               placeholder:text-sabbia-400
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/30;
+    }
+
+    .campo-checkbox {
+        @apply form-checkbox h-5 w-5 rounded border-sabbia-500 text-viola-700 focus:ring-2 focus:ring-viola-500/40;
+    }
+
+    .campo-radio {
+        @apply form-radio h-5 w-5 border-sabbia-500 text-viola-700 focus:ring-2 focus:ring-viola-500/40;
+    }
+
+    .campo-errore {
+        @apply mt-1.5 flex items-start gap-1.5 text-sm font-medium text-rosso-700;
+    }
+
+    .campo-aiuto {
+        @apply mt-1.5 text-sm text-sabbia-600;
+    }
+
+    /* Pulsanti. Altezza minima 44px: bersaglio tattile raccomandato. */
+    .btn {
+        @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-5 py-2.5
+               text-sm font-bold transition focus-ring disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primario  { @apply btn bg-viola-800 text-white hover:bg-viola-900; }
+    .btn-accento   { @apply btn bg-rosso-600 text-white hover:bg-rosso-700; }
+    .btn-secondario{ @apply btn border border-sabbia-300 bg-white text-viola-900 hover:border-viola-400 hover:bg-viola-50; }
+    .btn-fantasma  { @apply btn text-viola-800 hover:bg-viola-50; }
+    .btn-pericolo  { @apply btn border border-rosso-300 bg-white text-rosso-800 hover:border-rosso-500 hover:bg-rosso-50; }
+}
+
+/* ==========================================================================
+   Utility
+   ========================================================================== */
+@layer utilities {
+    /* Nasconde gli elementi Alpine finche il framework non e pronto. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /*
+     * Comparsa allo scorrimento.
+     * Lo stato iniziale si applica solo quando JavaScript e attivo (classe js
+     * sull'elemento html): senza, il contenuto resterebbe invisibile.
+     */
+    .js [data-reveal] {
+        opacity: 0;
+        transform: translateY(1.25rem);
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .js [data-reveal].is-visible {
+        opacity: 1;
+        transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .js [data-reveal] {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Troncamento a piu righe. */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}

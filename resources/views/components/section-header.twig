@@ -1,0 +1,33 @@
+{#
+  Intestazione di sezione.
+
+  Il livello del titolo e un parametro: la gerarchia dei titoli deve restare
+  corretta indipendentemente da dove il componente viene usato.
+#}
+{% set tag = level|default('h2') %}
+<div class="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+    <div class="max-w-2xl">
+        {% if eyebrow is defined and eyebrow %}
+            <p class="mb-2 flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-rosso-700">
+                <span class="h-px w-6 bg-rosso-600" aria-hidden="true"></span>
+                {{ eyebrow }}
+            </p>
+        {% endif %}
+
+        <{{ tag }} class="font-display text-display-sm font-extrabold text-viola-900">{{ title }}</{{ tag }}>
+
+        {% if subtitle is defined and subtitle %}
+            <p class="mt-3 text-base leading-relaxed text-sabbia-700">{{ subtitle }}</p>
+        {% endif %}
+    </div>
+
+    {% if link is defined and link %}
+        <a href="{{ link.url }}"
+           class="group inline-flex shrink-0 items-center gap-2 rounded-lg border border-viola-200 bg-white px-4 py-2.5 text-sm font-semibold text-viola-800 transition hover:border-viola-400 hover:bg-viola-50 focus-ring">
+            {{ link.label }}
+            <span class="transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none">
+                {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+            </span>
+        </a>
+    {% endif %}
+</div>

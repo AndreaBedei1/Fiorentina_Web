@@ -1,0 +1,246 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = event is null %}
+    {% set categoryOptions = {} %}
+    {% for category in categories %}{% set categoryOptions = categoryOptions|merge({ (category.id): category.name }) %}{% endfor %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Nuovo evento' : 'Modifica evento',
+        back: { url: route('admin.events.index'), label: 'Torna agli eventi' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.events.store') : route('admin.events.update', { id: event.id }) }}"
+          method="post" enctype="multipart/form-data" class="grid gap-5 lg:grid-cols-3">
+        {{ csrf_field()|raw }}
+
+        <div class="space-y-5 lg:col-span-2">
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Descrizione</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4" x-data="slugField"
+                     data-slug="{{ isNew ? '' : event.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+
+                    <div>
+                        <label for="campo-title" class="campo-label" data-required>Titolo</label>
+                        <input type="text" id="campo-title" name="title" required maxlength="200"
+                               value="{{ old('title', isNew ? '' : event.title) }}"
+                               @input="fromTitle" class="campo-input text-base"
+                               {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
+                        {% if has_error('title') %}
+                            <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('title') }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
+                        <div class="flex items-center gap-2">
+                            <span class="shrink-0 text-sm text-sabbia-500">/eventi/</span>
+                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
+                                   maxlength="200" class="campo-input font-mono text-sm">
+                        </div>
+                        {% if not isNew %}
+                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
+                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
+                                <span>Aggiorna anche l indirizzo pubblico</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 400,
+                        value: old('short_description', isNew ? '' : event.shortDescription),
+                        help: 'Una o due righe: e quello che si legge nelle card e nel calendario.'
+                    }) }}
+
+                    <div>
+                        <label for="campo-description" class="campo-label">Descrizione completa</label>
+                        <textarea id="campo-description" name="description" rows="10"
+                                  class="campo-textarea font-mono text-sm">{{ old('description', isNew ? '' : event.description) }}</textarea>
+                        <p class="campo-aiuto">HTML semplice consentito, come per le notizie.</p>
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'info', label: 'Note utili', type: 'textarea', rows: 3, maxlength: 1000,
+                        value: old('info', isNew ? '' : event.info),
+                        help: 'Compare in un riquadro a parte: documenti da portare, orari da rispettare, avvertenze.'
+                    }) }}
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Quando e dove</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    <div class="grid gap-3 sm:grid-cols-4">
+                        {{ include('components/field.twig', {
+                            name: 'start_date', label: 'Data di inizio', type: 'date', required: true,
+                            value: old('start_date', isNew ? '' : event.startsAt|iso_data), wrapperClass: 'sm:col-span-2'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'start_time', label: 'Ora', type: 'time',
+                            value: old('start_time', isNew ? '' : event.startsAt|ora)
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'meeting_time', label: 'Ritrovo', type: 'time',
+                            value: old('meeting_time', isNew or not event.meetingAt ? '' : event.meetingAt|ora)
+                        }) }}
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        {{ include('components/field.twig', {
+                            name: 'end_date', label: 'Data di fine', type: 'date',
+                            value: old('end_date', isNew or not event.endsAt ? '' : event.endsAt|iso_data),
+                            help: 'Solo per eventi su piu giorni.'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'end_time', label: 'Ora di fine', type: 'time',
+                            value: old('end_time', isNew or not event.endsAt ? '' : event.endsAt|ora)
+                        }) }}
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        {{ include('components/field.twig', {
+                            name: 'location_name', label: 'Luogo', maxlength: 150,
+                            value: old('location_name', isNew ? '' : event.locationName),
+                            placeholder: 'Stadio, circolo, sede...'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'city', label: 'Citta', maxlength: 100,
+                            value: old('city', isNew ? '' : event.city)
+                        }) }}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'address', label: 'Indirizzo', maxlength: 255,
+                        value: old('address', isNew ? '' : event.address)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'meeting_point', label: 'Punto di ritrovo', maxlength: 255,
+                        value: old('meeting_point', isNew ? '' : event.meetingPoint),
+                        help: 'Dove ci si trova prima di partire, se diverso dal luogo dell evento.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'maps_url', label: 'Link alla mappa', type: 'url', maxlength: 500,
+                        value: old('maps_url', isNew ? '' : event.mapsUrl),
+                        placeholder: 'https://maps.google.com/...'
+                    }) }}
+                </div>
+            </section>
+        </div>
+
+        <div class="space-y-5 lg:col-span-1">
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Pubblicazione</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {{ include('components/field.twig', {
+                        name: 'status', label: 'Stato', type: 'select', options: statuses,
+                        value: old('status', isNew ? 'draft' : event.status)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'category_id', label: 'Categoria', type: 'select',
+                        options: categoryOptions, placeholder: 'Nessuna categoria',
+                        value: old('category_id', isNew ? '' : event.categoryId)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'is_featured', label: 'Metti in evidenza', type: 'checkbox',
+                        value: old('is_featured', isNew ? false : event.isFeatured)
+                    }) }}
+
+                    <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-4">
+                        <button type="submit" class="btn-primario flex-1">Salva</button>
+                        {% if not isNew and event.isPublished %}
+                            <a href="{{ route('events.show', { slug: event.slug }) }}" target="_blank" rel="noopener" class="btn-secondario">
+                                {{ include('components/icon.twig', { name: 'external', class: 'h-4 w-4' }) }}
+                                Vedi
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Costi e posti</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {{ include('components/field.twig', {
+                        name: 'cost', label: 'Costo (euro)', type: 'text', inputmode: 'decimal',
+                        value: old('cost', isNew or not event.cost ? '' : event.cost|number_format(2, ',', '')),
+                        placeholder: '0,00',
+                        help: 'Lascia vuoto se l evento e gratuito.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'cost_note', label: 'Nota sul costo', maxlength: 150,
+                        value: old('cost_note', isNew ? '' : event.costNote),
+                        placeholder: 'viaggio e biglietto inclusi'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'limited_seats', label: 'Posti limitati', type: 'checkbox',
+                        value: old('limited_seats', isNew ? false : event.limitedSeats),
+                        help: 'Mostra un avviso sulla pagina. Le prenotazioni restano fuori dal sito.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'seats', label: 'Numero di posti', type: 'number', min: 0, max: 100000,
+                        value: old('seats', isNew ? '' : event.seats)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'contact_info', label: 'Riferimenti', maxlength: 255,
+                        value: old('contact_info', isNew ? '' : event.contactInfo),
+                        help: 'A chi rivolgersi per prenotare o chiedere informazioni.'
+                    }) }}
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Immagine</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {% if not isNew and event.imageKey %}
+                        <figure class="overflow-hidden rounded-card bg-sabbia-100">
+                            {{ include('components/responsive-image.twig', {
+                                key: event.imageKey, collection: 'events',
+                                alt: event.imageAlt ?? event.title, size: 'medium',
+                                class: 'aspect-[16/10] w-full object-cover', sizes: '400px'
+                            }) }}
+                        </figure>
+                        <label class="flex items-start gap-2 text-sm text-sabbia-700">
+                            <input type="checkbox" name="remove_image" value="1" class="campo-checkbox mt-0.5">
+                            <span>Rimuovi l immagine attuale</span>
+                        </label>
+                    {% endif %}
+
+                    {{ include('components/field.twig', {
+                        name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
+                        accept: 'image/jpeg,image/png,image/webp'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
+                        value: old('image_alt', isNew ? '' : event.imageAlt)
+                    }) }}
+                </div>
+            </section>
+        </div>
+    </form>
+{% endblock %}

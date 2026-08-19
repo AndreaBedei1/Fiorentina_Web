@@ -1,0 +1,217 @@
+/**
+ * Foglio di stile dell'area amministrativa.
+ *
+ * Interfaccia deliberatamente sobria: densita di informazione alta, colore
+ * usato solo dove porta significato. Chi gestisce i contenuti passa qui il
+ * proprio tempo e ha bisogno di leggere, non di essere impressionato.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    body {
+        -webkit-font-smoothing: antialiased;
+    }
+
+    :focus-visible {
+        outline: 2px solid theme('colors.viola.600');
+        outline-offset: 2px;
+        border-radius: 0.25rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+@layer components {
+    .focus-ring {
+        @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-viola-600;
+    }
+
+    .focus-ring-light {
+        @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+    }
+
+    /*
+     * Barra laterale del pannello.
+     *
+     * Scritta come regola esplicita invece che con utility condizionali: la
+     * combinazione "nascosta su mobile, sempre visibile su desktop, apribile a
+     * scomparsa" dipende dall ordine con cui Tailwind emette le classi, e
+     * quell ordine non e qualcosa su cui valga la pena scommettere. Cosi lo
+     * stato corretto vale anche prima che JavaScript sia stato caricato.
+     */
+    .pannello-laterale {
+        @apply fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto bg-viola-900;
+        transform: translateX(-100%);
+        transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pannello-laterale[data-open='true'] {
+        transform: translateX(0);
+    }
+
+    @media (min-width: 1024px) {
+        .pannello-laterale {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            transform: translateX(0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .pannello-laterale {
+            transition: none;
+        }
+    }
+
+    /* --- Superfici ------------------------------------------------------ */
+    .pannello {
+        @apply rounded-panel border border-sabbia-200 bg-white shadow-sm;
+    }
+
+    .pannello-testata {
+        @apply flex flex-wrap items-center justify-between gap-3 border-b border-sabbia-200 px-5 py-4;
+    }
+
+    .pannello-corpo {
+        @apply p-5;
+    }
+
+    /* --- Campi di modulo ------------------------------------------------ */
+    .campo-label {
+        @apply mb-1.5 block text-sm font-semibold text-viola-900;
+    }
+
+    .campo-label[data-required]::after {
+        content: ' *';
+        @apply text-rosso-700;
+    }
+
+    .campo-input {
+        @apply form-input w-full rounded-lg border-sabbia-500 bg-white px-3 py-2 text-sm text-sabbia-900
+               placeholder:text-sabbia-400
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/25;
+    }
+
+    .campo-input[aria-invalid='true'] {
+        @apply border-rosso-500 focus:border-rosso-600 focus:ring-rosso-500/25;
+    }
+
+    .campo-select {
+        @apply form-select w-full rounded-lg border-sabbia-500 bg-white px-3 py-2 text-sm text-sabbia-900
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/25;
+    }
+
+    .campo-textarea {
+        @apply form-textarea w-full rounded-lg border-sabbia-500 bg-white px-3 py-2 text-sm text-sabbia-900
+               placeholder:text-sabbia-400
+               focus:border-viola-500 focus:ring-2 focus:ring-viola-500/25;
+    }
+
+    .campo-checkbox {
+        @apply form-checkbox h-[1.125rem] w-[1.125rem] rounded border-sabbia-500 text-viola-700 focus:ring-2 focus:ring-viola-500/30;
+    }
+
+    .campo-errore {
+        @apply mt-1.5 flex items-start gap-1.5 text-sm font-medium text-rosso-700;
+    }
+
+    .campo-aiuto {
+        @apply mt-1.5 text-xs leading-relaxed text-sabbia-600;
+    }
+
+    /* --- Pulsanti ------------------------------------------------------- */
+    .btn {
+        @apply inline-flex min-h-[2.5rem] items-center justify-center gap-2 rounded-lg px-4 py-2
+               text-sm font-semibold transition focus-ring disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primario   { @apply btn bg-viola-800 text-white hover:bg-viola-900; }
+    .btn-accento    { @apply btn bg-rosso-600 text-white hover:bg-rosso-700; }
+    .btn-secondario { @apply btn border border-sabbia-300 bg-white text-viola-900 hover:border-viola-400 hover:bg-viola-50; }
+    .btn-fantasma   { @apply btn text-sabbia-700 hover:bg-sabbia-100 hover:text-viola-900; }
+    .btn-pericolo   { @apply btn border border-rosso-300 bg-white text-rosso-800 hover:border-rosso-500 hover:bg-rosso-50; }
+    .btn-piccolo    { @apply min-h-0 px-2.5 py-1.5 text-xs; }
+
+    /* --- Badge ---------------------------------------------------------- */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-2xs font-bold uppercase tracking-wide ring-1 ring-inset;
+    }
+
+    .badge-neutro    { @apply badge bg-sabbia-100 text-sabbia-800 ring-sabbia-300; }
+    .badge-successo  { @apply badge bg-emerald-50 text-emerald-900 ring-emerald-200; }
+    .badge-attenzione{ @apply badge bg-amber-50 text-amber-900 ring-amber-200; }
+    .badge-errore    { @apply badge bg-rosso-50 text-rosso-800 ring-rosso-200; }
+    .badge-info      { @apply badge bg-viola-50 text-viola-800 ring-viola-200; }
+
+    /* --- Tabelle -------------------------------------------------------- */
+    .tabella {
+        @apply w-full border-collapse text-sm;
+    }
+
+    .tabella thead th {
+        @apply border-b border-sabbia-200 bg-sabbia-50 px-4 py-3 text-left text-2xs font-bold uppercase tracking-wide text-sabbia-600;
+    }
+
+    .tabella tbody td {
+        @apply border-b border-sabbia-100 px-4 py-3 align-middle text-sabbia-800;
+    }
+
+    .tabella tbody tr:hover {
+        @apply bg-viola-50/40;
+    }
+
+    /*
+     * Su schermi stretti la tabella scorre orizzontalmente dentro il proprio
+     * contenitore. Le tabelle amministrative hanno molte colonne: comprimerle
+     * le renderebbe illeggibili, mentre lo scorrimento mantiene tutto usabile.
+     */
+    .tabella-scroll {
+        @apply -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0;
+    }
+}
+
+@layer utilities {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Barra di avanzamento del caricamento fotografie. */
+    .barra-avanzamento {
+        @apply h-2 w-full overflow-hidden rounded-full bg-sabbia-200;
+    }
+
+    .barra-avanzamento > span {
+        @apply block h-full rounded-full bg-viola-700 transition-all duration-300;
+    }
+
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}

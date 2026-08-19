@@ -1,0 +1,38 @@
+{# Layout delle pagine di accesso: riquadro centrato, nessuna navigazione. #}
+{% extends 'layouts/base.twig' %}
+
+{% set vite_entry = 'resources/js/admin.ts' %}
+
+{% block body_class %}bg-viola-950 text-sabbia-900 antialiased{% endblock %}
+
+{% block body %}
+    <main id="contenuto" class="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
+
+        <div class="absolute inset-0 -z-10 opacity-30" aria-hidden="true">
+            <div class="absolute -left-32 top-0 h-96 w-96 rounded-full bg-viola-500 blur-3xl"></div>
+            <div class="absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-rosso-700 blur-3xl"></div>
+        </div>
+
+        <div class="w-full max-w-md">
+            <a href="{{ route('home') }}" class="mx-auto mb-6 flex w-fit items-center gap-3 rounded-lg focus-ring-light">
+                <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20">
+                    <img src="/assets/logo.svg" alt="" width="30" height="30" class="h-7 w-7" aria-hidden="true">
+                </span>
+                <span class="font-display text-lg font-extrabold uppercase tracking-tight text-white">
+                    {{ setting('site_group_name', 'Baraonda Fiorentina') }}
+                </span>
+            </a>
+
+            <div class="rounded-panel bg-white p-6 shadow-panel sm:p-8">
+                {{ include('components/alerts.twig') }}
+                {% block card %}{% endblock %}
+            </div>
+
+            <p class="mt-6 text-center text-sm text-viola-300">
+                <a href="{{ route('home') }}" class="underline underline-offset-4 transition hover:text-white focus-ring-light rounded">
+                    Torna al sito pubblico
+                </a>
+            </p>
+        </div>
+    </main>
+{% endblock %}

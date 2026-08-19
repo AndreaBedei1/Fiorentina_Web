@@ -1,0 +1,223 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Amministratori',
+        description: 'Chi puo accedere al pannello. Gli account nascono solo da invito: non esiste una registrazione pubblica.'
+    }) }}
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        <div class="space-y-5 lg:col-span-2">
+
+            {# --- Elenco --- #}
+            <section class="pannello overflow-hidden">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Account</h2>
+                    <span class="text-xs text-sabbia-500">
+                        {{ statistics.active }} attivi, {{ statistics.pending }} in attesa, {{ statistics.blocked }} bloccati
+                    </span>
+                </div>
+
+                <div class="tabella-scroll">
+                    <table class="tabella">
+                        <caption class="sr-only">Elenco degli amministratori</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Persona</th>
+                                <th scope="col" class="w-40">Ruolo</th>
+                                <th scope="col" class="w-32">Stato</th>
+                                <th scope="col" class="w-36">Ultimo accesso</th>
+                                <th scope="col" class="w-52"><span class="sr-only">Azioni</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-viola-100 text-2xs font-bold text-viola-700" aria-hidden="true">
+                                                {{ user.name|iniziali }}
+                                            </span>
+                                            <span class="min-w-0">
+                                                <span class="block truncate font-semibold text-viola-900">
+                                                    {{ user.name }}
+                                                    {% if user.id == currentUserId %}
+                                                        <span class="ml-1 text-xs font-normal text-sabbia-500">(tu)</span>
+                                                    {% endif %}
+                                                </span>
+                                                <span class="block truncate text-xs text-sabbia-500">{{ user.email }}</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if user.id == currentUserId %}
+                                            <span class="badge {{ user.isSuperAdmin ? 'badge-info' : 'badge-neutro' }}">{{ user.roleLabel }}</span>
+                                        {% else %}
+                                            <form action="{{ route('admin.users.role', { id: user.id }) }}" method="post" class="flex items-center gap-1">
+                                                {{ csrf_field()|raw }}
+                                                <label for="ruolo-{{ user.id }}" class="sr-only">Ruolo di {{ user.name }}</label>
+                                                <select id="ruolo-{{ user.id }}" name="role" class="campo-select text-xs">
+                                                    <option value="ADMIN" {{ not user.isSuperAdmin ? 'selected' : '' }}>Amministratore</option>
+                                                    <option value="SUPER_ADMIN" {{ user.isSuperAdmin ? 'selected' : '' }}>Super amministratore</option>
+                                                </select>
+                                                <button type="submit" class="btn-fantasma btn-piccolo">
+                                                    <span class="sr-only">Cambia ruolo</span>
+                                                    {{ include('components/icon.twig', { name: 'check', class: 'h-3.5 w-3.5' }) }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ user.isActive ? 'badge-successo' : (user.isBlocked ? 'badge-errore' : 'badge-attenzione') }}">
+                                            {{ user.statusLabel }}
+                                        </span>
+                                    </td>
+                                    <td class="text-sm text-sabbia-600">
+                                        {{ user.lastLoginAt ? user.lastLoginAt|relativa : 'mai' }}
+                                    </td>
+                                    <td>
+                                        {% if user.id != currentUserId %}
+                                            <div class="flex flex-wrap items-center justify-end gap-1.5">
+                                                {% if user.isPending %}
+                                                    <form action="{{ route('admin.users.resend', { id: user.id }) }}" method="post">
+                                                        {{ csrf_field()|raw }}
+                                                        <button type="submit" class="btn-secondario btn-piccolo">
+                                                            {{ include('components/icon.twig', { name: 'mail', class: 'h-3.5 w-3.5' }) }}
+                                                            Reinvia invito
+                                                        </button>
+                                                    </form>
+                                                {% elseif user.isBlocked %}
+                                                    <form action="{{ route('admin.users.unblock', { id: user.id }) }}" method="post">
+                                                        {{ csrf_field()|raw }}
+                                                        <button type="submit" class="btn-secondario btn-piccolo">Sblocca</button>
+                                                    </form>
+                                                {% else %}
+                                                    {{ include('components/admin-delete-button.twig', {
+                                                        action: route('admin.users.block', { id: user.id }),
+                                                        label: 'Blocca', icon: 'shield',
+                                                        question: 'Bloccare questo account?'
+                                                    }) }}
+                                                {% endif %}
+
+                                                {{ include('components/admin-delete-button.twig', {
+                                                    action: route('admin.users.destroy', { id: user.id }),
+                                                    question: 'Disattivare questo account?'
+                                                }) }}
+                                            </div>
+                                        {% else %}
+                                            <div class="text-right">
+                                                <a href="{{ route('admin.profile') }}" class="btn-fantasma btn-piccolo">Il mio profilo</a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {# --- Inviti in attesa --- #}
+            {% if pendingInvites is not empty %}
+                <section class="pannello overflow-hidden">
+                    <div class="pannello-testata">
+                        <h2 class="font-display text-base font-bold text-viola-900">Inviti in attesa</h2>
+                    </div>
+
+                    <ul class="divide-y divide-sabbia-100" role="list">
+                        {% for invite in pendingInvites %}
+                            <li class="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-semibold text-viola-900">{{ invite.name }}</span>
+                                    <span class="block truncate text-xs text-sabbia-500">{{ invite.email }}</span>
+                                </span>
+                                <span class="text-xs text-sabbia-500">
+                                    scade il {{ invite.expires_at|data_numerica }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
+            {# --- Accessi recenti --- #}
+            <section class="pannello overflow-hidden">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Tentativi di accesso recenti</h2>
+                </div>
+
+                {% if recentAttempts is empty %}
+                    <p class="px-5 py-6 text-center text-sm text-sabbia-600">Nessun tentativo registrato.</p>
+                {% else %}
+                    <ul class="divide-y divide-sabbia-100" role="list">
+                        {% for attempt in recentAttempts %}
+                            <li class="flex flex-wrap items-center gap-3 px-5 py-2.5 text-sm">
+                                <span class="h-2 w-2 shrink-0 rounded-full {{ attempt.successful ? 'bg-emerald-500' : 'bg-rosso-500' }}" aria-hidden="true"></span>
+                                <span class="min-w-0 flex-1 truncate text-sabbia-800">{{ attempt.email }}</span>
+                                <span class="font-mono text-xs text-sabbia-500">{{ attempt.ip }}</span>
+                                <span class="text-xs text-sabbia-500">{{ attempt.attempted_at|data_ora }}</span>
+                                <span class="badge {{ attempt.successful ? 'badge-successo' : 'badge-errore' }}">
+                                    {{ attempt.successful ? 'riuscito' : 'fallito' }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+        </div>
+
+        {# --- Invito --- #}
+        <div class="lg:col-span-1">
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Invita un amministratore</h2>
+                </div>
+
+                <form action="{{ route('admin.users.invite') }}" method="post" class="pannello-corpo space-y-4">
+                    {{ csrf_field()|raw }}
+
+                    {{ include('components/field.twig', {
+                        name: 'name', label: 'Nome e cognome', required: true, maxlength: 120
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'email', label: 'Email', type: 'email', required: true, maxlength: 190
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'role', label: 'Ruolo', type: 'select',
+                        options: { 'ADMIN': 'Amministratore', 'SUPER_ADMIN': 'Super amministratore' },
+                        value: 'ADMIN',
+                        help: 'Il super amministratore puo gestire account, impostazioni e registro attivita.'
+                    }) }}
+
+                    <button type="submit" class="btn-primario w-full">
+                        {{ include('components/icon.twig', { name: 'mail', class: 'h-4 w-4' }) }}
+                        Invia l invito
+                    </button>
+
+                    <p class="text-xs leading-relaxed text-sabbia-600">
+                        La persona ricevera un collegamento monouso per scegliere la propria password.
+                        Nessuno, nemmeno tu, potra conoscerla.
+                    </p>
+                </form>
+            </section>
+
+            <section class="pannello mt-5">
+                <div class="pannello-corpo">
+                    <h2 class="flex items-center gap-2 font-display text-sm font-bold text-viola-900">
+                        {{ include('components/icon.twig', { name: 'shield', class: 'h-4 w-4 text-viola-600' }) }}
+                        Salvaguardie attive
+                    </h2>
+                    <ul class="mt-3 space-y-2 text-xs leading-relaxed text-sabbia-600" role="list">
+                        <li>Non e possibile bloccare, declassare o eliminare l ultimo super amministratore attivo.</li>
+                        <li>Non puoi bloccare o eliminare il tuo stesso account.</li>
+                        <li>Bloccando un account, le sue sessioni aperte vengono chiuse immediatamente.</li>
+                        <li>Un amministratore normale non puo modificare i privilegi di nessuno.</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

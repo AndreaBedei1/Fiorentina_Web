@@ -1,0 +1,46 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    <section class="mx-auto max-w-3xl px-4 py-section sm:px-6">
+        <div class="rounded-panel bg-white p-6 text-center shadow-panel sm:p-10">
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                {{ include('components/icon.twig', { name: 'check', class: 'h-8 w-8' }) }}
+            </span>
+
+            <h1 class="mt-5 font-display text-display-sm font-extrabold text-viola-900">Ordine ricevuto</h1>
+
+            <p class="mt-3 text-base leading-relaxed text-sabbia-700">
+                Grazie: la tua richiesta e stata registrata. Il numero d ordine e
+            </p>
+
+            <p class="mt-4 inline-block rounded-lg bg-viola-50 px-5 py-3 font-display text-2xl font-extrabold tracking-wide text-viola-900 ring-1 ring-viola-200">
+                {{ orderNumber }}
+            </p>
+
+            <p class="mt-4 text-sm text-sabbia-700">
+                {% if customerNotified %}
+                    Ti abbiamo inviato una email con il riepilogo. Se non la trovi, controlla anche la posta indesiderata.
+                {% else %}
+                    Conserva questo numero: non siamo riusciti a inviarti l email di riepilogo, ma la tua richiesta e comunque registrata.
+                {% endif %}
+            </p>
+
+            {% if paymentInstructions %}
+                <div class="mt-8 rounded-card bg-sabbia-50 p-5 text-left ring-1 ring-sabbia-200">
+                    <h2 class="font-display text-base font-bold text-viola-900">Come completare il pagamento</h2>
+                    <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-sabbia-800">{{ paymentInstructions }}</p>
+                </div>
+            {% endif %}
+
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{{ route('shop.index') }}" class="btn-primario">Torna al catalogo</a>
+                {% if contactEmail %}
+                    <a href="mailto:{{ contactEmail }}?subject=Ordine%20{{ orderNumber }}" class="btn-secondario">
+                        {{ include('components/icon.twig', { name: 'mail', class: 'h-4 w-4' }) }}
+                        Scrivi al responsabile
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

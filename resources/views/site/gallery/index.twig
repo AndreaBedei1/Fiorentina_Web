@@ -1,0 +1,77 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Archivio',
+        title: 'Galleria fotografica',
+        subtitle: 'Curva, trasferte, cene sociali e raduni: la storia del gruppo, album dopo album.'
+    }) }}
+
+    <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
+
+        {# --- Filtri --- #}
+        {% if years is not empty or categories is not empty %}
+            <div class="mb-8 space-y-4 border-b border-sabbia-200 pb-6">
+                {% if categories is not empty %}
+                    <nav aria-label="Filtra per tipo di album">
+                        <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Tipo</p>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('gallery.index') }}{{ activeYear ? '?anno=' ~ activeYear : '' }}"
+                               class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                      {{ activeCategory is null ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                               {{ activeCategory is null ? 'aria-current="true"' : '' }}>Tutti</a>
+
+                            {% for category, count in categories %}
+                                <a href="{{ route('gallery.index') }}?categoria={{ category }}{{ activeYear ? '&anno=' ~ activeYear : '' }}"
+                                   class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                          {{ activeCategory == category ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                                   {{ activeCategory == category ? 'aria-current="true"' : '' }}>
+                                    {{ category|capitalize }}
+                                    <span class="ml-1 text-2xs opacity-70">{{ count }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </nav>
+                {% endif %}
+
+                {% if years is not empty %}
+                    <nav aria-label="Filtra per anno">
+                        <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Anno</p>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('gallery.index') }}{{ activeCategory ? '?categoria=' ~ activeCategory : '' }}"
+                               class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                      {{ activeYear is null ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                               {{ activeYear is null ? 'aria-current="true"' : '' }}>Tutti</a>
+
+                            {% for year in years %}
+                                <a href="{{ route('gallery.index') }}?anno={{ year }}{{ activeCategory ? '&categoria=' ~ activeCategory : '' }}"
+                                   class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                          {{ activeYear == year ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                                   {{ activeYear == year ? 'aria-current="true"' : '' }}>{{ year }}</a>
+                            {% endfor %}
+                        </div>
+                    </nav>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if paginator.isEmpty %}
+            {{ include('components/empty-state.twig', {
+                icon: 'image',
+                title: 'Nessun album da mostrare',
+                message: 'Con i filtri selezionati non ci sono album pubblicati.',
+                action: { url: route('gallery.index'), label: 'Rimuovi i filtri' }
+            }) }}
+        {% else %}
+            <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                {% for album in paginator.items %}
+                    <li data-reveal style="--reveal-delay: {{ (loop.index0 % 3) * 80 }}ms">
+                        {{ include('components/album-card.twig', { album: album }) }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {{ include('components/pagination.twig', { paginator: paginator }) }}
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Immagine non disponibile">
+  <title>Immagine non disponibile</title>
+  <rect width="400" height="300" fill="#ece4f7"/>
+  <g fill="none" stroke="#9d76ce" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="128" y="104" width="144" height="104" rx="10"/>
+    <circle cx="164" cy="140" r="12"/>
+    <path d="m134 196 42-40 30 28 24-22 36 34"/>
+  </g>
+</svg>

@@ -1,0 +1,94 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Ordini',
+        description: 'Richieste ricevute dal sito. Il pagamento avviene sempre fuori dal sito.'
+    }) }}
+
+    {# --- Filtri rapidi per stato, con contatori --- #}
+    <nav class="mb-4 flex flex-wrap gap-2" aria-label="Filtra per stato">
+        <a href="{{ route('admin.orders.index') }}"
+           class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-ring
+                  {{ activeStatus is empty ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+           {{ activeStatus is empty ? 'aria-current="true"' : '' }}>Tutti</a>
+
+        {% for value, label in statuses %}
+            {% set count = counts[value]|default(0) %}
+            {% if count > 0 or activeStatus == value %}
+                <a href="{{ route('admin.orders.index') }}?stato={{ value }}"
+                   class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-ring
+                          {{ activeStatus == value ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                   {{ activeStatus == value ? 'aria-current="true"' : '' }}>
+                    {{ label }}
+                    <span class="ml-1 text-2xs opacity-70">{{ count }}</span>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </nav>
+
+    <form action="{{ route('admin.orders.index') }}" method="get" class="mb-4 flex flex-wrap items-end gap-3" role="search">
+        {% if activeStatus %}<input type="hidden" name="stato" value="{{ activeStatus }}">{% endif %}
+        <div class="min-w-0 flex-1 sm:max-w-xs">
+            <label for="filtro-ricerca" class="campo-label">Cerca</label>
+            <input type="search" id="filtro-ricerca" name="q" value="{{ search }}" class="campo-input"
+                   placeholder="Numero d ordine, nome o email">
+        </div>
+        <button type="submit" class="btn-primario">
+            {{ include('components/icon.twig', { name: 'search', class: 'h-4 w-4' }) }}
+            Filtra
+        </button>
+        {% if search %}<a href="{{ route('admin.orders.index') }}" class="btn-fantasma">Azzera</a>{% endif %}
+    </form>
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'cart', title: 'Nessun ordine',
+                message: 'Le richieste inviate dal sito compariranno qui.'
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Elenco degli ordini ricevuti</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="w-40">Numero</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col" class="w-28">Totale</th>
+                            <th scope="col" class="w-40">Stato</th>
+                            <th scope="col" class="w-32">Ricevuto</th>
+                            <th scope="col" class="w-24"><span class="sr-only">Azioni</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in paginator.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.orders.show', { id: order.id }) }}"
+                                       class="font-mono text-sm font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
+                                        {{ order.orderNumber }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="block font-semibold text-viola-900">{{ order.customerName }}</span>
+                                    <span class="block text-xs text-sabbia-500">{{ order.customerEmail }}</span>
+                                </td>
+                                <td class="font-semibold text-viola-900">{{ order.total|euro }}</td>
+                                <td><span class="badge {{ order.statusClasses }}">{{ order.statusLabel }}</span></td>
+                                <td class="text-sm text-sabbia-600">{{ order.createdAt|data_numerica }}</td>
+                                <td class="text-right">
+                                    <a href="{{ route('admin.orders.show', { id: order.id }) }}" class="btn-secondario btn-piccolo">
+                                        Apri
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

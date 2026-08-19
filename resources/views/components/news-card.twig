@@ -1,0 +1,46 @@
+{#
+  Card di una notizia.
+
+  L'intera card e cliccabile grazie a un collegamento esteso (::after), ma il
+  link vero resta sul titolo: la navigazione da tastiera e la lettura da parte
+  degli screen reader restano corrette, e il testo della card resta selezionabile.
+#}
+<article class="group relative flex flex-col overflow-hidden rounded-card bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-lift motion-reduce:hover:transform-none">
+    <div class="relative aspect-[16/10] overflow-hidden bg-sabbia-100">
+        {{ include('components/responsive-image.twig', {
+            key: article.imageKey,
+            collection: 'news',
+            alt: article.imageAlt ?? article.title,
+            class: 'h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none',
+            sizes: '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+        }) }}
+
+        {% if article.isFeatured %}
+            <span class="absolute left-3 top-3 rounded-md bg-rosso-600 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-white">
+                In evidenza
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="flex flex-1 flex-col p-5">
+        <time datetime="{{ article.publishedAt|iso }}" class="text-2xs font-bold uppercase tracking-[0.14em] text-rosso-700">
+            {{ article.publishedAt|data }}
+        </time>
+
+        <h3 class="mt-2 font-display text-lg font-bold leading-snug text-viola-900">
+            <a href="{{ route('news.show', { slug: article.slug }) }}"
+               class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
+                {{ article.title }}
+            </a>
+        </h3>
+
+        <p class="mt-2.5 flex-1 text-sm leading-relaxed text-sabbia-700">{{ article.summary(140) }}</p>
+
+        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-viola-800">
+            Leggi la notizia
+            <span class="transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+            </span>
+        </span>
+    </div>
+</article>

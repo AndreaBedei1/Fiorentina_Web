@@ -1,0 +1,186 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = article is null %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Nuova notizia' : 'Modifica notizia',
+        back: { url: route('admin.news.index'), label: 'Torna alle notizie' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.news.store') : route('admin.news.update', { id: article.id }) }}"
+          method="post" enctype="multipart/form-data" class="grid gap-5 lg:grid-cols-3">
+        {{ csrf_field()|raw }}
+
+        <div class="space-y-5 lg:col-span-2">
+
+            {# --- Testo --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Contenuto</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4" x-data="slugField"
+                     data-slug="{{ isNew ? '' : article.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+
+                    <div>
+                        <label for="campo-title" class="campo-label" data-required>Titolo</label>
+                        <input type="text" id="campo-title" name="title" required maxlength="200"
+                               value="{{ old('title', isNew ? '' : article.title) }}"
+                               @input="fromTitle"
+                               class="campo-input text-base"
+                               {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
+                        {% if has_error('title') %}
+                            <p class="campo-errore">
+                                {{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }}
+                                {{ error('title') }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
+                        <div class="flex items-center gap-2">
+                            <span class="shrink-0 text-sm text-sabbia-500">/notizie/</span>
+                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
+                                   maxlength="200" class="campo-input font-mono text-sm">
+                        </div>
+                        {% if not isNew %}
+                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
+                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
+                                <span>
+                                    Aggiorna anche l indirizzo pubblico
+                                    <span class="block text-xs text-sabbia-500">
+                                        Cambiandolo, i link gia condivisi smettono di funzionare.
+                                    </span>
+                                </span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'excerpt', label: 'Estratto', type: 'textarea', rows: 3, maxlength: 400,
+                        value: old('excerpt', isNew ? '' : article.excerpt),
+                        help: 'Poche righe di anteprima usate nelle card e nei risultati di ricerca.'
+                    }) }}
+
+                    <div>
+                        <label for="campo-content" class="campo-label">Testo della notizia</label>
+                        <textarea id="campo-content" name="content" rows="16" class="campo-textarea font-mono text-sm"
+                                  aria-describedby="campo-content-aiuto">{{ old('content', isNew ? '' : article.content) }}</textarea>
+                        <p id="campo-content-aiuto" class="campo-aiuto">
+                            Puoi usare HTML semplice: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;strong&gt;, &lt;em&gt;,
+                            &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;blockquote&gt;, &lt;a&gt;.
+                            Tutto il resto viene rimosso automaticamente per sicurezza.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {# --- SEO --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Motori di ricerca</h2>
+                    <span class="text-xs text-sabbia-500">Facoltativo</span>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {{ include('components/field.twig', {
+                        name: 'meta_title', label: 'Titolo per Google', maxlength: 200,
+                        value: old('meta_title', isNew ? '' : article.metaTitle),
+                        help: 'Se lasciato vuoto viene usato il titolo della notizia.'
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
+                        value: old('meta_description', isNew ? '' : article.metaDescription),
+                        help: 'Massimo 160 caratteri circa: oltre, Google taglia il testo.'
+                    }) }}
+                </div>
+            </section>
+        </div>
+
+        {# --- Colonna laterale --- #}
+        <div class="space-y-5 lg:col-span-1">
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Pubblicazione</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {{ include('components/field.twig', {
+                        name: 'status', label: 'Stato', type: 'select', options: statuses,
+                        value: old('status', isNew ? 'draft' : article.status)
+                    }) }}
+
+                    <div class="grid grid-cols-2 gap-3">
+                        {{ include('components/field.twig', {
+                            name: 'published_date', label: 'Data', type: 'date',
+                            value: old('published_date', isNew or not article.publishedAt ? '' : article.publishedAt|iso_data)
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'published_time', label: 'Ora', type: 'time',
+                            value: old('published_time', isNew or not article.publishedAt ? '' : article.publishedAt|ora)
+                        }) }}
+                    </div>
+                    <p class="campo-aiuto -mt-2">
+                        Lasciando vuota la data, pubblicando la notizia viene usato il momento attuale.
+                        Con una data futura la notizia resta programmata.
+                    </p>
+
+                    {{ include('components/field.twig', {
+                        name: 'is_featured', label: 'Metti in evidenza', type: 'checkbox',
+                        value: old('is_featured', isNew ? false : article.isFeatured),
+                        help: 'La notizia viene messa in risalto negli elenchi.'
+                    }) }}
+
+                    <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-4">
+                        <button type="submit" class="btn-primario flex-1">Salva</button>
+                        {% if not isNew and article.isPublished %}
+                            <a href="{{ route('news.show', { slug: article.slug }) }}" target="_blank" rel="noopener"
+                               class="btn-secondario">
+                                {{ include('components/icon.twig', { name: 'external', class: 'h-4 w-4' }) }}
+                                Vedi
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Immagine principale</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {% if not isNew and article.imageKey %}
+                        <figure class="overflow-hidden rounded-card bg-sabbia-100">
+                            {{ include('components/responsive-image.twig', {
+                                key: article.imageKey, collection: 'news',
+                                alt: article.imageAlt ?? article.title, size: 'medium',
+                                class: 'aspect-[16/10] w-full object-cover', sizes: '400px'
+                            }) }}
+                        </figure>
+
+                        <label class="flex items-start gap-2 text-sm text-sabbia-700">
+                            <input type="checkbox" name="remove_image" value="1" class="campo-checkbox mt-0.5">
+                            <span>Rimuovi l immagine attuale</span>
+                        </label>
+                    {% endif %}
+
+                    {{ include('components/field.twig', {
+                        name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
+                        accept: 'image/jpeg,image/png,image/webp',
+                        help: 'Formati accettati: JPG, PNG, WebP. Consigliato almeno 1200 pixel di larghezza.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
+                        value: old('image_alt', isNew ? '' : article.imageAlt),
+                        help: 'Descrive la fotografia a chi non puo vederla. Importante per l accessibilita.'
+                    }) }}
+                </div>
+            </section>
+        </div>
+    </form>
+{% endblock %}

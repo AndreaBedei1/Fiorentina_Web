@@ -1,0 +1,31 @@
+{#
+  Testata di pagina interna.
+
+  Il titolo e sempre un h1: ogni pagina ne ha uno e uno solo, ed e il primo
+  titolo che uno screen reader incontra dopo i punti di riferimento.
+#}
+<section class="relative isolate overflow-hidden bg-viola-900">
+    <div class="absolute inset-0 -z-10 opacity-30" aria-hidden="true">
+        <div class="absolute -left-24 -top-16 h-72 w-72 rounded-full bg-viola-500 blur-3xl"></div>
+        <div class="absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-rosso-700 blur-3xl"></div>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        {% if eyebrow is defined and eyebrow %}
+            <p class="mb-3 flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.18em] text-rosso-400">
+                <span class="h-px w-6 bg-rosso-500" aria-hidden="true"></span>
+                {{ eyebrow }}
+            </p>
+        {% endif %}
+
+        <h1 class="font-display text-display-md font-extrabold uppercase leading-tight text-white">{{ title }}</h1>
+
+        {% if subtitle is defined and subtitle %}
+            <p class="mt-4 max-w-2xl text-lg leading-relaxed text-viola-100">{{ subtitle }}</p>
+        {% endif %}
+
+        {% if slot is defined and slot %}
+            <div class="mt-6">{{ slot|raw }}</div>
+        {% endif %}
+    </div>
+</section>

@@ -1,0 +1,194 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    <article class="pb-section">
+
+        <header class="relative isolate overflow-hidden bg-viola-900">
+            {% if event.imageKey %}
+                <div class="absolute inset-0 -z-10" aria-hidden="true">
+                    {{ include('components/responsive-image.twig', {
+                        key: event.imageKey, collection: 'events', alt: '', eager: true,
+                        class: 'h-full w-full object-cover opacity-30', sizes: '100vw'
+                    }) }}
+                    <div class="absolute inset-0 bg-gradient-to-t from-viola-900 via-viola-900/85 to-viola-900/60"></div>
+                </div>
+            {% endif %}
+
+            <div class="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
+                <div class="flex flex-wrap items-center gap-2">
+                    {% if event.category %}
+                        <span class="inline-flex items-center gap-1.5 rounded-md bg-white/15 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+                            {{ include('components/icon.twig', { name: event.category.icon, class: 'h-3.5 w-3.5' }) }}
+                            {{ event.category.name }}
+                        </span>
+                    {% endif %}
+
+                    {% if event.isCancelled %}
+                        <span class="rounded-md bg-rosso-600 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-white">Annullato</span>
+                    {% elseif event.isPast %}
+                        <span class="rounded-md bg-white/10 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-viola-100">Concluso</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="mt-4 font-display text-display-md font-extrabold leading-tight text-white">{{ event.title }}</h1>
+
+                {% if event.shortDescription %}
+                    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-viola-100">{{ event.shortDescription }}</p>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="mx-auto max-w-5xl px-4 sm:px-6">
+            <div class="-mt-8 grid gap-6 lg:grid-cols-3">
+
+                {# --- Informazioni pratiche: in cima su mobile, e cio che serve davvero --- #}
+                <aside class="lg:order-2 lg:col-span-1">
+                    <div class="rounded-panel bg-white p-5 shadow-panel">
+                        <h2 class="font-display text-base font-bold text-viola-900">Informazioni</h2>
+
+                        <dl class="mt-4 space-y-4 text-sm">
+                            <div>
+                                <dt class="flex items-center gap-1.5 font-semibold text-viola-900">
+                                    {{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4 text-viola-500' }) }}
+                                    Data e ora
+                                </dt>
+                                <dd class="mt-1 pl-5.5 text-sabbia-700">
+                                    <time datetime="{{ event.startsAt|iso }}">{{ event.startsAt|data_estesa }}</time>,
+                                    ore {{ event.startsAt|ora }}
+                                    {% if event.endsAt %}
+                                        <br>fino al <time datetime="{{ event.endsAt|iso }}">{{ event.endsAt|data }}</time>
+                                    {% endif %}
+                                </dd>
+                            </div>
+
+                            {% if event.locationName or event.address %}
+                                <div>
+                                    <dt class="flex items-center gap-1.5 font-semibold text-viola-900">
+                                        {{ include('components/icon.twig', { name: 'pin', class: 'h-4 w-4 text-viola-500' }) }}
+                                        Luogo
+                                    </dt>
+                                    <dd class="mt-1 pl-5.5 text-sabbia-700">
+                                        {% if event.locationName %}<strong class="block text-viola-900">{{ event.locationName }}</strong>{% endif %}
+                                        {% if event.address %}{{ event.address }}<br>{% endif %}
+                                        {% if event.city %}{{ event.city }}{% endif %}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if event.meetingPoint %}
+                                <div>
+                                    <dt class="flex items-center gap-1.5 font-semibold text-viola-900">
+                                        {{ include('components/icon.twig', { name: 'flag', class: 'h-4 w-4 text-viola-500' }) }}
+                                        Punto di ritrovo
+                                    </dt>
+                                    <dd class="mt-1 pl-5.5 text-sabbia-700">
+                                        {{ event.meetingPoint }}
+                                        {% if event.meetingAt %}<br>ore {{ event.meetingAt|ora }}{% endif %}
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            <div>
+                                <dt class="flex items-center gap-1.5 font-semibold text-viola-900">
+                                    {{ include('components/icon.twig', { name: 'star', class: 'h-4 w-4 text-viola-500' }) }}
+                                    Costo
+                                </dt>
+                                <dd class="mt-1 pl-5.5 text-sabbia-700">{{ event.costLabel }}</dd>
+                            </div>
+
+                            {% if event.limitedSeats %}
+                                <div class="rounded-lg bg-amber-50 px-3 py-2.5 ring-1 ring-amber-200">
+                                    <dt class="flex items-center gap-1.5 font-semibold text-amber-900">
+                                        {{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }}
+                                        Posti limitati
+                                    </dt>
+                                    <dd class="mt-1 text-amber-900">
+                                        {% if event.seats %}Disponibili {{ event.seats }} posti.{% endif %}
+                                        La prenotazione si effettua in sede.
+                                    </dd>
+                                </div>
+                            {% endif %}
+
+                            {% if event.contactInfo %}
+                                <div>
+                                    <dt class="flex items-center gap-1.5 font-semibold text-viola-900">
+                                        {{ include('components/icon.twig', { name: 'mail', class: 'h-4 w-4 text-viola-500' }) }}
+                                        Riferimenti
+                                    </dt>
+                                    <dd class="mt-1 pl-5.5 text-sabbia-700">{{ event.contactInfo }}</dd>
+                                </div>
+                            {% endif %}
+                        </dl>
+
+                        {% if event.mapsUrl %}
+                            <a href="{{ event.mapsUrl }}" target="_blank" rel="noopener noreferrer"
+                               class="btn-secondario mt-5 w-full">
+                                {{ include('components/icon.twig', { name: 'pin', class: 'h-4 w-4' }) }}
+                                Apri la mappa
+                                <span class="sr-only">(si apre in una nuova scheda)</span>
+                            </a>
+                        {% endif %}
+
+                        <a href="{{ route('contact.show') }}" class="btn-accento mt-2 w-full">Chiedi informazioni</a>
+                    </div>
+                </aside>
+
+                {# --- Descrizione --- #}
+                <div class="lg:order-1 lg:col-span-2">
+                    <div class="rounded-panel bg-white p-6 shadow-panel sm:p-8">
+                        {% if event.imageKey %}
+                            <figure class="mb-6 overflow-hidden rounded-card">
+                                {{ include('components/responsive-image.twig', {
+                                    key: event.imageKey, collection: 'events',
+                                    alt: event.imageAlt ?? event.title,
+                                    class: 'w-full object-cover',
+                                    sizes: '(min-width: 1024px) 42rem, 100vw'
+                                }) }}
+                            </figure>
+                        {% endif %}
+
+                        {% if event.description %}
+                            <div class="contenuto">{{ event.description|raw }}</div>
+                        {% endif %}
+
+                        {% if event.info %}
+                            <div class="mt-6 rounded-card bg-viola-50 p-4 ring-1 ring-viola-200">
+                                <h2 class="flex items-center gap-1.5 font-display text-sm font-bold text-viola-900">
+                                    {{ include('components/icon.twig', { name: 'info', class: 'h-4 w-4' }) }}
+                                    Note utili
+                                </h2>
+                                <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-viola-900">{{ event.info }}</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-8 border-t border-sabbia-200 pt-5">
+                            <a href="{{ route('events.index') }}" class="btn-secondario">
+                                {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                                Tutti gli eventi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if upcoming is not empty %}
+            <section class="mt-section bg-white py-section" aria-labelledby="altri-eventi">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    {{ include('components/section-header.twig', {
+                        title: 'Prossimi appuntamenti', level: 'h2',
+                        link: { url: route('calendar.index'), label: 'Calendario completo' }
+                    }) }}
+
+                    <ul class="grid gap-4 lg:grid-cols-2" role="list">
+                        {% for item in upcoming %}
+                            {% if item.id != event.id %}
+                                <li>{{ include('components/event-card.twig', { event: item }) }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+        {% endif %}
+    </article>
+{% endblock %}

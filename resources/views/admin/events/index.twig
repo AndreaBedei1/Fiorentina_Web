@@ -1,0 +1,95 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Eventi',
+        description: 'Trasferte, riunioni, cene sociali e raduni del gruppo.',
+        action: { url: route('admin.events.create'), label: 'Nuovo evento' }
+    }) }}
+
+    {{ include('components/admin-filters.twig', {
+        action: route('admin.events.index'),
+        statuses: statuses, activeStatus: activeStatus, search: search,
+        searchPlaceholder: 'Titolo, luogo o citta'
+    }) }}
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'calendar', title: 'Nessun evento trovato',
+                message: 'Prova a cambiare i filtri, oppure crea il primo evento.',
+                action: { url: route('admin.events.create'), label: 'Nuovo evento' }
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Elenco degli eventi</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Evento</th>
+                            <th scope="col" class="w-36">Quando</th>
+                            <th scope="col" class="w-32">Categoria</th>
+                            <th scope="col" class="w-28">Stato</th>
+                            <th scope="col" class="w-40"><span class="sr-only">Azioni</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in paginator.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.events.edit', { id: event.id }) }}"
+                                       class="font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
+                                        {{ event.title }}
+                                    </a>
+                                    {% if event.locationLine %}
+                                        <span class="mt-0.5 block text-xs text-sabbia-500">{{ event.locationLine }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-sm">
+                                    <time datetime="{{ event.startsAt|iso }}">{{ event.startsAt|data_numerica }}</time>
+                                    <span class="block text-xs text-sabbia-500">{{ event.startsAt|ora }}</span>
+                                </td>
+                                <td>
+                                    {% if event.category %}
+                                        <span class="badge {{ event.category.badgeClasses }}">
+                                            {{ include('components/icon.twig', { name: event.category.icon, class: 'h-3 w-3' }) }}
+                                            {{ event.category.name }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-xs text-sabbia-400">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {{ event.status == 'published' ? 'badge-successo' : (event.status == 'cancelled' ? 'badge-errore' : 'badge-attenzione') }}">
+                                        {{ event.statusLabel }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="flex flex-wrap items-center justify-end gap-1.5">
+                                        {% if event.isPublished %}
+                                            <a href="{{ route('events.show', { slug: event.slug }) }}" target="_blank" rel="noopener"
+                                               class="btn-fantasma btn-piccolo">
+                                                {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
+                                                <span class="sr-only">Vedi sul sito</span>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ route('admin.events.edit', { id: event.id }) }}" class="btn-secondario btn-piccolo">
+                                            {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
+                                            Modifica
+                                        </a>
+                                        {{ include('components/admin-delete-button.twig', {
+                                            action: route('admin.events.destroy', { id: event.id }),
+                                            question: 'Eliminare questo evento?'
+                                        }) }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = match is null %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Aggiungi partita' : 'Modifica partita',
+        description: 'Le partite inserite o modificate a mano non vengono sovrascritte dalla sincronizzazione automatica.',
+        back: { url: route('admin.calendar.index'), label: 'Torna al calendario' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.calendar.store') : route('admin.calendar.update', { id: match.id }) }}"
+          method="post" class="max-w-2xl">
+        {{ csrf_field()|raw }}
+
+        <section class="pannello">
+            <div class="pannello-corpo space-y-4">
+                <div class="grid gap-3 sm:grid-cols-2">
+                    {{ include('components/field.twig', {
+                        name: 'home_team', label: 'Squadra di casa', required: true, maxlength: 100,
+                        value: old('home_team', isNew ? teamName : match.homeTeam)
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'away_team', label: 'Squadra ospite', required: true, maxlength: 100,
+                        value: old('away_team', isNew ? '' : match.awayTeam)
+                    }) }}
+                </div>
+
+                <p class="campo-aiuto -mt-2">
+                    Scrivi <strong>{{ teamName }}</strong> nel campo corretto: il sito capisce da solo
+                    se la partita e in casa o in trasferta.
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                    {{ include('components/field.twig', {
+                        name: 'competition', label: 'Competizione', required: true, maxlength: 100,
+                        value: old('competition', isNew ? 'Serie A' : match.competition)
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'round_label', label: 'Giornata o turno', maxlength: 60,
+                        value: old('round_label', isNew ? '' : match.roundLabel)
+                    }) }}
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                    {{ include('components/field.twig', {
+                        name: 'kickoff_date', label: 'Data', type: 'date', required: true,
+                        value: old('kickoff_date', isNew ? '' : match.kickoffAt|iso_data)
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'kickoff_time', label: 'Ora', type: 'time',
+                        value: old('kickoff_time', isNew ? '15:00' : match.kickoffAt|ora)
+                    }) }}
+                </div>
+
+                {{ include('components/field.twig', {
+                    name: 'venue', label: 'Stadio', maxlength: 150,
+                    value: old('venue', isNew ? '' : match.venue)
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'status', label: 'Stato', type: 'select', options: statuses,
+                    value: old('status', isNew ? 'scheduled' : match.status)
+                }) }}
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                    {{ include('components/field.twig', {
+                        name: 'home_score', label: 'Gol squadra di casa', type: 'number', min: 0, max: 99,
+                        value: old('home_score', isNew ? '' : match.homeScore),
+                        help: 'Da compilare solo a partita terminata.'
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'away_score', label: 'Gol squadra ospite', type: 'number', min: 0, max: 99,
+                        value: old('away_score', isNew ? '' : match.awayScore)
+                    }) }}
+                </div>
+
+                <div class="border-t border-sabbia-200 pt-4">
+                    <button type="submit" class="btn-primario">Salva partita</button>
+                </div>
+            </div>
+        </section>
+    </form>
+{% endblock %}

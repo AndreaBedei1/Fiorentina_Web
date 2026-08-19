@@ -1,0 +1,210 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Ordine ' ~ order.orderNumber,
+        description: 'Ricevuto il ' ~ order.createdAt|data_ora,
+        back: { url: route('admin.orders.index'), label: 'Torna agli ordini' }
+    }) }}
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        <div class="space-y-5 lg:col-span-2">
+
+            {# --- Articoli --- #}
+            <section class="pannello overflow-hidden">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Articoli richiesti</h2>
+                    <span class="badge {{ order.statusClasses }}">{{ order.statusLabel }}</span>
+                </div>
+
+                <div class="tabella-scroll">
+                    <table class="tabella">
+                        <caption class="sr-only">Articoli dell ordine {{ order.orderNumber }}</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Prodotto</th>
+                                <th scope="col" class="w-24">Prezzo</th>
+                                <th scope="col" class="w-16">Qta</th>
+                                <th scope="col" class="w-28">Totale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                                <tr>
+                                    <td>
+                                        <span class="font-semibold text-viola-900">{{ item.productName }}</span>
+                                        {% if item.variantLabel %}
+                                            <span class="mt-0.5 block text-xs text-sabbia-500">Variante: {{ item.variantLabel }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-sm">{{ item.unitPrice|euro }}</td>
+                                    <td class="text-sm font-semibold">{{ item.quantity }}</td>
+                                    <td class="text-sm font-semibold text-viola-900">{{ item.lineTotal|euro }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right text-sm text-sabbia-700">Subtotale</td>
+                                <td class="text-sm">{{ order.subtotal|euro }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right text-sm text-sabbia-700">
+                                    {{ order.isPickup ? 'Ritiro in sede' : 'Spedizione' }}
+                                </td>
+                                <td class="text-sm">{{ order.shippingCost|euro }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-right font-display text-base font-bold text-viola-900">Totale</td>
+                                <td class="font-display text-base font-extrabold text-viola-900">{{ order.total|euro }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            {# --- Storico stati --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Storico</h2>
+                </div>
+
+                <div class="pannello-corpo">
+                    <ol class="relative space-y-4 border-l-2 border-sabbia-200 pl-5">
+                        {% for entry in history %}
+                            <li class="relative">
+                                <span class="absolute -left-[1.6rem] top-1 h-3 w-3 rounded-full border-2 border-white bg-viola-600" aria-hidden="true"></span>
+                                <p class="text-sm font-semibold text-viola-900">
+                                    {{ entry.from_status ? 'Da "' ~ entry.from_status ~ '" a "' ~ entry.to_status ~ '"' : entry.to_status }}
+                                </p>
+                                <p class="text-xs text-sabbia-500">
+                                    {{ entry.created_at|data_ora }}
+                                    {% if entry.changed_by_name %} - {{ entry.changed_by_name }}{% endif %}
+                                </p>
+                                {% if entry.note %}
+                                    <p class="mt-1 text-sm text-sabbia-700">{{ entry.note }}</p>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </section>
+
+            {# --- Note interne --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Note interne</h2>
+                    <span class="text-xs text-sabbia-500">Non visibili al cliente</span>
+                </div>
+
+                <form action="{{ route('admin.orders.notes', { id: order.id }) }}" method="post" class="pannello-corpo">
+                    {{ csrf_field()|raw }}
+                    <label for="campo-admin-notes" class="sr-only">Note interne sull ordine</label>
+                    <textarea id="campo-admin-notes" name="admin_notes" rows="4" class="campo-textarea"
+                              placeholder="Annotazioni per il gruppo: chi segue l ordine, quando e stato pagato...">{{ order.adminNotes }}</textarea>
+                    <button type="submit" class="btn-secondario mt-3">Salva note</button>
+                </form>
+            </section>
+        </div>
+
+        {# --- Colonna laterale --- #}
+        <div class="space-y-5 lg:col-span-1">
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Aggiorna stato</h2>
+                </div>
+
+                <form action="{{ route('admin.orders.status', { id: order.id }) }}" method="post" class="pannello-corpo space-y-3">
+                    {{ csrf_field()|raw }}
+
+                    <div>
+                        <label for="campo-status" class="campo-label">Nuovo stato</label>
+                        <select id="campo-status" name="status" class="campo-select">
+                            {% for value, label in statuses %}
+                                <option value="{{ value }}" {{ order.status == value ? 'selected' : '' }}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="campo-note" class="campo-label">Nota (facoltativa)</label>
+                        <input type="text" id="campo-note" name="note" maxlength="255" class="campo-input"
+                               placeholder="Es. pagato con bonifico">
+                    </div>
+
+                    <button type="submit" class="btn-primario w-full">Aggiorna</button>
+                </form>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Cliente</h2>
+                </div>
+
+                <div class="pannello-corpo">
+                    <dl class="space-y-3 text-sm">
+                        <div>
+                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Nome</dt>
+                            <dd class="mt-0.5 font-semibold text-viola-900">{{ order.customerName }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Email</dt>
+                            <dd class="mt-0.5">
+                                <a href="mailto:{{ order.customerEmail }}" class="break-all text-viola-800 underline underline-offset-2 focus-ring rounded">
+                                    {{ order.customerEmail }}
+                                </a>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Telefono</dt>
+                            <dd class="mt-0.5">
+                                <a href="tel:{{ order.customerPhone|replace({' ': ''}) }}" class="text-viola-800 underline underline-offset-2 focus-ring rounded">
+                                    {{ order.customerPhone }}
+                                </a>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">
+                                {{ order.isPickup ? 'Ritiro' : 'Spedizione' }}
+                            </dt>
+                            <dd class="mt-0.5 text-sabbia-800">{{ order.shippingLine }}</dd>
+                        </div>
+                        {% if order.notes %}
+                            <div>
+                                <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Note del cliente</dt>
+                                <dd class="mt-0.5 whitespace-pre-line text-sabbia-800">{{ order.notes }}</dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-corpo space-y-2">
+                    <form action="{{ route('admin.orders.resend', { id: order.id }) }}" method="post">
+                        {{ csrf_field()|raw }}
+                        <button type="submit" class="btn-secondario w-full">
+                            {{ include('components/icon.twig', { name: 'mail', class: 'h-4 w-4' }) }}
+                            Reinvia il riepilogo al cliente
+                        </button>
+                    </form>
+
+                    {{ include('components/admin-delete-button.twig', {
+                        action: route('admin.orders.archive', { id: order.id }),
+                        label: 'Archivia ordine',
+                        icon: 'file',
+                        question: 'Archiviare questo ordine?',
+                        buttonClass: 'btn-pericolo w-full'
+                    }) }}
+
+                    <p class="text-xs leading-relaxed text-sabbia-500">
+                        Gli ordini non vengono mai eliminati dal database: archiviarli li toglie
+                        dall elenco, ma restano recuperabili.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

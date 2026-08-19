@@ -1,0 +1,41 @@
+{#
+  Immagine responsive.
+
+  Serve WebP con fallback JPEG, dichiara larghezza e altezza per riservare lo
+  spazio (evita lo spostamento del contenuto durante il caricamento) e usa il
+  caricamento pigro tranne dove indicato: sull'immagine di apertura ritardarlo
+  peggiorerebbe il tempo di visualizzazione percepito.
+
+  Parametri: key, collection, size, alt, class, ratio, eager, sizes
+#}
+{% set imageKey = key|default(null) %}
+{% set collection = collection|default('gallery') %}
+{% set size = size|default('medium') %}
+{% set eager = eager|default(false) %}
+
+{% if imageKey %}
+    <picture class="{{ wrapperClass|default('') }}">
+        <source type="image/webp"
+                srcset="{{ media_srcset(imageKey, collection, 'webp') }}"
+                sizes="{{ sizes|default('(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw') }}">
+        <img src="{{ media_url(imageKey, collection, size, 'jpg') }}"
+             srcset="{{ media_srcset(imageKey, collection, 'jpg') }}"
+             sizes="{{ sizes|default('(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw') }}"
+             alt="{{ alt|default('') }}"
+             {% if width is defined and width %}width="{{ width }}"{% endif %}
+             {% if height is defined and height %}height="{{ height }}"{% endif %}
+             loading="{{ eager ? 'eager' : 'lazy' }}"
+             decoding="{{ eager ? 'sync' : 'async' }}"
+             {% if eager %}fetchpriority="high"{% endif %}
+             class="{{ class|default('h-full w-full object-cover') }}">
+    </picture>
+{% else %}
+    {# Segnaposto: mai un riquadro vuoto, cosi il layout resta stabile. #}
+    <div class="{{ class|default('h-full w-full') }} flex items-center justify-center bg-gradient-to-br from-viola-100 to-viola-200"
+         role="img"
+         aria-label="{{ alt|default('Immagine non disponibile') }}">
+        <span class="text-viola-400">
+            {{ include('components/icon.twig', { name: 'image', class: 'h-10 w-10' }) }}
+        </span>
+    </div>
+{% endif %}

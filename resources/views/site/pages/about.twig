@@ -1,0 +1,91 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Il gruppo',
+        title: page.title,
+        subtitle: page.subtitle
+    }) }}
+
+    <div class="mx-auto max-w-5xl px-4 py-section sm:px-6 lg:px-8">
+
+        {% if page.heroImageKey %}
+            <figure class="-mt-16 mb-10 overflow-hidden rounded-panel shadow-panel">
+                {{ include('components/responsive-image.twig', {
+                    key: page.heroImageKey, collection: 'pages',
+                    alt: page.heroImageAlt ?? page.title, eager: true,
+                    class: 'w-full object-cover', sizes: '(min-width: 1024px) 64rem, 100vw'
+                }) }}
+            </figure>
+        {% endif %}
+
+        {% if page.intro %}
+            <p class="max-w-3xl text-xl leading-relaxed text-viola-900">{{ page.intro }}</p>
+        {% endif %}
+
+        {% if page.content %}
+            <div class="contenuto mt-8">{{ page.content|raw }}</div>
+        {% endif %}
+
+        {{ include('components/page-blocks.twig', { blocks: page.visibleBlocks }) }}
+
+        {# --- Organigramma --- #}
+        {% if members is not empty %}
+            <section class="mt-section" aria-labelledby="direttivo-title">
+                <h2 id="direttivo-title" class="font-display text-2xl font-bold text-viola-900">Chi guida il gruppo</h2>
+                <p class="mt-2 max-w-2xl text-base text-sabbia-700">
+                    Il direttivo e eletto dai soci e resta in carica per il mandato stabilito dallo statuto.
+                </p>
+
+                <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                    {% for member in members %}
+                        <li class="rounded-card bg-white p-5 text-center shadow-card">
+                            {% if member.hasPhoto %}
+                                <span class="mx-auto block h-24 w-24 overflow-hidden rounded-full bg-sabbia-100">
+                                    {{ include('components/responsive-image.twig', {
+                                        key: member.photoKey, collection: 'members',
+                                        alt: 'Fotografia di ' ~ member.fullName, size: 'thumb',
+                                        class: 'h-full w-full object-cover', sizes: '96px'
+                                    }) }}
+                                </span>
+                            {% else %}
+                                {# Avatar con iniziali: meglio di un riquadro vuoto o di una silhouette generica. #}
+                                <span class="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-viola-100 font-display text-2xl font-extrabold text-viola-700"
+                                      aria-hidden="true">
+                                    {{ member.initials }}
+                                </span>
+                            {% endif %}
+
+                            <p class="mt-4 font-display text-base font-bold text-viola-900">{{ member.fullName }}</p>
+
+                            {% if member.displayRole %}
+                                <p class="mt-0.5 text-2xs font-bold uppercase tracking-[0.12em] text-rosso-700">{{ member.displayRole }}</p>
+                            {% endif %}
+
+                            {% if member.memberSince %}
+                                <p class="mt-1 text-xs text-sabbia-500">Socio dal {{ member.memberSince }}</p>
+                            {% endif %}
+
+                            {% if member.bio %}
+                                <p class="mt-3 text-sm leading-relaxed text-sabbia-700">{{ member.bio }}</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        {# --- Invito finale --- #}
+        <section class="mt-section rounded-panel bg-gradient-to-br from-viola-800 to-viola-950 p-8 text-center sm:p-12">
+            <h2 class="font-display text-2xl font-extrabold text-white sm:text-3xl">Ti va di far parte di tutto questo?</h2>
+            <p class="mx-auto mt-3 max-w-xl text-base leading-relaxed text-viola-100">
+                Le iscrizioni sono aperte tutto l anno. Bastano un documento e pochi minuti in sede.
+            </p>
+            <a href="{{ route('page.join') }}"
+               class="mt-6 inline-flex items-center gap-2 rounded-lg bg-rosso-600 px-7 py-3.5 text-base font-bold text-white transition hover:bg-rosso-700 focus-ring-light">
+                Scopri come iscriverti
+                {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-5 w-5' }) }}
+            </a>
+        </section>
+    </div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{#
+  Paginazione.
+
+  Su schermi stretti mostriamo solo precedente/successiva piu il contatore: una
+  fila di numeri minuscoli sarebbe impossibile da centrare con il dito. Ogni
+  bersaglio tattile rispetta i 44 pixel raccomandati.
+#}
+{% if paginator.hasPages %}
+    <nav class="mt-10 flex flex-col items-center gap-4" aria-label="Paginazione dei risultati">
+        <p class="text-sm text-sabbia-600" role="status">
+            Risultati <strong class="font-semibold text-viola-900">{{ paginator.firstItemNumber }}-{{ paginator.lastItemNumber }}</strong>
+            su <strong class="font-semibold text-viola-900">{{ paginator.total }}</strong>
+        </p>
+
+        <div class="flex items-center gap-1.5">
+            {% if paginator.hasPrevious %}
+                <a href="{{ paginator.url(paginator.previousPage) }}" rel="prev"
+                   class="flex h-11 items-center gap-1.5 rounded-lg border border-sabbia-300 bg-white px-3 text-sm font-semibold text-viola-800 transition hover:border-viola-400 hover:bg-viola-50 focus-ring">
+                    {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                    <span class="hidden sm:inline">Precedente</span>
+                    <span class="sr-only sm:hidden">Pagina precedente</span>
+                </a>
+            {% else %}
+                <span class="flex h-11 items-center gap-1.5 rounded-lg border border-sabbia-200 bg-sabbia-50 px-3 text-sm font-semibold text-sabbia-400" aria-hidden="true">
+                    {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                    <span class="hidden sm:inline">Precedente</span>
+                </span>
+            {% endif %}
+
+            <div class="hidden items-center gap-1.5 sm:flex">
+                {% for page in paginator.window(2) %}
+                    {% if page is null %}
+                        <span class="px-1.5 text-sabbia-400" aria-hidden="true">...</span>
+                    {% elseif page == paginator.currentPage %}
+                        <span class="flex h-11 w-11 items-center justify-center rounded-lg bg-viola-800 text-sm font-bold text-white" aria-current="page">
+                            <span class="sr-only">Pagina</span>{{ page }}
+                        </span>
+                    {% else %}
+                        <a href="{{ paginator.url(page) }}"
+                           class="flex h-11 w-11 items-center justify-center rounded-lg border border-sabbia-300 bg-white text-sm font-semibold text-viola-800 transition hover:border-viola-400 hover:bg-viola-50 focus-ring">
+                            <span class="sr-only">Pagina </span>{{ page }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <span class="flex h-11 items-center rounded-lg border border-sabbia-300 bg-white px-3 text-sm font-semibold text-viola-900 sm:hidden">
+                {{ paginator.currentPage }} / {{ paginator.lastPage }}
+            </span>
+
+            {% if paginator.hasNext %}
+                <a href="{{ paginator.url(paginator.nextPage) }}" rel="next"
+                   class="flex h-11 items-center gap-1.5 rounded-lg border border-sabbia-300 bg-white px-3 text-sm font-semibold text-viola-800 transition hover:border-viola-400 hover:bg-viola-50 focus-ring">
+                    <span class="hidden sm:inline">Successiva</span>
+                    <span class="sr-only sm:hidden">Pagina successiva</span>
+                    {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+                </a>
+            {% else %}
+                <span class="flex h-11 items-center gap-1.5 rounded-lg border border-sabbia-200 bg-sabbia-50 px-3 text-sm font-semibold text-sabbia-400" aria-hidden="true">
+                    <span class="hidden sm:inline">Successiva</span>
+                    {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+                </span>
+            {% endif %}
+        </div>
+    </nav>
+{% endif %}

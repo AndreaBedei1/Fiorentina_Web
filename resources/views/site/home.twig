@@ -1,0 +1,262 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+
+    {# =====================================================================
+       APERTURA
+       Immagine di sfondo con sovrapposizione: il testo deve restare leggibile
+       qualunque fotografia venga caricata, quindi il gradiente non e
+       decorativo ma parte del contrasto.
+       ===================================================================== #}
+    <section class="relative isolate overflow-hidden bg-viola-950" aria-labelledby="hero-title">
+
+        <div class="absolute inset-0 -z-10" aria-hidden="true">
+            <img src="/assets/hero.svg"
+                 alt=""
+                 class="h-full w-full object-cover object-center opacity-45"
+                 fetchpriority="high"
+                 decoding="sync">
+            <div class="absolute inset-0 bg-gradient-to-b from-viola-950/70 via-viola-950/80 to-viola-950"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-viola-950/85 via-transparent to-transparent"></div>
+        </div>
+
+        <div class="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
+            <div class="max-w-3xl">
+                <p class="flex items-center gap-3 text-2xs font-bold uppercase tracking-[0.22em] text-rosso-400 sm:text-xs">
+                    <span class="h-px w-8 bg-rosso-500" aria-hidden="true"></span>
+                    Dal {{ setting('site_founded_year', 1998) }} sugli spalti
+                </p>
+
+                <h1 id="hero-title" class="mt-5 font-display text-display-lg font-extrabold uppercase leading-none text-white">
+                    {{ setting('home_hero_title', 'Siamo la Baraonda') }}
+                </h1>
+
+                <p class="mt-6 max-w-2xl text-lg leading-relaxed text-viola-100 sm:text-xl">
+                    {{ setting('home_hero_subtitle') }}
+                </p>
+
+                <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <a href="{{ route('page.join') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-rosso-600 px-7 py-4 text-base font-bold text-white shadow-lg transition hover:bg-rosso-700 focus-ring-light">
+                        {{ setting('home_cta_label', 'Diventa socio') }}
+                        {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-5 w-5' }) }}
+                    </a>
+
+                    <a href="{{ route('page.about') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white/25 bg-white/5 px-7 py-4 text-base font-bold text-white backdrop-blur-sm transition hover:border-white/50 hover:bg-white/10 focus-ring-light">
+                        Scopri il gruppo
+                    </a>
+
+                    {% if upcomingEvents is not empty %}
+                        <a href="{{ route('events.index') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-lg px-7 py-4 text-base font-semibold text-viola-100 underline underline-offset-4 transition hover:text-white focus-ring-light">
+                            Prossimi eventi
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Raccordo con la sezione seguente. #}
+        <div class="h-8 bg-gradient-to-b from-transparent to-sabbia-50" aria-hidden="true"></div>
+    </section>
+
+
+    {# =====================================================================
+       PROSSIMA PARTITA E PROSSIMI EVENTI
+       ===================================================================== #}
+    {% if nextMatch or upcomingEvents is not empty %}
+        <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8" aria-labelledby="appuntamenti-title">
+            <h2 id="appuntamenti-title" class="sr-only">Prossimi appuntamenti</h2>
+
+            <div class="grid gap-8 lg:grid-cols-5">
+
+                {% if nextMatch %}
+                    <div class="lg:col-span-2">
+                        <p class="mb-4 flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-rosso-700">
+                            <span class="h-px w-6 bg-rosso-600" aria-hidden="true"></span>
+                            Prossima partita
+                        </p>
+                        {{ include('components/match-card.twig', { match: nextMatch, showTeamLogos: showTeamLogos }) }}
+
+                        <a href="{{ route('calendar.index') }}"
+                           class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-viola-800 transition hover:text-viola-950 focus-ring rounded">
+                            Vedi tutto il calendario
+                            {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if upcomingEvents is not empty %}
+                    <div class="{{ nextMatch ? 'lg:col-span-3' : 'lg:col-span-5' }}">
+                        <p class="mb-4 flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-rosso-700">
+                            <span class="h-px w-6 bg-rosso-600" aria-hidden="true"></span>
+                            Appuntamenti Baraonda
+                        </p>
+
+                        <ul class="space-y-3" role="list">
+                            {% for event in upcomingEvents %}
+                                <li>{{ include('components/event-card.twig', { event: event }) }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <a href="{{ route('events.index') }}"
+                           class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-viola-800 transition hover:text-viola-950 focus-ring rounded">
+                            Tutti gli eventi
+                            {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# =====================================================================
+       ULTIME NOTIZIE
+       ===================================================================== #}
+    {% if latestNews is not empty %}
+        <section class="bg-white py-section" aria-labelledby="notizie-title">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {{ include('components/section-header.twig', {
+                    eyebrow: 'Dal gruppo',
+                    title: 'Ultime notizie',
+                    subtitle: 'Comunicazioni, iniziative e racconti dalle nostre trasferte.',
+                    link: { url: route('news.index'), label: 'Tutte le notizie' }
+                }) }}
+
+                <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                    {% for article in latestNews %}
+                        <li data-reveal style="--reveal-delay: {{ loop.index0 * 80 }}ms">
+                            {{ include('components/news-card.twig', { article: article }) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# =====================================================================
+       GALLERIA
+       ===================================================================== #}
+    {% if recentAlbums is not empty %}
+        <section class="py-section" aria-labelledby="galleria-title">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {{ include('components/section-header.twig', {
+                    eyebrow: 'Archivio',
+                    title: 'Le nostre fotografie',
+                    subtitle: 'Curva, trasferte, cene sociali: anni di storia raccolti album dopo album.',
+                    link: { url: route('gallery.index'), label: 'Scopri tutte le foto' }
+                }) }}
+
+                <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                    {% for album in recentAlbums %}
+                        <li data-reveal style="--reveal-delay: {{ loop.index0 * 80 }}ms">
+                            {{ include('components/album-card.twig', { album: album }) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# =====================================================================
+       MERCHANDISING
+       ===================================================================== #}
+    {% if featuredProducts is not empty %}
+        <section class="bg-white py-section" aria-labelledby="merch-title">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {{ include('components/section-header.twig', {
+                    eyebrow: 'Merchandising',
+                    title: 'Indossa i nostri colori',
+                    subtitle: 'Sciarpe, magliette e gadget ufficiali. Si ordina dal sito, si paga di persona o con bonifico.',
+                    link: { url: route('shop.index'), label: 'Vai al catalogo' }
+                }) }}
+
+                <ul class="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4" role="list">
+                    {% for product in featuredProducts %}
+                        <li data-reveal style="--reveal-delay: {{ loop.index0 * 70 }}ms">
+                            {{ include('components/product-card.twig', { product: product }) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# =====================================================================
+       SOCIAL
+       ===================================================================== #}
+    {% if socialPosts is not empty %}
+        <section class="py-section" aria-labelledby="social-title">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {{ include('components/section-header.twig', {
+                    eyebrow: 'Seguici',
+                    title: 'Sui social',
+                    subtitle: 'Gli ultimi contenuti pubblicati sui nostri profili.'
+                }) }}
+
+                <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6" role="list">
+                    {% for post in socialPosts %}
+                        <li>{{ include('components/social-card.twig', { post: post }) }}</li>
+                    {% endfor %}
+                </ul>
+
+                {% set links = social_links() %}
+                {% if links %}
+                    <div class="mt-8 flex flex-wrap justify-center gap-3">
+                        {% for link in links %}
+                            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+                               class="inline-flex items-center gap-2 rounded-lg border border-sabbia-300 bg-white px-4 py-2.5 text-sm font-semibold text-viola-800 transition hover:border-viola-400 hover:bg-viola-50 focus-ring">
+                                {{ include('components/icon.twig', { name: link.name, class: 'h-4 w-4' }) }}
+                                {{ link.label }}
+                                <span class="sr-only">(si apre in una nuova scheda)</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# =====================================================================
+       INVITO ALL'ISCRIZIONE
+       Obiettivo dichiarato del sito: aumentare gli iscritti. Sta in fondo,
+       dove chi ha letto tutto e piu propenso a compiere il passo.
+       ===================================================================== #}
+    <section class="relative isolate overflow-hidden bg-viola-900" aria-labelledby="cta-title">
+        <div class="absolute inset-0 -z-10 opacity-20" aria-hidden="true">
+            <div class="absolute -left-24 top-0 h-72 w-72 rounded-full bg-rosso-600 blur-3xl"></div>
+            <div class="absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-viola-400 blur-3xl"></div>
+        </div>
+
+        <div class="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-24">
+            <h2 id="cta-title" class="font-display text-display-md font-extrabold uppercase leading-tight text-white">
+                Entra nella Baraonda
+            </h2>
+
+            <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-viola-100">
+                Trasferte organizzate, cene sociali, coreografie, amicizie che durano.
+                Iscriversi e semplice: bastano pochi minuti.
+            </p>
+
+            <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{{ route('page.join') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-rosso-600 px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-rosso-700 focus-ring-light">
+                    Come iscriversi
+                    {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-5 w-5' }) }}
+                </a>
+
+                <a href="{{ route('contact.show') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white/25 px-8 py-4 text-base font-bold text-white transition hover:border-white/50 hover:bg-white/5 focus-ring-light">
+                    Fai una domanda
+                </a>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

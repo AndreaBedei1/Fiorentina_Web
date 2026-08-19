@@ -1,0 +1,90 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Registro attivita',
+        description: 'Traccia delle operazioni amministrative. E in sola lettura: un registro modificabile da chi vi compare non sarebbe un registro.'
+    }) }}
+
+    <form action="{{ route('admin.audit.index') }}" method="get" class="mb-4 flex flex-wrap items-end gap-3">
+        <div>
+            <label for="filtro-azione" class="campo-label">Azione</label>
+            <select id="filtro-azione" name="azione" class="campo-select w-56">
+                <option value="">Tutte</option>
+                {% for action in actions %}
+                    <option value="{{ action }}" {{ activeAction == action ? 'selected' : '' }}>{{ action }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="filtro-utente" class="campo-label">Amministratore</label>
+            <select id="filtro-utente" name="utente" class="campo-select w-56">
+                <option value="">Tutti</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {{ activeUser == user.id ? 'selected' : '' }}>{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn-primario">
+            {{ include('components/icon.twig', { name: 'search', class: 'h-4 w-4' }) }}
+            Filtra
+        </button>
+
+        {% if activeAction or activeUser %}
+            <a href="{{ route('admin.audit.index') }}" class="btn-fantasma">Azzera</a>
+        {% endif %}
+    </form>
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'file', title: 'Nessuna voce nel registro',
+                message: 'Le operazioni amministrative verranno registrate qui.'
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Registro delle attivita amministrative</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="w-40">Quando</th>
+                            <th scope="col" class="w-52">Chi</th>
+                            <th scope="col" class="w-48">Azione</th>
+                            <th scope="col">Dettaglio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in paginator.items %}
+                            <tr>
+                                <td class="text-sm text-sabbia-600">
+                                    <time datetime="{{ entry.createdAt|iso }}">{{ entry.createdAt|data_ora }}</time>
+                                </td>
+                                <td class="text-sm">
+                                    <span class="block truncate text-viola-900">{{ entry.actorLabel }}</span>
+                                    {% if entry.userRole %}
+                                        <span class="block text-xs text-sabbia-500">{{ entry.userRole }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {{ entry.isSensitive ? 'badge-errore' : 'badge-neutro' }} font-mono">
+                                        {{ entry.action }}
+                                    </span>
+                                </td>
+                                <td class="text-sm text-sabbia-700">
+                                    {{ entry.description }}
+                                    {% if entry.ip %}
+                                        <span class="mt-0.5 block font-mono text-xs text-sabbia-400">{{ entry.ip }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

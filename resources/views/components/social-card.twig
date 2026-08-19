@@ -1,0 +1,39 @@
+{#
+  Anteprima di un contenuto social.
+
+  L'immagine e servita dal nostro server (copia scaricata durante la
+  sincronizzazione): il visitatore non contatta mai i server di Meta, quindi
+  non c'e tracciamento di terze parti da dichiarare.
+#}
+{% set thumb = social_thumb(post) %}
+<article class="group relative overflow-hidden rounded-card bg-sabbia-100 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-lift motion-reduce:hover:transform-none">
+    <div class="aspect-square overflow-hidden">
+        {% if thumb %}
+            <img src="{{ thumb }}" alt="{{ post.alt }}" loading="lazy" decoding="async"
+                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none">
+        {% else %}
+            <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-viola-100 to-viola-200 p-4 text-center">
+                <p class="text-sm leading-relaxed text-viola-800">{{ post.shortCaption(110) }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-viola-950/90 via-viola-950/25 to-transparent p-4 opacity-0 transition duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+        <p class="line-clamp-3 text-xs leading-relaxed text-white">{{ post.shortCaption(120) }}</p>
+    </div>
+
+    <span class="absolute left-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 text-viola-900 backdrop-blur-sm">
+        {{ include('components/icon.twig', { name: post.provider, class: 'h-4 w-4' }) }}
+    </span>
+
+    {% if post.isVideo %}
+        <span class="absolute right-2.5 top-2.5 rounded-md bg-viola-950/70 px-2 py-1 text-2xs font-bold uppercase text-white backdrop-blur-sm">
+            Video
+        </span>
+    {% endif %}
+
+    <a href="{{ post.permalink }}" target="_blank" rel="noopener noreferrer"
+       class="absolute inset-0 rounded-card focus-ring">
+        <span class="sr-only">{{ post.alt }} - apri su {{ post.providerLabel }} (nuova scheda)</span>
+    </a>
+</article>

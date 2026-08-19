@@ -1,0 +1,17 @@
+{# Stato vuoto: dice cosa manca e, quando possibile, cosa fare. #}
+<div class="rounded-panel border border-dashed border-sabbia-300 bg-white px-6 py-14 text-center">
+    <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sabbia-100 text-sabbia-500">
+        {{ include('components/icon.twig', { name: icon|default('info'), class: 'h-7 w-7' }) }}
+    </span>
+    <p class="mt-4 font-display text-lg font-bold text-viola-900">{{ title }}</p>
+    {% if message is defined and message %}
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-sabbia-600">{{ message }}</p>
+    {% endif %}
+    {% if action is defined and action %}
+        <a href="{{ action.url }}"
+           class="mt-6 inline-flex items-center gap-2 rounded-lg bg-viola-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-viola-900 focus-ring">
+            {{ action.label }}
+            {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+        </a>
+    {% endif %}
+</div>

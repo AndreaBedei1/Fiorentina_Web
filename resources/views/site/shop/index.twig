@@ -1,0 +1,97 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Materiale ufficiale',
+        title: 'Merchandising',
+        subtitle: 'Sciarpe, magliette, felpe e gadget. Si ordina dal sito e si paga di persona o con bonifico: nessun pagamento online.'
+    }) }}
+
+    <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
+
+        {% if not shopEnabled %}
+            <div class="mb-8 flex items-start gap-3 rounded-card border border-amber-300 bg-amber-50 px-4 py-3.5 text-sm text-amber-900" role="status">
+                <span class="mt-0.5 shrink-0 text-amber-600">{{ include('components/icon.twig', { name: 'alert', class: 'h-5 w-5' }) }}</span>
+                <p>Gli ordini sono temporaneamente sospesi. Il catalogo resta consultabile: per informazioni
+                   <a href="{{ route('contact.show') }}" class="font-semibold underline underline-offset-2 focus-ring rounded">scrivici</a>.</p>
+            </div>
+        {% endif %}
+
+        {% if freeShippingThreshold > 0 %}
+            <p class="mb-6 rounded-card bg-viola-50 px-4 py-3 text-sm text-viola-900 ring-1 ring-viola-200">
+                Spedizione gratuita per ordini superiori a <strong>{{ freeShippingThreshold|euro }}</strong>.
+                In alternativa e sempre possibile il ritiro in sede.
+            </p>
+        {% endif %}
+
+        {# --- Filtri e ricerca --- #}
+        <div class="mb-8 flex flex-col gap-4 border-b border-sabbia-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
+            {% if categories is not empty %}
+                <nav aria-label="Filtra per categoria">
+                    <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Categoria</p>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('shop.index') }}"
+                           class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                  {{ activeCategory is null ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                           {{ activeCategory is null ? 'aria-current="true"' : '' }}>Tutto</a>
+
+                        {% for category in categories %}
+                            <a href="{{ route('shop.index') }}?categoria={{ category.slug }}"
+                               class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                      {{ activeCategory == category.slug ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                               {{ activeCategory == category.slug ? 'aria-current="true"' : '' }}>
+                                {{ category.name }}
+                                <span class="ml-1 text-2xs opacity-70">{{ category.productsCount }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </nav>
+            {% endif %}
+
+            <form action="{{ route('shop.index') }}" method="get" class="flex flex-wrap items-end gap-2" role="search">
+                {% if activeCategory %}<input type="hidden" name="categoria" value="{{ activeCategory }}">{% endif %}
+
+                <div>
+                    <label for="ricerca-prodotti" class="campo-label">Cerca</label>
+                    <input type="search" id="ricerca-prodotti" name="q" value="{{ search }}"
+                           placeholder="Nome del prodotto" class="campo-input sm:w-56">
+                </div>
+
+                <div>
+                    <label for="ordina-prodotti" class="campo-label">Ordina</label>
+                    <select id="ordina-prodotti" name="ordina" class="campo-select sm:w-44">
+                        <option value="" {{ sort == '' ? 'selected' : '' }}>Predefinito</option>
+                        <option value="recenti" {{ sort == 'recenti' ? 'selected' : '' }}>Piu recenti</option>
+                        <option value="prezzo-asc" {{ sort == 'prezzo-asc' ? 'selected' : '' }}>Prezzo crescente</option>
+                        <option value="prezzo-desc" {{ sort == 'prezzo-desc' ? 'selected' : '' }}>Prezzo decrescente</option>
+                        <option value="nome" {{ sort == 'nome' ? 'selected' : '' }}>Nome</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primario">
+                    {{ include('components/icon.twig', { name: 'search', class: 'h-4 w-4' }) }}
+                    Applica
+                </button>
+            </form>
+        </div>
+
+        {% if paginator.isEmpty %}
+            {{ include('components/empty-state.twig', {
+                icon: 'shirt',
+                title: 'Nessun prodotto trovato',
+                message: 'Prova a rimuovere i filtri oppure a cercare un altro termine.',
+                action: { url: route('shop.index'), label: 'Vedi tutto il catalogo' }
+            }) }}
+        {% else %}
+            <ul class="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4" role="list">
+                {% for product in paginator.items %}
+                    <li data-reveal style="--reveal-delay: {{ (loop.index0 % 4) * 60 }}ms">
+                        {{ include('components/product-card.twig', { product: product }) }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {{ include('components/pagination.twig', { paginator: paginator }) }}
+        {% endif %}
+    </section>
+{% endblock %}

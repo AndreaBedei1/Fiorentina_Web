@@ -1,0 +1,30 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Dal gruppo',
+        title: 'Notizie',
+        subtitle: 'Comunicazioni, racconti dalle trasferte e novita della Baraonda.'
+    }) }}
+
+    <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
+        {% if paginator.isEmpty %}
+            {{ include('components/empty-state.twig', {
+                icon: 'news',
+                title: 'Nessuna notizia pubblicata',
+                message: 'Le comunicazioni del gruppo compariranno qui appena verranno pubblicate.',
+                action: { url: route('home'), label: 'Torna alla home' }
+            }) }}
+        {% else %}
+            <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                {% for article in paginator.items %}
+                    <li data-reveal style="--reveal-delay: {{ (loop.index0 % 3) * 80 }}ms">
+                        {{ include('components/news-card.twig', { article: article }) }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {{ include('components/pagination.twig', { paginator: paginator }) }}
+        {% endif %}
+    </section>
+{% endblock %}

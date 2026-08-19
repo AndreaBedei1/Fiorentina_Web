@@ -1,0 +1,101 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Calendario partite',
+        description: 'Le partite arrivano dal fornitore configurato. Puoi aggiungerne o correggerne a mano: le partite modificate non vengono piu sovrascritte.',
+        action: { url: route('admin.calendar.create'), label: 'Aggiungi partita' }
+    }) }}
+
+    <div class="mb-5 flex flex-wrap items-center gap-3 rounded-panel border border-sabbia-200 bg-white px-5 py-4">
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-viola-900">
+                Fornitore: <span class="font-mono">{{ provider }}</span>
+            </p>
+            <p class="text-xs text-sabbia-600">
+                {% if lastSync %}
+                    Ultimo aggiornamento {{ lastSync|relativa }}{{ isStale ? ' (dati non recenti)' : '' }}.
+                {% else %}
+                    Mai sincronizzato.
+                {% endif %}
+                {% if provider == 'mock' %}
+                    I dati sono dimostrativi: inserisci una chiave API in FOOTBALL_API_KEY per usare quelli reali.
+                {% endif %}
+            </p>
+        </div>
+
+        <form action="{{ route('admin.calendar.sync') }}" method="post">
+            {{ csrf_field()|raw }}
+            <button type="submit" class="btn-secondario">
+                {{ include('components/icon.twig', { name: 'ball', class: 'h-4 w-4' }) }}
+                Sincronizza adesso
+            </button>
+        </form>
+    </div>
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'ball', title: 'Nessuna partita in calendario',
+                message: 'Sincronizza con il fornitore, oppure aggiungi le partite a mano.',
+                action: { url: route('admin.calendar.create'), label: 'Aggiungi partita' }
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Calendario delle partite</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="w-36">Data</th>
+                            <th scope="col">Partita</th>
+                            <th scope="col" class="w-32">Competizione</th>
+                            <th scope="col" class="w-28">Stato</th>
+                            <th scope="col" class="w-20">Origine</th>
+                            <th scope="col" class="w-36"><span class="sr-only">Azioni</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in paginator.items %}
+                            <tr>
+                                <td class="text-sm">
+                                    <time datetime="{{ match.kickoffAt|iso }}">{{ match.kickoffAt|data_numerica }}</time>
+                                    <span class="block text-xs text-sabbia-500">{{ match.kickoffAt|ora }}</span>
+                                </td>
+                                <td>
+                                    <span class="font-semibold text-viola-900">{{ match.title }}</span>
+                                    {% if match.hasScore %}
+                                        <span class="ml-2 font-display font-extrabold text-viola-900">{{ match.scoreLabel }}</span>
+                                    {% endif %}
+                                    <span class="mt-0.5 block text-xs text-sabbia-500">
+                                        {{ match.venueLabel }}{% if match.venue %} - {{ match.venue }}{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-sm text-sabbia-700">{{ match.competition }}</td>
+                                <td><span class="badge badge-neutro">{{ match.statusLabel }}</span></td>
+                                <td>
+                                    <span class="badge {{ match.isManual ? 'badge-info' : 'badge-neutro' }}">
+                                        {{ match.isManual ? 'manuale' : 'API' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <a href="{{ route('admin.calendar.edit', { id: match.id }) }}" class="btn-secondario btn-piccolo">
+                                            {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
+                                            Modifica
+                                        </a>
+                                        {{ include('components/admin-delete-button.twig', {
+                                            action: route('admin.calendar.destroy', { id: match.id }),
+                                            question: 'Eliminare?'
+                                        }) }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

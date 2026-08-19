@@ -1,0 +1,36 @@
+{% extends 'layouts/admin-auth.twig' %}
+
+{% block card %}
+    <h1 class="font-display text-xl font-bold text-viola-900">Accedi al pannello</h1>
+    <p class="mt-1.5 text-sm text-sabbia-600">
+        L area riservata e accessibile ai soli amministratori del gruppo.
+    </p>
+
+    <form action="{{ route('admin.login.submit') }}" method="post" class="mt-6 space-y-5">
+        {{ csrf_field()|raw }}
+
+        {{ include('components/field.twig', {
+            name: 'email', label: 'Email', type: 'email', required: true,
+            autocomplete: 'username', maxlength: 190
+        }) }}
+
+        <div>
+            <div class="flex items-baseline justify-between gap-2">
+                <label for="campo-password" class="campo-label" data-required>Password</label>
+                <a href="{{ route('admin.password.forgot') }}"
+                   class="text-sm font-semibold text-viola-800 underline underline-offset-2 hover:text-viola-950 focus-ring rounded">
+                    Password dimenticata?
+                </a>
+            </div>
+            <input type="password" id="campo-password" name="password" required
+                   autocomplete="current-password" class="campo-input">
+        </div>
+
+        <button type="submit" class="btn-primario w-full text-base">Accedi</button>
+    </form>
+
+    <p class="mt-6 border-t border-sabbia-200 pt-4 text-xs leading-relaxed text-sabbia-600">
+        Non esiste una registrazione pubblica: gli account vengono creati da un super
+        amministratore tramite invito.
+    </p>
+{% endblock %}

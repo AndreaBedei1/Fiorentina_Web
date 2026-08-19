@@ -1,0 +1,157 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Parliamone',
+        title: page ? page.title : 'Contatti',
+        subtitle: page ? page.subtitle : 'Scrivici per informazioni su iscrizioni, trasferte, materiale ed eventi.'
+    }) }}
+
+    <div class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
+        <div class="grid gap-8 lg:grid-cols-5">
+
+            {# --- Recapiti --- #}
+            <aside class="lg:col-span-2">
+                {% if page and page.intro %}
+                    <p class="text-base leading-relaxed text-sabbia-700">{{ page.intro }}</p>
+                {% endif %}
+
+                <dl class="mt-6 space-y-5">
+                    {% if setting('contact_email') %}
+                        <div class="flex gap-3">
+                            <dt class="shrink-0">
+                                <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-viola-100 text-viola-700">
+                                    {{ include('components/icon.twig', { name: 'mail', class: 'h-5 w-5' }) }}
+                                </span>
+                                <span class="sr-only">Email</span>
+                            </dt>
+                            <dd class="min-w-0 pt-1.5">
+                                <span class="block text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Email</span>
+                                <a href="mailto:{{ setting('contact_email') }}"
+                                   class="break-all font-semibold text-viola-900 underline underline-offset-2 hover:text-viola-700 focus-ring rounded">
+                                    {{ setting('contact_email') }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if setting('contact_phone') %}
+                        <div class="flex gap-3">
+                            <dt class="shrink-0">
+                                <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-viola-100 text-viola-700">
+                                    {{ include('components/icon.twig', { name: 'phone', class: 'h-5 w-5' }) }}
+                                </span>
+                                <span class="sr-only">Telefono</span>
+                            </dt>
+                            <dd class="pt-1.5">
+                                <span class="block text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Telefono</span>
+                                <a href="tel:{{ setting('contact_phone')|replace({' ': ''}) }}"
+                                   class="font-semibold text-viola-900 underline underline-offset-2 hover:text-viola-700 focus-ring rounded">
+                                    {{ setting('contact_phone') }}
+                                </a>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if setting('contact_address') %}
+                        <div class="flex gap-3">
+                            <dt class="shrink-0">
+                                <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-viola-100 text-viola-700">
+                                    {{ include('components/icon.twig', { name: 'pin', class: 'h-5 w-5' }) }}
+                                </span>
+                                <span class="sr-only">Sede</span>
+                            </dt>
+                            <dd class="pt-1.5">
+                                <span class="block text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Sede</span>
+                                <span class="whitespace-pre-line text-sabbia-800">{{ setting('contact_address') }}</span>
+                            </dd>
+                        </div>
+                    {% endif %}
+
+                    {% if setting('contact_opening_hours') %}
+                        <div class="flex gap-3">
+                            <dt class="shrink-0">
+                                <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-viola-100 text-viola-700">
+                                    {{ include('components/icon.twig', { name: 'clock', class: 'h-5 w-5' }) }}
+                                </span>
+                                <span class="sr-only">Orari</span>
+                            </dt>
+                            <dd class="pt-1.5">
+                                <span class="block text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Quando siamo aperti</span>
+                                <span class="whitespace-pre-line text-sabbia-800">{{ setting('contact_opening_hours') }}</span>
+                            </dd>
+                        </div>
+                    {% endif %}
+                </dl>
+
+                {% set links = social_links() %}
+                {% if links %}
+                    <div class="mt-8">
+                        <p class="mb-3 text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Seguici</p>
+                        <ul class="flex gap-2" role="list">
+                            {% for link in links %}
+                                <li>
+                                    <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+                                       class="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-viola-800 shadow-card transition hover:bg-viola-800 hover:text-white focus-ring">
+                                        <span class="sr-only">{{ link.label }} (si apre in una nuova scheda)</span>
+                                        {{ include('components/icon.twig', { name: link.name, class: 'h-5 w-5' }) }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </aside>
+
+            {# --- Modulo --- #}
+            <div class="lg:col-span-3">
+                <form action="{{ route('contact.send') }}" method="post" class="rounded-panel bg-white p-6 shadow-panel sm:p-8">
+                    {{ csrf_field()|raw }}
+                    <input type="hidden" name="form_started_at" value="{{ formStartedAt }}">
+
+                    {# Trappola anti-spam: fuori schermo, ignorata dalle persone. #}
+                    <div class="absolute left-[-9999px]" aria-hidden="true">
+                        <label for="website">Non compilare questo campo</label>
+                        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
+                    <h2 class="font-display text-xl font-bold text-viola-900">Scrivici</h2>
+                    <p class="mt-1.5 text-sm text-sabbia-600">
+                        I campi contrassegnati con l asterisco sono obbligatori.
+                    </p>
+
+                    <div class="mt-6 space-y-5">
+                        {{ include('components/field.twig', {
+                            name: 'name', label: 'Nome e cognome', required: true,
+                            autocomplete: 'name', maxlength: 120
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'email', label: 'Email', type: 'email', required: true,
+                            autocomplete: 'email', maxlength: 190,
+                            help: 'Ci serve per poterti rispondere.'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'subject', label: 'Oggetto', required: true, maxlength: 200,
+                            placeholder: 'Per esempio: informazioni sul tesseramento'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'message', label: 'Messaggio', type: 'textarea', required: true,
+                            rows: 6, maxlength: 5000,
+                            help: 'Almeno 20 caratteri.'
+                        }) }}
+                    </div>
+
+                    <button type="submit" class="btn-accento mt-6 w-full text-base sm:w-auto sm:px-8">
+                        {{ include('components/icon.twig', { name: 'mail', class: 'h-5 w-5' }) }}
+                        Invia il messaggio
+                    </button>
+
+                    <p class="mt-4 text-xs leading-relaxed text-sabbia-600">
+                        I dati inviati vengono usati solo per rispondere. Leggi la
+                        <a href="{{ route('page.privacy') }}" class="font-semibold text-viola-800 underline underline-offset-2 focus-ring rounded">privacy policy</a>.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

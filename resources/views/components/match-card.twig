@@ -1,0 +1,62 @@
+{#
+  Card della prossima partita.
+
+  Gli stemmi delle squadre compaiono solo se l'amministratore ha attivato la
+  relativa impostazione: sono marchi registrati dei club e l'uso va verificato.
+#}
+<div class="overflow-hidden rounded-panel bg-gradient-to-br from-viola-800 via-viola-900 to-viola-950 text-white shadow-panel">
+    <div class="flex items-center justify-between border-b border-white/10 px-5 py-3">
+        <span class="flex items-center gap-2 text-2xs font-bold uppercase tracking-[0.16em] text-viola-200">
+            {{ include('components/icon.twig', { name: 'ball', class: 'h-4 w-4' }) }}
+            {{ match.competition }}
+        </span>
+        <span class="rounded-md bg-white/10 px-2 py-1 text-2xs font-semibold">{{ match.venueLabel }}</span>
+    </div>
+
+    <div class="px-5 py-6">
+        <div class="flex items-center justify-center gap-4 sm:gap-6">
+            <div class="flex flex-1 flex-col items-center gap-2 text-center">
+                {% if showTeamLogos|default(false) and match.homeTeamLogo %}
+                    <img src="{{ match.homeTeamLogo }}" alt="" width="48" height="48" class="h-12 w-12 object-contain" loading="lazy" aria-hidden="true">
+                {% endif %}
+                <span class="font-display text-sm font-bold leading-tight sm:text-base">{{ match.homeTeam }}</span>
+            </div>
+
+            <div class="flex flex-col items-center">
+                {% if match.hasScore %}
+                    <span class="font-display text-2xl font-extrabold sm:text-3xl">{{ match.scoreLabel }}</span>
+                {% else %}
+                    <span class="font-display text-xl font-extrabold text-viola-300 sm:text-2xl" aria-hidden="true">vs</span>
+                    <span class="sr-only">contro</span>
+                {% endif %}
+            </div>
+
+            <div class="flex flex-1 flex-col items-center gap-2 text-center">
+                {% if showTeamLogos|default(false) and match.awayTeamLogo %}
+                    <img src="{{ match.awayTeamLogo }}" alt="" width="48" height="48" class="h-12 w-12 object-contain" loading="lazy" aria-hidden="true">
+                {% endif %}
+                <span class="font-display text-sm font-bold leading-tight sm:text-base">{{ match.awayTeam }}</span>
+            </div>
+        </div>
+
+        <dl class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-viola-200">
+            <div class="flex items-center gap-1.5">
+                <dt class="sr-only">Data</dt>
+                {{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4' }) }}
+                <dd><time datetime="{{ match.kickoffAt|iso }}">{{ match.kickoffAt|data_estesa }}</time></dd>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <dt class="sr-only">Orario</dt>
+                {{ include('components/icon.twig', { name: 'clock', class: 'h-4 w-4' }) }}
+                <dd>{{ match.kickoffAt|ora }}</dd>
+            </div>
+            {% if match.venue %}
+                <div class="flex items-center gap-1.5">
+                    <dt class="sr-only">Stadio</dt>
+                    {{ include('components/icon.twig', { name: 'pin', class: 'h-4 w-4' }) }}
+                    <dd>{{ match.venue }}</dd>
+                </div>
+            {% endif %}
+        </dl>
+    </div>
+</div>

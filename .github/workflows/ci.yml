@@ -1,0 +1,79 @@
+# Verifiche automatiche a ogni push e pull request.
+#
+# Riproduce esattamente i controlli che si eseguono in locale prima di
+# pubblicare: test, tipi TypeScript, build degli asset e contrasti WCAG.
+name: Verifiche
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Test e verifiche
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: baraonda
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, mbstring, fileinfo, gd, intl, exif, sodium
+          coverage: none
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Database di test
+        run: mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS baraonda_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+      - name: Configurazione
+        run: |
+          cp .env.example .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=root/' .env
+          sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=null/' .env
+
+      - name: Dipendenze PHP
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Chiave applicativa
+        run: php scripts/generate-key.php --write
+
+      - name: Schema del database
+        run: php scripts/migrate.php
+
+      - name: Test
+        run: vendor/bin/phpunit
+
+      - name: Contrasti WCAG
+        run: php scripts/check-contrast.php
+
+      - name: Dipendenze Node
+        run: npm ci
+
+      - name: Tipi TypeScript
+        run: npm run typecheck
+
+      - name: Build degli asset
+        run: npm run build

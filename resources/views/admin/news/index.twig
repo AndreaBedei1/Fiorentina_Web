@@ -1,0 +1,89 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Notizie',
+        description: 'Comunicazioni e racconti pubblicati sul sito. Le bozze non sono visibili al pubblico.',
+        action: { url: route('admin.news.create'), label: 'Nuova notizia' }
+    }) }}
+
+    {{ include('components/admin-filters.twig', {
+        action: route('admin.news.index'),
+        statuses: statuses,
+        activeStatus: activeStatus,
+        search: search,
+        searchPlaceholder: 'Titolo o estratto'
+    }) }}
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'news',
+                title: 'Nessuna notizia trovata',
+                message: 'Prova a cambiare i filtri, oppure scrivi la prima notizia.',
+                action: { url: route('admin.news.create'), label: 'Nuova notizia' }
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Elenco delle notizie</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Titolo</th>
+                            <th scope="col" class="w-32">Stato</th>
+                            <th scope="col" class="w-36">Pubblicazione</th>
+                            <th scope="col" class="w-24">Viste</th>
+                            <th scope="col" class="w-40"><span class="sr-only">Azioni</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in paginator.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.news.edit', { id: article.id }) }}"
+                                       class="font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
+                                        {{ article.title }}
+                                    </a>
+                                    {% if article.isFeatured %}
+                                        <span class="badge badge-info ml-1.5">In evidenza</span>
+                                    {% endif %}
+                                    <span class="mt-0.5 block text-xs text-sabbia-500">/{{ article.slug }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ article.status == 'published' ? 'badge-successo' : (article.status == 'archived' ? 'badge-neutro' : 'badge-attenzione') }}">
+                                        {{ article.statusLabel }}
+                                    </span>
+                                </td>
+                                <td class="text-sm">
+                                    {{ article.publishedAt ? article.publishedAt|data_numerica : '-' }}
+                                </td>
+                                <td class="text-sm">{{ article.views }}</td>
+                                <td>
+                                    <div class="flex flex-wrap items-center justify-end gap-1.5">
+                                        {% if article.isPublished %}
+                                            <a href="{{ route('news.show', { slug: article.slug }) }}" target="_blank" rel="noopener"
+                                               class="btn-fantasma btn-piccolo">
+                                                {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
+                                                <span class="sr-only">Vedi sul sito</span>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ route('admin.news.edit', { id: article.id }) }}" class="btn-secondario btn-piccolo">
+                                            {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
+                                            Modifica
+                                        </a>
+                                        {{ include('components/admin-delete-button.twig', {
+                                            action: route('admin.news.destroy', { id: article.id }),
+                                            question: 'Eliminare questa notizia?'
+                                        }) }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

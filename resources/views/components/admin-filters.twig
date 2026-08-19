@@ -1,0 +1,32 @@
+{#
+  Barra dei filtri di un elenco amministrativo: stato, ricerca testuale.
+  I filtri sono un modulo GET, quindi restano nell URL e sono condivisibili.
+#}
+<form action="{{ action }}" method="get" class="mb-4 flex flex-wrap items-end gap-3" role="search">
+    {% if statuses is defined and statuses %}
+        <div>
+            <label for="filtro-stato" class="campo-label">Stato</label>
+            <select id="filtro-stato" name="stato" class="campo-select w-44">
+                <option value="">Tutti</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {{ activeStatus == value ? 'selected' : '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+
+    <div class="min-w-0 flex-1 sm:max-w-xs">
+        <label for="filtro-ricerca" class="campo-label">Cerca</label>
+        <input type="search" id="filtro-ricerca" name="q" value="{{ search|default('') }}"
+               placeholder="{{ searchPlaceholder|default('Titolo o parola chiave') }}" class="campo-input">
+    </div>
+
+    <button type="submit" class="btn-primario">
+        {{ include('components/icon.twig', { name: 'search', class: 'h-4 w-4' }) }}
+        Filtra
+    </button>
+
+    {% if activeStatus or search %}
+        <a href="{{ action }}" class="btn-fantasma">Azzera</a>
+    {% endif %}
+</form>

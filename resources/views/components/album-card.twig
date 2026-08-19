@@ -1,0 +1,38 @@
+<article class="group relative overflow-hidden rounded-card bg-viola-950 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-lift motion-reduce:hover:transform-none">
+    <div class="aspect-[4/3] overflow-hidden">
+        {{ include('components/responsive-image.twig', {
+            key: album.coverPhoto ? album.coverPhoto.storageKey : null,
+            collection: 'gallery',
+            alt: album.coverPhoto ? album.coverPhoto.alt : ('Copertina dell album ' ~ album.title),
+            class: 'h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100 motion-reduce:transform-none',
+            sizes: '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+        }) }}
+    </div>
+
+    {# Sfumatura sotto il testo: garantisce il contrasto qualunque sia la foto. #}
+    <div class="absolute inset-0 bg-gradient-to-t from-viola-950 via-viola-950/55 to-transparent" aria-hidden="true"></div>
+
+    <div class="absolute inset-x-0 bottom-0 p-5">
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="rounded-md bg-white/15 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-white backdrop-blur-sm">
+                {{ album.categoryLabel }}
+            </span>
+            <span class="rounded-md bg-white/10 px-2 py-1 text-2xs font-semibold text-viola-100 backdrop-blur-sm">
+                {{ album.photosLabel }}
+            </span>
+        </div>
+
+        <h3 class="mt-2.5 font-display text-lg font-bold leading-snug text-white">
+            <a href="{{ route('gallery.show', { slug: album.slug }) }}"
+               class="rounded focus-ring after:absolute after:inset-0 after:content-['']">
+                {{ album.title }}
+            </a>
+        </h3>
+
+        {% if album.eventDate %}
+            <time datetime="{{ album.eventDate|iso_data }}" class="mt-1 block text-sm text-viola-200">
+                {{ album.eventDate|data }}
+            </time>
+        {% endif %}
+    </div>
+</article>

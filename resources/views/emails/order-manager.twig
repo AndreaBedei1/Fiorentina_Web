@@ -1,0 +1,83 @@
+{% extends 'emails/layout.twig' %}
+
+{% set preheader = 'Nuovo ordine ' ~ order.orderNumber ~ ' da ' ~ order.customerName ~ ' - ' ~ order.total|euro %}
+{% set headerNote = 'Nuovo ordine dal sito' %}
+
+{% block content %}
+    <p style="margin:0 0 6px; font-size:20px; font-weight:700; color:#2c1640;">Nuovo ordine {{ order.orderNumber }}</p>
+    <p style="margin:0 0 22px; font-size:14px; color:#82766a;">Ricevuto il {{ order.createdAt|data_ora }}</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background-color:#f6f3fb; border:1px solid #d8c9ee; border-radius:10px; margin-bottom:22px;">
+        <tr>
+            <td style="padding:16px 18px; font-size:14px; line-height:1.7; color:#3d3833;">
+                <strong style="color:#2c1640;">{{ order.customerName }}</strong><br>
+                Email: <a href="mailto:{{ order.customerEmail }}" style="color:#582d84;">{{ order.customerEmail }}</a><br>
+                Telefono: <a href="tel:{{ order.customerPhone|replace({' ': ''}) }}" style="color:#582d84;">{{ order.customerPhone }}</a><br>
+                <br>
+                <strong style="color:#2c1640;">{{ order.isPickup ? 'Ritiro in sede' : 'Spedizione' }}</strong><br>
+                {{ order.shippingLine }}
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:0 0 10px; font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#82766a;">Articoli richiesti</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin-bottom:20px;">
+        <tr>
+            <th align="left" style="padding:8px 0; border-bottom:2px solid #41215f; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#57504a;">Prodotto</th>
+            <th align="center" style="padding:8px 0; border-bottom:2px solid #41215f; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#57504a;">Qta</th>
+            <th align="right" style="padding:8px 0; border-bottom:2px solid #41215f; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#57504a;">Totale</th>
+        </tr>
+        {% for item in items %}
+            <tr>
+                <td style="padding:10px 0; border-bottom:1px solid #e7e3dc; font-size:14px; line-height:1.5;">
+                    <strong style="color:#2c1640;">{{ item.productName }}</strong>
+                    {% if item.variantLabel %}<br><span style="color:#82766a;">Variante: {{ item.variantLabel }}</span>{% endif %}
+                    <br><span style="color:#82766a;">{{ item.unitPrice|euro }} cadauno</span>
+                </td>
+                <td align="center" style="padding:10px 0; border-bottom:1px solid #e7e3dc; font-size:14px; font-weight:700; color:#2c1640;">{{ item.quantity }}</td>
+                <td align="right" style="padding:10px 0; border-bottom:1px solid #e7e3dc; font-size:14px; font-weight:700; color:#2c1640; white-space:nowrap;">{{ item.lineTotal|euro }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2" style="padding:10px 0; font-size:14px; color:#57504a;">Subtotale</td>
+            <td align="right" style="padding:10px 0; font-size:14px; color:#57504a;">{{ order.subtotal|euro }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:0 0 10px; font-size:14px; color:#57504a;">Spedizione</td>
+            <td align="right" style="padding:0 0 10px; font-size:14px; color:#57504a;">{{ order.shippingCost|euro }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:12px 0 0; border-top:2px solid #41215f; font-size:16px; font-weight:800; color:#2c1640;">Totale</td>
+            <td align="right" style="padding:12px 0 0; border-top:2px solid #41215f; font-size:18px; font-weight:800; color:#2c1640;">{{ order.total|euro }}</td>
+        </tr>
+    </table>
+
+    {% if order.notes %}
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="background-color:#faf9f7; border:1px solid #e7e3dc; border-radius:10px; margin-bottom:22px;">
+            <tr>
+                <td style="padding:14px 16px;">
+                    <p style="margin:0 0 6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#82766a;">Note del cliente</p>
+                    <p style="margin:0; font-size:14px; line-height:1.6; color:#3d3833; white-space:pre-line;">{{ order.notes }}</p>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="background-color:#cd2247; border-radius:8px;">
+                <a href="{{ site_url }}/admin/ordini/{{ order.id }}"
+                   style="display:inline-block; padding:12px 22px; font-size:15px; font-weight:700; color:#ffffff; text-decoration:none;">
+                    Apri l ordine nel pannello
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:18px 0 0; font-size:13px; line-height:1.6; color:#82766a;">
+        Rispondendo a questa email scrivi direttamente al cliente.
+    </p>
+{% endblock %}

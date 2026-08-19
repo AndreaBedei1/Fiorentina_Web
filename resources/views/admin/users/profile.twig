@@ -1,0 +1,113 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Il mio profilo',
+        description: 'Dati del tuo account e cambio password.'
+    }) }}
+
+    <div class="grid max-w-4xl gap-5 lg:grid-cols-2">
+
+        <section class="pannello">
+            <div class="pannello-testata">
+                <h2 class="font-display text-base font-bold text-viola-900">Dati personali</h2>
+                <span class="badge {{ user.isSuperAdmin ? 'badge-info' : 'badge-neutro' }}">{{ user.roleLabel }}</span>
+            </div>
+
+            <form action="{{ route('admin.profile.update') }}" method="post" class="pannello-corpo space-y-4">
+                {{ csrf_field()|raw }}
+
+                {{ include('components/field.twig', {
+                    name: 'name', label: 'Nome e cognome', required: true, maxlength: 120,
+                    value: old('name', user.name), autocomplete: 'name'
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'email', label: 'Email', type: 'email', required: true, maxlength: 190,
+                    value: old('email', user.email), autocomplete: 'email',
+                    help: 'E anche il nome utente con cui accedi.'
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'phone', label: 'Telefono', type: 'tel',
+                    value: old('phone', user.phone), autocomplete: 'tel'
+                }) }}
+
+                <button type="submit" class="btn-primario">Salva</button>
+            </form>
+        </section>
+
+        <section class="pannello">
+            <div class="pannello-testata">
+                <h2 class="font-display text-base font-bold text-viola-900">Cambia password</h2>
+            </div>
+
+            <form action="{{ route('admin.profile.password') }}" method="post" class="pannello-corpo space-y-4">
+                {{ csrf_field()|raw }}
+
+                <div>
+                    <label for="campo-current-password" class="campo-label" data-required>Password attuale</label>
+                    <input type="password" id="campo-current-password" name="current_password" required
+                           autocomplete="current-password" class="campo-input"
+                           {{ has_error('current_password') ? 'aria-invalid="true"' : '' }}>
+                    {% if has_error('current_password') %}
+                        <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('current_password') }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="campo-new-password" class="campo-label" data-required>Nuova password</label>
+                    <input type="password" id="campo-new-password" name="new_password" required
+                           autocomplete="new-password" class="campo-input"
+                           aria-describedby="campo-new-password-aiuto"
+                           {{ has_error('new_password') ? 'aria-invalid="true"' : '' }}>
+                    <p id="campo-new-password-aiuto" class="campo-aiuto">
+                        Almeno {{ minLength }} caratteri, combinando almeno tre fra minuscole, maiuscole, numeri e simboli.
+                    </p>
+                    {% if has_error('new_password') %}
+                        <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('new_password') }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="campo-new-password-conferma" class="campo-label" data-required>Ripeti la nuova password</label>
+                    <input type="password" id="campo-new-password-conferma" name="new_password_confirmation" required
+                           autocomplete="new-password" class="campo-input"
+                           {{ has_error('new_password_confirmation') ? 'aria-invalid="true"' : '' }}>
+                    {% if has_error('new_password_confirmation') %}
+                        <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('new_password_confirmation') }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="rounded-card bg-amber-50 px-3 py-2.5 text-sm text-amber-900 ring-1 ring-amber-200">
+                    Cambiando la password verrai disconnesso da tutti i dispositivi, incluso questo.
+                </div>
+
+                <button type="submit" class="btn-primario">Cambia password</button>
+            </form>
+        </section>
+
+        <section class="pannello lg:col-span-2">
+            <div class="pannello-corpo">
+                <dl class="grid gap-4 text-sm sm:grid-cols-3">
+                    <div>
+                        <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Ultimo accesso</dt>
+                        <dd class="mt-1 text-sabbia-800">
+                            {{ user.lastLoginAt ? user.lastLoginAt|data_ora : 'mai' }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Da quale indirizzo</dt>
+                        <dd class="mt-1 font-mono text-xs text-sabbia-600">{{ user.lastLoginIp ?? '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Password aggiornata</dt>
+                        <dd class="mt-1 text-sabbia-800">
+                            {{ user.passwordChangedAt ? user.passwordChangedAt|data : 'mai' }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+    </div>
+{% endblock %}

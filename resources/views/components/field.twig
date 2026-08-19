@@ -1,0 +1,134 @@
+{#
+  Campo di modulo accessibile.
+
+  Fa tre cose che i moduli scritti a mano spesso dimenticano:
+
+   1. collega l'etichetta al campo (for/id), cosi toccare l'etichetta sposta il
+      fuoco e gli screen reader leggono la domanda giusta;
+   2. collega messaggio d'errore e testo d'aiuto tramite aria-describedby, cosi
+      vengono letti insieme al campo e non restano informazioni "solo visive";
+   3. marca il campo con aria-invalid quando c'e un errore.
+
+  Parametri:
+    name        obbligatorio  nome del campo
+    label       obbligatorio  etichetta visibile
+    type        default text  text|email|tel|number|date|time|password|url|search|textarea|select|checkbox
+    value                     valore corrente (altrimenti si usa old())
+    required                  aggiunge required e l asterisco
+    help                      testo d aiuto sotto il campo
+    options     select        mappa valore => etichetta
+    rows        textarea      numero di righe
+    placeholder, autocomplete, min, max, step, inputmode, accept, multiple, disabled
+#}
+{% set type = type|default('text') %}
+{% set id = id|default('campo-' ~ name|replace({'[': '-', ']': '', '.': '-'})) %}
+{% set errorMessage = error is defined ? error : error(name) %}
+{% set hasError = errorMessage is not null and errorMessage is not empty %}
+{% set helpId = id ~ '-aiuto' %}
+{% set errorId = id ~ '-errore' %}
+{% set describedBy = [] %}
+{% if help is defined and help %}{% set describedBy = describedBy|merge([helpId]) %}{% endif %}
+{% if hasError %}{% set describedBy = describedBy|merge([errorId]) %}{% endif %}
+{% set currentValue = value is defined ? value : old(name) %}
+
+<div class="{{ wrapperClass|default('') }}">
+    {% if type == 'checkbox' %}
+        <div class="flex items-start gap-3">
+            <input type="checkbox"
+                   id="{{ id }}"
+                   name="{{ name }}"
+                   value="{{ checkboxValue|default('1') }}"
+                   class="campo-checkbox mt-0.5"
+                   {{ currentValue ? 'checked' : '' }}
+                   {{ disabled|default(false) ? 'disabled' : '' }}
+                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
+                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+            <div class="min-w-0">
+                <label for="{{ id }}" class="text-sm font-semibold text-viola-900">{{ label }}</label>
+                {% if help is defined and help %}
+                    <p id="{{ helpId }}" class="campo-aiuto">{{ help }}</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <label for="{{ id }}" class="campo-label" {{ required|default(false) ? 'data-required' : '' }}>
+            {{ label }}
+        </label>
+
+        {% if type == 'textarea' %}
+            <textarea id="{{ id }}"
+                      name="{{ name }}"
+                      rows="{{ rows|default(5) }}"
+                      class="campo-textarea"
+                      {{ placeholder is defined and placeholder ? 'placeholder="' ~ placeholder ~ '"' : '' }}
+                      {{ required|default(false) ? 'required' : '' }}
+                      {{ maxlength is defined ? 'maxlength="' ~ maxlength ~ '"' : '' }}
+                      {{ disabled|default(false) ? 'disabled' : '' }}
+                      {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
+                      {{ hasError ? 'aria-invalid="true"' : '' }}>{{ currentValue }}</textarea>
+
+        {% elseif type == 'select' %}
+            <select id="{{ id }}"
+                    name="{{ name }}"
+                    class="campo-select"
+                    {{ required|default(false) ? 'required' : '' }}
+                    {{ disabled|default(false) ? 'disabled' : '' }}
+                    {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
+                    {{ hasError ? 'aria-invalid="true"' : '' }}>
+                {% if placeholder is defined and placeholder %}
+                    <option value="">{{ placeholder }}</option>
+                {% endif %}
+                {% for optionValue, optionLabel in options|default({}) %}
+                    <option value="{{ optionValue }}" {{ currentValue is not null and currentValue|trim == optionValue|trim ? 'selected' : '' }}>
+                        {{ optionLabel }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        {% elseif type == 'file' %}
+            <input type="file"
+                   id="{{ id }}"
+                   name="{{ name }}"
+                   class="block w-full cursor-pointer rounded-lg border border-sabbia-300 bg-white text-sm text-sabbia-700
+                          file:mr-3 file:cursor-pointer file:border-0 file:bg-viola-50 file:px-4 file:py-2.5
+                          file:text-sm file:font-semibold file:text-viola-800 hover:file:bg-viola-100
+                          focus:border-viola-500 focus:outline-none focus:ring-2 focus:ring-viola-500/25"
+                   {{ accept is defined ? 'accept="' ~ accept ~ '"' : '' }}
+                   {{ multiple|default(false) ? 'multiple' : '' }}
+                   {{ required|default(false) ? 'required' : '' }}
+                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
+                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+
+        {% else %}
+            <input type="{{ type }}"
+                   id="{{ id }}"
+                   name="{{ name }}"
+                   value="{{ currentValue }}"
+                   class="campo-input"
+                   {{ placeholder is defined and placeholder ? 'placeholder="' ~ placeholder ~ '"' : '' }}
+                   {{ autocomplete is defined ? 'autocomplete="' ~ autocomplete ~ '"' : '' }}
+                   {{ inputmode is defined ? 'inputmode="' ~ inputmode ~ '"' : '' }}
+                   {{ min is defined ? 'min="' ~ min ~ '"' : '' }}
+                   {{ max is defined ? 'max="' ~ max ~ '"' : '' }}
+                   {{ step is defined ? 'step="' ~ step ~ '"' : '' }}
+                   {{ maxlength is defined ? 'maxlength="' ~ maxlength ~ '"' : '' }}
+                   {{ pattern is defined ? 'pattern="' ~ pattern ~ '"' : '' }}
+                   {{ required|default(false) ? 'required' : '' }}
+                   {{ disabled|default(false) ? 'disabled' : '' }}
+                   {{ readonly|default(false) ? 'readonly' : '' }}
+                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
+                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+        {% endif %}
+
+        {% if help is defined and help %}
+            <p id="{{ helpId }}" class="campo-aiuto">{{ help }}</p>
+        {% endif %}
+    {% endif %}
+
+    {% if hasError %}
+        <p id="{{ errorId }}" class="campo-errore">
+            <span class="mt-0.5 shrink-0">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }}</span>
+            {{ errorMessage }}
+        </p>
+    {% endif %}
+</div>

@@ -1,0 +1,98 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Prodotti',
+        description: 'Catalogo del merchandising. Gli ordini si ricevono dal sito e si pagano offline.',
+        action: { url: route('admin.products.create'), label: 'Nuovo prodotto' }
+    }) }}
+
+    {{ include('components/admin-filters.twig', {
+        action: route('admin.products.index'),
+        statuses: statuses, activeStatus: activeStatus, search: search,
+        searchPlaceholder: 'Nome del prodotto'
+    }) }}
+
+    <div class="pannello overflow-hidden">
+        {% if paginator.isEmpty %}
+            {{ include('components/admin-empty.twig', {
+                icon: 'shirt', title: 'Nessun prodotto',
+                message: 'Aggiungi il primo articolo al catalogo.',
+                action: { url: route('admin.products.create'), label: 'Nuovo prodotto' }
+            }) }}
+        {% else %}
+            <div class="tabella-scroll">
+                <table class="tabella">
+                    <caption class="sr-only">Elenco dei prodotti</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="w-16"><span class="sr-only">Immagine</span></th>
+                            <th scope="col">Prodotto</th>
+                            <th scope="col" class="w-28">Prezzo</th>
+                            <th scope="col" class="w-32">Disponibilita</th>
+                            <th scope="col" class="w-28">Stato</th>
+                            <th scope="col" class="w-40"><span class="sr-only">Azioni</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in paginator.items %}
+                            <tr>
+                                <td>
+                                    <span class="block h-11 w-11 overflow-hidden rounded-lg bg-sabbia-100">
+                                        {{ include('components/responsive-image.twig', {
+                                            key: product.primaryImage ? product.primaryImage.storageKey : null,
+                                            collection: 'products', alt: '', size: 'thumb',
+                                            class: 'h-full w-full object-cover', sizes: '44px'
+                                        }) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.products.edit', { id: product.id }) }}"
+                                       class="font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
+                                        {{ product.name }}
+                                    </a>
+                                    <span class="mt-0.5 block text-xs text-sabbia-500">
+                                        {{ product.categoryName ?? 'Senza categoria' }}
+                                        {% if product.hasVariants %} - {{ product.variants|length }} varianti{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-sm font-semibold text-viola-900">{{ product.price|euro }}</td>
+                                <td>
+                                    <span class="badge {{ product.isOrderable ? 'badge-successo' : 'badge-errore' }}">
+                                        {{ product.availabilityLabel }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ product.status == 'published' ? 'badge-successo' : (product.status == 'archived' ? 'badge-neutro' : 'badge-attenzione') }}">
+                                        {{ product.statusLabel }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="flex flex-wrap items-center justify-end gap-1.5">
+                                        {% if product.isPublished %}
+                                            <a href="{{ route('shop.show', { slug: product.slug }) }}" target="_blank" rel="noopener"
+                                               class="btn-fantasma btn-piccolo">
+                                                {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
+                                                <span class="sr-only">Vedi sul sito</span>
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ route('admin.products.edit', { id: product.id }) }}" class="btn-secondario btn-piccolo">
+                                            {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
+                                            Modifica
+                                        </a>
+                                        {{ include('components/admin-delete-button.twig', {
+                                            action: route('admin.products.destroy', { id: product.id }),
+                                            question: 'Eliminare questo prodotto?'
+                                        }) }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ include('components/pagination.twig', { paginator: paginator }) }}
+{% endblock %}

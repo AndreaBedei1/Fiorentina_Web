@@ -1,0 +1,300 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = product is null %}
+    {% set categoryOptions = {} %}
+    {% for category in categories %}{% set categoryOptions = categoryOptions|merge({ (category.id): category.name }) %}{% endfor %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Nuovo prodotto' : 'Modifica prodotto',
+        back: { url: route('admin.products.index'), label: 'Torna ai prodotti' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.products.store') : route('admin.products.update', { id: product.id }) }}"
+          method="post" enctype="multipart/form-data" class="grid gap-5 lg:grid-cols-3">
+        {{ csrf_field()|raw }}
+
+        <div class="space-y-5 lg:col-span-2">
+
+            {# --- Dati principali --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Dati del prodotto</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4" x-data="slugField"
+                     data-slug="{{ isNew ? '' : product.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+
+                    <div>
+                        <label for="campo-name" class="campo-label" data-required>Nome</label>
+                        <input type="text" id="campo-name" name="name" required maxlength="200"
+                               value="{{ old('name', isNew ? '' : product.name) }}"
+                               @input="fromTitle" class="campo-input text-base"
+                               {{ has_error('name') ? 'aria-invalid="true"' : '' }}>
+                        {% if has_error('name') %}
+                            <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('name') }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
+                        <div class="flex items-center gap-2">
+                            <span class="shrink-0 text-sm text-sabbia-500">/merchandising/</span>
+                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
+                                   maxlength="200" class="campo-input font-mono text-sm">
+                        </div>
+                        {% if not isNew %}
+                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
+                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
+                                <span>Aggiorna anche l indirizzo pubblico</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 300,
+                        value: old('short_description', isNew ? '' : product.shortDescription),
+                        help: 'Una riga: e quella che si legge nelle card del catalogo.'
+                    }) }}
+
+                    <div>
+                        <label for="campo-description" class="campo-label">Descrizione completa</label>
+                        <textarea id="campo-description" name="description" rows="8"
+                                  class="campo-textarea font-mono text-sm">{{ old('description', isNew ? '' : product.description) }}</textarea>
+                        <p class="campo-aiuto">Materiali, vestibilita, cura del capo. HTML semplice consentito.</p>
+                    </div>
+                </div>
+            </section>
+
+            {# --- Varianti --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Taglie e varianti</h2>
+                    <span class="text-xs text-sabbia-500">Facoltative</span>
+                </div>
+
+                <div class="pannello-corpo">
+                    <p class="mb-4 text-sm leading-relaxed text-sabbia-600">
+                        Se il prodotto ha taglie o colori, aggiungi una riga per ciascuna combinazione.
+                        Lasciando l elenco vuoto il prodotto viene venduto in versione unica.
+                    </p>
+
+                    {% set variantData = [] %}
+                    {% if not isNew %}
+                        {% for variant in product.variants %}
+                            {% set variantData = variantData|merge([{
+                                label: variant.label,
+                                size: variant.size,
+                                color: variant.color,
+                                sku: variant.sku,
+                                priceModifier: variant.priceModifier|number_format(2, '.', ''),
+                                quantity: variant.quantity,
+                                available: variant.isAvailable
+                            }]) %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <div x-data="variantEditor" data-variants="{{ variantData|json_encode|e('html_attr') }}">
+                        <div x-ref="rows" class="space-y-2">
+                            <template x-for="(row, index) in rows" :key="index">
+                                <div data-variant-row class="grid gap-2 rounded-card border border-sabbia-200 p-3 sm:grid-cols-12">
+                                    <div class="sm:col-span-3">
+                                        <label class="campo-label text-xs">Etichetta</label>
+                                        <input type="text" name="variant_label[]" x-model="row.label"
+                                               maxlength="80" placeholder="M" class="campo-input text-sm">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="campo-label text-xs">Taglia</label>
+                                        <input type="text" name="variant_size[]" x-model="row.size"
+                                               maxlength="40" class="campo-input text-sm">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="campo-label text-xs">Colore</label>
+                                        <input type="text" name="variant_color[]" x-model="row.color"
+                                               maxlength="40" class="campo-input text-sm">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="campo-label text-xs">Diff. prezzo</label>
+                                        <input type="text" name="variant_price_modifier[]" x-model="row.priceModifier"
+                                               inputmode="decimal" placeholder="0" class="campo-input text-sm">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="campo-label text-xs">Giacenza</label>
+                                        <input type="number" name="variant_quantity[]" x-model="row.quantity"
+                                               min="0" class="campo-input text-sm">
+                                    </div>
+                                    <div class="flex items-end justify-between gap-2 sm:col-span-1">
+                                        <label class="flex items-center gap-1.5 pb-2 text-xs">
+                                            <input type="checkbox" name="variant_available[]" value="1"
+                                                   x-model="row.available" class="campo-checkbox">
+                                            <span class="sr-only">Disponibile</span>
+                                        </label>
+                                        <button type="button" @click="remove"
+                                                class="mb-1 flex h-8 w-8 items-center justify-center rounded text-sabbia-500 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
+                                            <span class="sr-only">Rimuovi variante</span>
+                                            {{ include('components/icon.twig', { name: 'trash', class: 'h-4 w-4' }) }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <button type="button" @click="add" class="btn-secondario btn-piccolo mt-3">
+                            {{ include('components/icon.twig', { name: 'plus', class: 'h-3.5 w-3.5' }) }}
+                            Aggiungi variante
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            {# --- SEO --- #}
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Motori di ricerca</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {{ include('components/field.twig', {
+                        name: 'meta_title', label: 'Titolo per Google', maxlength: 200,
+                        value: old('meta_title', isNew ? '' : product.metaTitle)
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
+                        value: old('meta_description', isNew ? '' : product.metaDescription)
+                    }) }}
+                </div>
+            </section>
+        </div>
+
+        {# --- Colonna laterale --- #}
+        <div class="space-y-5 lg:col-span-1">
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Prezzo e stato</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    <div>
+                        <label for="campo-price" class="campo-label" data-required>Prezzo (euro)</label>
+                        <input type="text" id="campo-price" name="price" required inputmode="decimal"
+                               value="{{ old('price', isNew ? '' : product.price|number_format(2, ',', '')) }}"
+                               placeholder="0,00" class="campo-input"
+                               {{ has_error('price') ? 'aria-invalid="true"' : '' }}>
+                        {% if has_error('price') %}
+                            <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('price') }}</p>
+                        {% endif %}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'compare_at_price', label: 'Prezzo di listino', type: 'text', inputmode: 'decimal',
+                        value: old('compare_at_price', isNew or not product.compareAtPrice ? '' : product.compareAtPrice|number_format(2, ',', '')),
+                        help: 'Se superiore al prezzo, viene mostrato barrato con la percentuale di sconto.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'status', label: 'Stato', type: 'select', options: statuses,
+                        value: old('status', isNew ? 'draft' : product.status)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'availability', label: 'Disponibilita', type: 'select', options: availabilities,
+                        value: old('availability', isNew ? 'in_stock' : product.availability)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'category_id', label: 'Categoria', type: 'select',
+                        options: categoryOptions, placeholder: 'Senza categoria',
+                        value: old('category_id', isNew ? '' : product.categoryId)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'is_featured', label: 'In evidenza in homepage', type: 'checkbox',
+                        value: old('is_featured', isNew ? false : product.isFeatured)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'track_quantity', label: 'Gestisci la giacenza', type: 'checkbox',
+                        value: old('track_quantity', isNew ? false : product.trackQuantity),
+                        help: 'Attivalo solo se tieni davvero il conto dei pezzi in magazzino.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'quantity', label: 'Pezzi disponibili', type: 'number', min: 0,
+                        value: old('quantity', isNew ? '' : product.quantity)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'sort_order', label: 'Ordinamento', type: 'number', min: 0, max: 9999,
+                        value: old('sort_order', isNew ? 0 : product.sortOrder)
+                    }) }}
+
+                    <div class="border-t border-sabbia-200 pt-4">
+                        <button type="submit" class="btn-primario w-full">Salva prodotto</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Immagini</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {% if not isNew and product.images is not empty %}
+                        <ul class="grid grid-cols-3 gap-2" role="list">
+                            {% for image in product.images %}
+                                <li class="overflow-hidden rounded-card border {{ image.isPrimary ? 'border-viola-500 ring-2 ring-viola-200' : 'border-sabbia-200' }}">
+                                    <span class="block aspect-square overflow-hidden bg-sabbia-100">
+                                        {{ include('components/responsive-image.twig', {
+                                            key: image.storageKey, collection: 'products',
+                                            alt: image.alt(product.name), size: 'thumb',
+                                            class: 'h-full w-full object-cover', sizes: '120px'
+                                        }) }}
+                                    </span>
+                                    <div class="flex items-center justify-between gap-1 p-1">
+                                        {% if not image.isPrimary %}
+                                            <form action="{{ route('admin.products.image.primary', { id: product.id, imageId: image.id }) }}" method="post">
+                                                {{ csrf_field()|raw }}
+                                                <button type="submit" title="Usa come principale"
+                                                        class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-sabbia-100 focus-ring">
+                                                    <span class="sr-only">Usa come immagine principale</span>
+                                                    {{ include('components/icon.twig', { name: 'star', class: 'h-3.5 w-3.5' }) }}
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="flex h-7 w-7 items-center justify-center text-amber-500" title="Immagine principale">
+                                                <span class="sr-only">Immagine principale</span>
+                                                {{ include('components/icon.twig', { name: 'star', class: 'h-3.5 w-3.5' }) }}
+                                            </span>
+                                        {% endif %}
+
+                                        <form action="{{ route('admin.products.image.destroy', { id: product.id, imageId: image.id }) }}" method="post">
+                                            {{ csrf_field()|raw }}
+                                            <button type="submit"
+                                                    class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
+                                                <span class="sr-only">Elimina immagine</span>
+                                                {{ include('components/icon.twig', { name: 'trash', class: 'h-3.5 w-3.5' }) }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {{ include('components/field.twig', {
+                        name: 'images[]', label: 'Aggiungi immagini', type: 'file', multiple: true,
+                        accept: 'image/jpeg,image/png,image/webp',
+                        help: 'Puoi selezionarne piu di una. La prima caricata diventa l immagine principale.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'image_alt', label: 'Testo alternativo', maxlength: 300,
+                        help: 'Descrive il prodotto a chi non puo vedere le immagini.'
+                    }) }}
+                </div>
+            </section>
+        </div>
+    </form>
+{% endblock %}

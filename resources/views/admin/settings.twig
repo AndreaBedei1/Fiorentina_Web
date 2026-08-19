@@ -1,0 +1,83 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Impostazioni',
+        description: 'Valori modificabili senza toccare il codice. Le chiavi API e le credenziali della posta restano nel file .env, non qui.'
+    }) }}
+
+    <form action="{{ route('admin.settings.update') }}" method="post" class="max-w-4xl space-y-5">
+        {{ csrf_field()|raw }}
+
+        {% for group, items in groups %}
+            <section class="pannello" aria-labelledby="gruppo-{{ group }}">
+                <div class="pannello-testata">
+                    <h2 id="gruppo-{{ group }}" class="font-display text-base font-bold text-viola-900">
+                        {{ groupLabels[group]|default(group|capitalize) }}
+                    </h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4">
+                    {% for item in items %}
+                        {% set fieldId = 'impostazione-' ~ item.key_name %}
+
+                        {% if item.type == 'bool' %}
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" id="{{ fieldId }}" name="{{ item.key_name }}" value="1"
+                                       class="campo-checkbox mt-0.5"
+                                       {{ item.value == '1' ? 'checked' : '' }}
+                                       {{ item.description ? 'aria-describedby=' ~ fieldId ~ '-aiuto' : '' }}>
+                                <div class="min-w-0">
+                                    <label for="{{ fieldId }}" class="text-sm font-semibold text-viola-900">{{ item.label }}</label>
+                                    {% if item.description %}
+                                        <p id="{{ fieldId }}-aiuto" class="campo-aiuto">{{ item.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        {% elseif item.type == 'text' %}
+                            <div>
+                                <label for="{{ fieldId }}" class="campo-label">{{ item.label }}</label>
+                                <textarea id="{{ fieldId }}" name="{{ item.key_name }}" rows="4" class="campo-textarea"
+                                          {{ item.description ? 'aria-describedby=' ~ fieldId ~ '-aiuto' : '' }}>{{ item.value }}</textarea>
+                                {% if item.description %}
+                                    <p id="{{ fieldId }}-aiuto" class="campo-aiuto">{{ item.description }}</p>
+                                {% endif %}
+                            </div>
+
+                        {% elseif item.key_name == 'watermark_position' %}
+                            <div>
+                                <label for="{{ fieldId }}" class="campo-label">{{ item.label }}</label>
+                                <select id="{{ fieldId }}" name="{{ item.key_name }}" class="campo-select">
+                                    {% for value, label in watermarkPositions %}
+                                        <option value="{{ value }}" {{ item.value == value ? 'selected' : '' }}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if item.description %}
+                                    <p class="campo-aiuto">{{ item.description }}</p>
+                                {% endif %}
+                            </div>
+
+                        {% else %}
+                            <div>
+                                <label for="{{ fieldId }}" class="campo-label">{{ item.label }}</label>
+                                <input type="{{ item.type == 'email' ? 'email' : (item.type == 'url' ? 'url' : (item.type in ['int'] ? 'number' : 'text')) }}"
+                                       id="{{ fieldId }}" name="{{ item.key_name }}" value="{{ item.value }}"
+                                       class="campo-input"
+                                       {{ item.type == 'float' ? 'inputmode=decimal' : '' }}
+                                       {{ item.description ? 'aria-describedby=' ~ fieldId ~ '-aiuto' : '' }}>
+                                {% if item.description %}
+                                    <p id="{{ fieldId }}-aiuto" class="campo-aiuto">{{ item.description }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+
+        <div class="sticky bottom-0 rounded-panel border border-sabbia-200 bg-white/95 p-4 shadow-panel backdrop-blur">
+            <button type="submit" class="btn-primario w-full sm:w-auto sm:px-8">Salva tutte le impostazioni</button>
+        </div>
+    </form>
+{% endblock %}

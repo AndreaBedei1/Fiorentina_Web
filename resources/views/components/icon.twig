@@ -1,0 +1,184 @@
+{#
+  Insieme di icone SVG in linea.
+
+  In linea e non da un file di sprite: le icone sono poche, non richiedono una
+  seconda richiesta HTTP e possono ereditare colore e dimensione dal contesto.
+  Tutte hanno aria-hidden, perche accompagnano sempre un testo leggibile: una
+  icona che porta da sola un significato sarebbe un problema di accessibilita.
+
+  Uso:  {{ include('components/icon.twig', { name: 'bus', class: 'h-5 w-5' }) }}
+#}
+{% set cls = class|default('h-5 w-5') %}
+{% set common = 'fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"' %}
+
+{% if name == 'bus' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M4 17V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10"/><path d="M4 11h16"/>
+        <circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>
+        <path d="M6 20h1M17 20h1"/>
+    </svg>
+{% elseif name == 'users' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.5"/>
+        <path d="M22 19v-1a4 4 0 0 0-3-3.87M16 3.6a4 4 0 0 1 0 7.75"/>
+    </svg>
+{% elseif name == 'dinner' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M5 3v8a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 3c-1.7 0-3 2.2-3 5s1.3 4 3 4v9"/>
+    </svg>
+{% elseif name == 'party' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="m3 21 5.5-13L18 17.5 3 21Z"/><path d="M14 6.5 15.5 5M17 10h2M13 3v2"/>
+    </svg>
+{% elseif name == 'flag' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>
+    </svg>
+{% elseif name == 'star' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="m12 3 2.6 5.6 6 .8-4.4 4.2 1.1 6.1L12 16.9 6.7 19.7l1.1-6.1L3.4 9.4l6-.8L12 3Z"/>
+    </svg>
+{% elseif name == 'ball' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="m12 7 3.2 2.3-1.2 3.8h-4L8.8 9.3 12 7Z"/>
+        <path d="M12 3v4M4.5 9.5 8.8 9.3M19.5 9.5 15.2 9.3M7.2 19l2.8-6M16.8 19 14 13"/>
+    </svg>
+{% elseif name == 'calendar' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
+    </svg>
+{% elseif name == 'clock' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+    </svg>
+{% elseif name == 'pin' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>
+    </svg>
+{% elseif name == 'arrow-right' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+    </svg>
+{% elseif name == 'arrow-left' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+{% elseif name == 'chevron-down' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="m6 9 6 6 6-6"/>
+    </svg>
+{% elseif name == 'close' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M6 6l12 12M18 6 6 18"/>
+    </svg>
+{% elseif name == 'menu' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+    </svg>
+{% elseif name == 'cart' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.5a2 2 0 0 0 2-1.5L20.5 8H6"/>
+        <circle cx="10" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/>
+    </svg>
+{% elseif name == 'mail' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>
+    </svg>
+{% elseif name == 'phone' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2.2 2A16 16 0 0 1 3 5.2 2 2 0 0 1 5 3Z"/>
+    </svg>
+{% elseif name == 'instagram' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/>
+        <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+{% elseif name == 'facebook' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M14.5 8.5V7a1.5 1.5 0 0 1 1.5-1.5h1.5V3h-2.5A4 4 0 0 0 11 7v1.5H8.5V12H11v9h3.5v-9H17l.5-3.5h-3Z"/>
+    </svg>
+{% elseif name == 'youtube' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="2.5" y="6" width="19" height="12" rx="3.5"/><path d="m10.5 9.5 4.5 2.5-4.5 2.5v-5Z"/>
+    </svg>
+{% elseif name == 'telegram' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M21 4 3 11l5 2 2 6 3-4 5 3 3-14Z"/><path d="m8 13 10-6-6.5 8"/>
+    </svg>
+{% elseif name == 'image' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/>
+        <path d="m4 18 5-5 4 4 3-3 4 4"/>
+    </svg>
+{% elseif name == 'shirt' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M8 3 4 5.5 5.5 10 8 9v11h8V9l2.5 1L20 5.5 16 3l-2 2h-4L8 3Z"/>
+    </svg>
+{% elseif name == 'check' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="m5 12.5 4.5 4.5L19 7.5"/>
+    </svg>
+{% elseif name == 'alert' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M12 4 2.8 20h18.4L12 4Z"/><path d="M12 10v4M12 17.2v.1"/>
+    </svg>
+{% elseif name == 'info' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/>
+    </svg>
+{% elseif name == 'trash' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6"/>
+    </svg>
+{% elseif name == 'edit' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m14 6 4 4"/>
+    </svg>
+{% elseif name == 'plus' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M12 5v14M5 12h14"/>
+    </svg>
+{% elseif name == 'search' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+    </svg>
+{% elseif name == 'upload' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+    </svg>
+{% elseif name == 'logout' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M14 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"/><path d="M17 8l4 4-4 4M21 12H10"/>
+    </svg>
+{% elseif name == 'dashboard' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/>
+        <rect x="14" y="11" width="7" height="10" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+    </svg>
+{% elseif name == 'news' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <rect x="3" y="5" width="14" height="15" rx="2"/><path d="M17 9h3a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2"/>
+        <path d="M6 9h8M6 13h8M6 16h5"/>
+    </svg>
+{% elseif name == 'settings' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 2.5v2.6M12 18.9v2.6M21.5 12h-2.6M5.1 12H2.5M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8M18.7 18.7l-1.8-1.8M7.1 7.1 5.3 5.3"/>
+    </svg>
+{% elseif name == 'shield' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M12 3 4.5 6v5.5c0 4.5 3.2 8.2 7.5 9.5 4.3-1.3 7.5-5 7.5-9.5V6L12 3Z"/><path d="m9 12 2 2 4-4"/>
+    </svg>
+{% elseif name == 'file' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/>
+    </svg>
+{% elseif name == 'external' %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>
+    </svg>
+{% else %}
+    <svg class="{{ cls }}" viewBox="0 0 24 24" {{ common|raw }} aria-hidden="true">
+        <circle cx="12" cy="12" r="8.5"/>
+    </svg>
+{% endif %}

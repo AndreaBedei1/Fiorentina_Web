@@ -1,0 +1,65 @@
+{#
+  Pagina di errore.
+
+  Nessun dettaglio tecnico: il visitatore riceve una spiegazione comprensibile
+  e almeno una via d'uscita. Lo stack trace resta nei log del server.
+#}
+{% extends 'layouts/base.twig' %}
+
+{% block body_class %}bg-viola-950 text-white antialiased{% endblock %}
+
+{% block body %}
+    <main id="contenuto" class="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
+
+        <div class="absolute inset-0 -z-10 opacity-25" aria-hidden="true">
+            <div class="absolute -left-32 top-10 h-96 w-96 rounded-full bg-viola-500 blur-3xl"></div>
+            <div class="absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-rosso-600 blur-3xl"></div>
+        </div>
+
+        <div class="w-full max-w-xl text-center">
+            <a href="/" class="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 focus-ring-light">
+                <img src="/assets/logo.svg" alt="Torna alla home di {{ setting('site_group_name', app_name) }}" width="40" height="40" class="h-10 w-10">
+            </a>
+
+            <p class="font-display text-display-xl font-extrabold leading-none text-white/15" aria-hidden="true">404</p>
+
+            <h1 class="-mt-6 font-display text-display-sm font-extrabold uppercase text-white sm:-mt-8">
+                Pagina non trovata
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-md text-base leading-relaxed text-viola-200">
+                {{ message|default('La pagina che cerchi non esiste o e stata spostata.') }}
+            </p>
+
+            <nav class="mt-8" aria-label="Sezioni principali">
+                <p class="mb-3 text-2xs font-bold uppercase tracking-[0.16em] text-viola-400">Forse cercavi</p>
+                <ul class="flex flex-wrap justify-center gap-2" role="list">
+                    {% for item in [
+                        { label: 'Notizie',       url: route('news.index') },
+                        { label: 'Eventi',        url: route('events.index') },
+                        { label: 'Galleria',      url: route('gallery.index') },
+                        { label: 'Merchandising', url: route('shop.index') },
+                        { label: 'Diventa socio', url: route('page.join') }
+                    ] %}
+                        <li>
+                            <a href="{{ item.url }}" class="inline-flex rounded-lg bg-white/10 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-white/20 focus-ring-light">
+                                {{ item.label }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+            <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{{ isAdminArea|default(false) ? '/admin' : '/' }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-rosso-600 px-6 py-3.5 text-base font-bold text-white transition hover:bg-rosso-700 focus-ring-light">
+                    Torna alla home
+                </a>
+                <a href="{{ route('contact.show') }}"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white/25 px-6 py-3.5 text-base font-bold text-white transition hover:border-white/50 hover:bg-white/5 focus-ring-light">
+                    Scrivici
+                </a>
+            </div>
+        </div>
+    </main>
+{% endblock %}

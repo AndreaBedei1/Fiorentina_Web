@@ -1,0 +1,53 @@
+{#
+  Card di un evento.
+
+  Il giorno e mostrato in un riquadro laterale: nel calendario del gruppo la
+  data e l'informazione che si cerca per prima.
+#}
+<article class="group relative flex overflow-hidden rounded-card bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-lift motion-reduce:hover:transform-none">
+
+    <div class="flex w-20 shrink-0 flex-col items-center justify-center bg-viola-800 px-2 py-4 text-white sm:w-24">
+        <span class="font-display text-2xl font-extrabold leading-none sm:text-3xl">{{ event.startsAt|giorno }}</span>
+        <span class="mt-1 text-2xs font-bold uppercase tracking-[0.14em] text-viola-200">{{ event.startsAt|mese_breve }}</span>
+        <span class="mt-0.5 text-2xs text-viola-300">{{ event.startsAt|date('Y') }}</span>
+    </div>
+
+    <div class="flex flex-1 flex-col p-4 sm:p-5">
+        <div class="flex flex-wrap items-center gap-2">
+            {% if event.category %}
+                <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-2xs font-bold uppercase tracking-wide ring-1 ring-inset {{ event.category.badgeClasses }}">
+                    {{ include('components/icon.twig', { name: event.category.icon, class: 'h-3.5 w-3.5' }) }}
+                    {{ event.category.name }}
+                </span>
+            {% endif %}
+
+            {% if event.isCancelled %}
+                <span class="rounded-md bg-sabbia-200 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-sabbia-800">Annullato</span>
+            {% elseif event.isPast %}
+                <span class="rounded-md bg-sabbia-100 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-sabbia-700">Concluso</span>
+            {% endif %}
+        </div>
+
+        <h3 class="mt-2 font-display text-base font-bold leading-snug text-viola-900 sm:text-lg">
+            <a href="{{ route('events.show', { slug: event.slug }) }}"
+               class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
+                {{ event.title }}
+            </a>
+        </h3>
+
+        <dl class="mt-2.5 space-y-1 text-sm text-sabbia-700">
+            <div class="flex items-center gap-1.5">
+                <dt class="sr-only">Orario</dt>
+                <span class="text-sabbia-400">{{ include('components/icon.twig', { name: 'clock', class: 'h-4 w-4' }) }}</span>
+                <dd>{{ event.startsAt|ora }}</dd>
+            </div>
+            {% if event.locationLine %}
+                <div class="flex items-start gap-1.5">
+                    <dt class="sr-only">Luogo</dt>
+                    <span class="mt-0.5 shrink-0 text-sabbia-400">{{ include('components/icon.twig', { name: 'pin', class: 'h-4 w-4' }) }}</span>
+                    <dd>{{ event.locationLine }}</dd>
+                </div>
+            {% endif %}
+        </dl>
+    </div>
+</article>

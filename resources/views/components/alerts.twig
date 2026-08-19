@@ -1,0 +1,35 @@
+{#
+  Messaggi di esito.
+
+  role="status" per le conferme, role="alert" per gli errori: la differenza
+  conta, perche il secondo interrompe la lettura dello screen reader mentre il
+  primo attende una pausa naturale.
+#}
+{% set messages = flash() %}
+{% if messages is not empty %}
+    <div class="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
+        {% for type, list in messages %}
+            {% if type in ['success', 'error', 'warning', 'info'] %}
+                {% for message in list %}
+                    {% set style = {
+                        'success': { bg: 'bg-emerald-50 border-emerald-300 text-emerald-900', icon: 'check',  iconColor: 'text-emerald-600', label: 'Operazione riuscita' },
+                        'error':   { bg: 'bg-rosso-50 border-rosso-300 text-rosso-900',       icon: 'alert',  iconColor: 'text-rosso-600',   label: 'Errore' },
+                        'warning': { bg: 'bg-amber-50 border-amber-300 text-amber-900',       icon: 'alert',  iconColor: 'text-amber-600',   label: 'Attenzione' },
+                        'info':    { bg: 'bg-viola-50 border-viola-300 text-viola-900',       icon: 'info',   iconColor: 'text-viola-600',   label: 'Informazione' }
+                    }[type] %}
+
+                    <div class="mb-3 flex items-start gap-3 rounded-card border px-4 py-3.5 text-sm {{ style.bg }}"
+                         role="{{ type == 'error' ? 'alert' : 'status' }}">
+                        <span class="{{ style.iconColor }} mt-0.5 shrink-0">
+                            {{ include('components/icon.twig', { name: style.icon, class: 'h-5 w-5' }) }}
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <span class="sr-only">{{ style.label }}:</span>
+                            <p class="font-medium leading-relaxed">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}

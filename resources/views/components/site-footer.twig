@@ -1,0 +1,105 @@
+<footer class="mt-section bg-viola-950 text-viola-200">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+
+            {# --- Identita --- #}
+            <div class="lg:col-span-1">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20">
+                        <img src="/assets/logo.svg" alt="" width="28" height="28" class="h-7 w-7" aria-hidden="true">
+                    </span>
+                    <span class="font-display text-lg font-extrabold uppercase tracking-tight text-white">
+                        {{ setting('site_group_name', 'Baraonda Fiorentina') }}
+                    </span>
+                </div>
+
+                <p class="mt-4 text-sm leading-relaxed text-viola-300">
+                    {{ setting('footer_text') }}
+                </p>
+
+                {% set links = social_links() %}
+                {% if links %}
+                    <ul class="mt-5 flex gap-2" role="list">
+                        {% for link in links %}
+                            <li>
+                                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+                                   class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-viola-200 transition hover:bg-rosso-600 hover:text-white focus-ring">
+                                    <span class="sr-only">{{ link.label }} (si apre in una nuova scheda)</span>
+                                    {{ include('components/icon.twig', { name: link.name, class: 'h-5 w-5' }) }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            {# --- Navigazione --- #}
+            <nav aria-labelledby="footer-nav-sito">
+                <h2 id="footer-nav-sito" class="text-2xs font-bold uppercase tracking-[0.16em] text-viola-400">Il gruppo</h2>
+                <ul class="mt-4 space-y-2.5 text-sm" role="list">
+                    <li><a href="{{ route('page.about') }}" class="transition hover:text-white focus-ring rounded">Chi siamo</a></li>
+                    <li><a href="{{ route('page.join') }}" class="transition hover:text-white focus-ring rounded">Diventa socio</a></li>
+                    <li><a href="{{ route('news.index') }}" class="transition hover:text-white focus-ring rounded">Notizie</a></li>
+                    <li><a href="{{ route('events.index') }}" class="transition hover:text-white focus-ring rounded">Eventi e trasferte</a></li>
+                    <li><a href="{{ route('calendar.index') }}" class="transition hover:text-white focus-ring rounded">Calendario</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-labelledby="footer-nav-contenuti">
+                <h2 id="footer-nav-contenuti" class="text-2xs font-bold uppercase tracking-[0.16em] text-viola-400">Contenuti</h2>
+                <ul class="mt-4 space-y-2.5 text-sm" role="list">
+                    <li><a href="{{ route('gallery.index') }}" class="transition hover:text-white focus-ring rounded">Galleria fotografica</a></li>
+                    <li><a href="{{ route('shop.index') }}" class="transition hover:text-white focus-ring rounded">Merchandising</a></li>
+                    <li><a href="{{ route('contact.show') }}" class="transition hover:text-white focus-ring rounded">Contatti</a></li>
+                    <li><a href="{{ route('page.privacy') }}" class="transition hover:text-white focus-ring rounded">Privacy policy</a></li>
+                    <li><a href="{{ route('page.cookies') }}" class="transition hover:text-white focus-ring rounded">Cookie policy</a></li>
+                </ul>
+            </nav>
+
+            {# --- Contatti --- #}
+            <div>
+                <h2 class="text-2xs font-bold uppercase tracking-[0.16em] text-viola-400">Contatti</h2>
+                <ul class="mt-4 space-y-3 text-sm" role="list">
+                    {% if setting('contact_email') %}
+                        <li class="flex items-start gap-2.5">
+                            {{ include('components/icon.twig', { name: 'mail', class: 'mt-0.5 h-4 w-4 shrink-0 text-viola-400' }) }}
+                            <a href="mailto:{{ setting('contact_email') }}" class="break-all transition hover:text-white focus-ring rounded">
+                                {{ setting('contact_email') }}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if setting('contact_phone') %}
+                        <li class="flex items-start gap-2.5">
+                            {{ include('components/icon.twig', { name: 'phone', class: 'mt-0.5 h-4 w-4 shrink-0 text-viola-400' }) }}
+                            <a href="tel:{{ setting('contact_phone')|replace({' ': ''}) }}" class="transition hover:text-white focus-ring rounded">
+                                {{ setting('contact_phone') }}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if setting('contact_address') %}
+                        <li class="flex items-start gap-2.5">
+                            {{ include('components/icon.twig', { name: 'pin', class: 'mt-0.5 h-4 w-4 shrink-0 text-viola-400' }) }}
+                            <span class="whitespace-pre-line">{{ setting('contact_address') }}</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-12 border-t border-white/10 pt-6">
+            {% if setting('footer_association_details') %}
+                <p class="text-xs leading-relaxed text-viola-400">{{ setting('footer_association_details') }}</p>
+            {% endif %}
+
+            <div class="mt-4 flex flex-col gap-2 text-xs text-viola-400 sm:flex-row sm:items-center sm:justify-between">
+                <p>&copy; {{ current_year }} {{ setting('site_group_name', 'Baraonda Fiorentina') }}. Tutti i diritti riservati.</p>
+                <p>
+                    Le fotografie sono di proprieta del gruppo.
+                    <a href="{{ route('contact.show') }}" class="underline underline-offset-2 transition hover:text-white focus-ring rounded">
+                        Richiedi l uso delle immagini
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

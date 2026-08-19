@@ -1,0 +1,129 @@
+{#
+  Intestazione del sito.
+
+  Il menu mobile e un pannello a scomparsa: si chiude con Esc, il fuoco resta
+  al suo interno finche e aperto e il pulsante dichiara il proprio stato con
+  aria-expanded.
+
+  Nota sulla sintassi Alpine: usiamo la build CSP, quindi negli attributi si
+  possono scrivere solo nomi di proprieta e di metodi. Niente espressioni
+  in linea, niente parentesi: tutta la logica sta in resources/js/modules/header.ts.
+  In cambio la Content-Security-Policy resta senza 'unsafe-eval'.
+
+  Lo sfondo viola e una classe statica, non una classe applicata da Alpine:
+  se lo fosse, nell'istante fra il primo rendering e l'avvio di JavaScript
+  l'intestazione comparirebbe senza sfondo e illeggibile.
+#}
+{% set nav = [
+    { label: 'Chi siamo',      url: route('page.about') },
+    { label: 'Notizie',        url: route('news.index') },
+    { label: 'Eventi',         url: route('events.index') },
+    { label: 'Calendario',     url: route('calendar.index') },
+    { label: 'Galleria',       url: route('gallery.index') },
+    { label: 'Merchandising',  url: route('shop.index') },
+    { label: 'Contatti',       url: route('contact.show') }
+] %}
+
+<header x-data="siteHeader"
+        :class="scrolledClass"
+        class="sticky top-0 z-50 border-b border-white/10 bg-viola-900 transition-shadow duration-300">
+
+    <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:h-20 sm:px-6 lg:px-8">
+
+        {# --- Logo --- #}
+        <a href="{{ route('home') }}"
+           class="group flex shrink-0 items-center gap-3 rounded-lg focus-ring-light"
+           {{ current_path == '/' ? 'aria-current="page"' : '' }}>
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 sm:h-11 sm:w-11">
+                {# Segnaposto: sostituire resources/static/logo.svg con il logo ufficiale. #}
+                <img src="/assets/logo.svg" alt="" width="28" height="28" class="h-7 w-7" aria-hidden="true">
+            </span>
+            <span class="flex flex-col leading-none">
+                <span class="font-display text-base font-extrabold uppercase tracking-tight text-white sm:text-lg">
+                    {{ setting('site_group_name', 'Baraonda Fiorentina') }}
+                </span>
+                <span class="mt-1 hidden text-2xs font-semibold uppercase tracking-[0.18em] text-viola-200 sm:block">
+                    Gruppo organizzato viola
+                </span>
+            </span>
+        </a>
+
+        {# --- Menu desktop --- #}
+        <nav class="ml-auto hidden items-center gap-0.5 lg:flex" aria-label="Menu principale">
+            {% for item in nav %}
+                <a href="{{ item.url }}"
+                   class="relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus-ring-light
+                          {{ is_active(item.url) ? 'text-white' : 'text-viola-100 hover:bg-white/10 hover:text-white' }}"
+                   {{ is_active(item.url) ? 'aria-current="page"' : '' }}>
+                    {{ item.label }}
+                    {% if is_active(item.url) %}
+                        {# Lo stato attivo non e affidato al solo colore: c'e anche una barra. #}
+                        <span class="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-rosso-500" aria-hidden="true"></span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </nav>
+
+        {# --- Azioni --- #}
+        <div class="ml-auto flex items-center gap-2 lg:ml-3">
+            {% set cartItems = cart_count() %}
+            <a href="{{ route('cart.show') }}"
+               class="relative flex h-10 w-10 items-center justify-center rounded-lg text-viola-100 transition-colors hover:bg-white/10 hover:text-white focus-ring-light"
+               aria-label="Carrello{{ cartItems > 0 ? ': ' ~ cartItems ~ ' articoli' : ' (vuoto)' }}">
+                {{ include('components/icon.twig', { name: 'cart', class: 'h-5 w-5' }) }}
+                {% if cartItems > 0 %}
+                    <span class="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rosso-600 px-1 text-2xs font-bold text-white">
+                        {{ cartItems > 99 ? '99+' : cartItems }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a href="{{ route('page.join') }}"
+               class="hidden rounded-lg bg-rosso-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-rosso-700 focus-ring-light sm:inline-flex">
+                {{ setting('home_cta_label', 'Diventa socio') }}
+            </a>
+
+            {# --- Interruttore del menu mobile --- #}
+            <button type="button"
+                    @click="toggle"
+                    :aria-expanded="expanded"
+                    aria-expanded="false"
+                    aria-controls="menu-mobile"
+                    class="flex h-10 w-10 items-center justify-center rounded-lg text-white transition-colors hover:bg-white/10 focus-ring-light lg:hidden">
+                <span class="sr-only">Apri o chiudi il menu</span>
+                <span x-show="isClosed">{{ include('components/icon.twig', { name: 'menu', class: 'h-6 w-6' }) }}</span>
+                <span x-show="isOpen" x-cloak>{{ include('components/icon.twig', { name: 'close', class: 'h-6 w-6' }) }}</span>
+            </button>
+        </div>
+    </div>
+
+    {# --- Pannello mobile --- #}
+    <div id="menu-mobile"
+         x-show="open"
+         x-cloak
+         x-collapse
+         @keydown.escape.window="close"
+         x-trap.noscroll="open"
+         class="border-t border-white/10 bg-viola-900 lg:hidden">
+        <nav class="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6" aria-label="Menu principale (mobile)">
+            {% for item in nav %}
+                <a href="{{ item.url }}"
+                   @click="close"
+                   class="flex items-center justify-between rounded-lg px-4 py-3 text-base font-semibold transition-colors focus-ring-light
+                          {{ is_active(item.url) ? 'bg-white/10 text-white' : 'text-viola-100 hover:bg-white/5 hover:text-white' }}"
+                   {{ is_active(item.url) ? 'aria-current="page"' : '' }}>
+                    {{ item.label }}
+                    {% if is_active(item.url) %}
+                        <span class="h-2 w-2 rounded-full bg-rosso-500" aria-hidden="true"></span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+
+            <a href="{{ route('page.join') }}"
+               @click="close"
+               class="mt-3 flex items-center justify-center rounded-lg bg-rosso-600 px-4 py-3.5 text-base font-bold text-white focus-ring-light">
+                {{ setting('home_cta_label', 'Diventa socio') }}
+            </a>
+        </nav>
+    </div>
+</header>

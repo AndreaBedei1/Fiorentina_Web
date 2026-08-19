@@ -1,0 +1,77 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: album.categoryLabel,
+        title: album.title,
+        subtitle: album.description
+    }) }}
+
+    <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
+
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-sabbia-600">
+                {% if album.eventDate %}
+                    <span class="inline-flex items-center gap-1.5">
+                        {{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4 text-sabbia-400' }) }}
+                        <time datetime="{{ album.eventDate|iso_data }}">{{ album.eventDate|data }}</time>
+                    </span>
+                {% endif %}
+                <span class="inline-flex items-center gap-1.5">
+                    {{ include('components/icon.twig', { name: 'image', class: 'h-4 w-4 text-sabbia-400' }) }}
+                    {{ album.photosLabel }}
+                </span>
+            </p>
+
+            <a href="{{ route('gallery.index') }}" class="btn-secondario btn-piccolo">
+                {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                Tutti gli album
+            </a>
+        </div>
+
+        {% if paginator.isEmpty %}
+            {{ include('components/empty-state.twig', {
+                icon: 'image',
+                title: 'Album ancora vuoto',
+                message: 'Le fotografie di questo album non sono ancora state pubblicate.'
+            }) }}
+        {% else %}
+            {#
+              Griglia di anteprime. Ogni voce e un collegamento all immagine
+              grande: senza JavaScript funziona comunque, aprendo la fotografia
+              in una pagina nuova. Con JavaScript si apre la lightbox.
+            #}
+            <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4" role="list">
+                {% for photo in paginator.items %}
+                    <li>
+                        <a href="{{ media_url(photo.storageKey, 'gallery', 'large', 'jpg') }}"
+                           data-lightbox
+                           data-alt="{{ photo.alt }}"
+                           data-caption="{{ photo.caption ?? photo.title ?? album.title }}"
+                           class="group block overflow-hidden rounded-card bg-sabbia-100 focus-ring">
+                            <span class="sr-only">Ingrandisci: {{ photo.alt }}</span>
+                            <span class="block {{ photo.isPortrait ? 'aspect-poster' : 'aspect-card' }}">
+                                {{ include('components/responsive-image.twig', {
+                                    key: photo.storageKey,
+                                    collection: 'gallery',
+                                    alt: photo.alt,
+                                    width: photo.width,
+                                    height: photo.height,
+                                    class: 'h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none',
+                                    sizes: '(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw'
+                                }) }}
+                            </span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {{ include('components/pagination.twig', { paginator: paginator }) }}
+        {% endif %}
+
+        <p class="mt-10 rounded-card bg-sabbia-100 px-4 py-3 text-sm text-sabbia-700">
+            Le fotografie sono di proprieta di {{ setting('site_group_name', 'Baraonda Fiorentina') }}.
+            Per richiederne l uso <a href="{{ route('contact.show') }}" class="font-semibold text-viola-800 underline underline-offset-2 focus-ring rounded">scrivici</a>.
+        </p>
+    </section>
+{% endblock %}

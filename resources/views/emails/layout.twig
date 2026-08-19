@@ -1,0 +1,71 @@
+{#
+  Layout comune alle email.
+
+  Regole di posta elettronica, diverse da quelle del web:
+   - layout a tabelle e stili in linea: molti client ignorano il CSS esterno e
+     Outlook non supporta flexbox ne grid;
+   - larghezza massima 600px, la misura che tutti i client gestiscono bene;
+   - nessuna immagine remota necessaria alla comprensione: molti client le
+     bloccano di default, e il messaggio deve restare leggibile senza.
+#}
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{{ subject }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f3f1ed; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#3d3833; -webkit-font-smoothing:antialiased;">
+
+    {# Testo di anteprima: e la riga che i client mostrano accanto all oggetto. #}
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+        {{ preheader|default(subject) }}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f1ed; padding:24px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+                       style="width:100%; max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; border:1px solid #e7e3dc;">
+
+                    <!-- Intestazione -->
+                    <tr>
+                        <td style="background-color:#41215f; padding:24px 28px;">
+                            <p style="margin:0; font-size:18px; font-weight:800; letter-spacing:-0.02em; color:#ffffff; text-transform:uppercase;">
+                                {{ setting('site_group_name', 'Baraonda Fiorentina') }}
+                            </p>
+                            <p style="margin:4px 0 0; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#bda3e0;">
+                                {{ headerNote|default('Gruppo organizzato viola') }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Contenuto -->
+                    <tr>
+                        <td style="padding:28px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+
+                    <!-- Piede -->
+                    <tr>
+                        <td style="background-color:#faf9f7; padding:20px 28px; border-top:1px solid #e7e3dc;">
+                            <p style="margin:0; font-size:12px; line-height:1.6; color:#82766a;">
+                                Messaggio inviato automaticamente dal sito
+                                <a href="{{ site_url }}" style="color:#582d84; text-decoration:underline;">{{ site_url|replace({'https://': '', 'http://': ''}) }}</a>.
+                            </p>
+                            {% if setting('contact_email') %}
+                                <p style="margin:8px 0 0; font-size:12px; line-height:1.6; color:#82766a;">
+                                    Per assistenza scrivi a
+                                    <a href="mailto:{{ setting('contact_email') }}" style="color:#582d84; text-decoration:underline;">{{ setting('contact_email') }}</a>.
+                                </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

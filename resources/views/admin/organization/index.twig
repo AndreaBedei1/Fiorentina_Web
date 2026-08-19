@@ -1,0 +1,229 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Organizzazione',
+        description: 'Ruoli e persone del direttivo, mostrati nella pagina Chi siamo.'
+    }) }}
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        {# --- Persone --- #}
+        <div class="space-y-5 lg:col-span-2">
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Persone</h2>
+                    <span class="text-xs text-sabbia-500">{{ members|length }}</span>
+                </div>
+
+                <div class="pannello-corpo space-y-3">
+                    {% if members is empty %}
+                        <p class="py-6 text-center text-sm text-sabbia-600">
+                            Nessuna persona inserita. Aggiungi la prima con il modulo qui sotto.
+                        </p>
+                    {% else %}
+                        {% for member in members %}
+                            <details class="rounded-card border border-sabbia-200">
+                                <summary class="flex cursor-pointer items-center gap-3 px-3 py-2.5 focus-ring rounded-card">
+                                    {% if member.hasPhoto %}
+                                        <span class="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-sabbia-100">
+                                            {{ include('components/responsive-image.twig', {
+                                                key: member.photoKey, collection: 'members', alt: '', size: 'thumb',
+                                                class: 'h-full w-full object-cover', sizes: '36px'
+                                            }) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-viola-100 text-xs font-bold text-viola-700" aria-hidden="true">
+                                            {{ member.initials }}
+                                        </span>
+                                    {% endif %}
+
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-semibold text-viola-900">{{ member.fullName }}</span>
+                                        <span class="block truncate text-xs text-sabbia-500">{{ member.displayRole }}</span>
+                                    </span>
+
+                                    {% if not member.isVisible %}
+                                        <span class="badge badge-neutro shrink-0">Nascosta</span>
+                                    {% endif %}
+                                </summary>
+
+                                <form action="{{ route('admin.organization.members.update', { memberId: member.id }) }}"
+                                      method="post" enctype="multipart/form-data" class="space-y-3 border-t border-sabbia-200 p-3">
+                                    {{ csrf_field()|raw }}
+
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        {{ include('components/field.twig', {
+                                            name: 'full_name', label: 'Nome e cognome', required: true, maxlength: 120,
+                                            value: member.fullName, id: 'persona-' ~ member.id ~ '-nome'
+                                        }) }}
+                                        {{ include('components/field.twig', {
+                                            name: 'role_title', label: 'Titolo mostrato', maxlength: 120,
+                                            value: member.roleTitle, id: 'persona-' ~ member.id ~ '-titolo'
+                                        }) }}
+                                    </div>
+
+                                    <div class="grid gap-3 sm:grid-cols-3">
+                                        {{ include('components/field.twig', {
+                                            name: 'role_id', label: 'Ruolo', type: 'select', options: roleOptions,
+                                            placeholder: 'Nessuno', value: member.roleId, id: 'persona-' ~ member.id ~ '-ruolo'
+                                        }) }}
+                                        {{ include('components/field.twig', {
+                                            name: 'member_since', label: 'Socio dal', type: 'number', min: 1900, max: current_year,
+                                            value: member.memberSince, id: 'persona-' ~ member.id ~ '-anno'
+                                        }) }}
+                                        {{ include('components/field.twig', {
+                                            name: 'sort_order', label: 'Ordine', type: 'number', min: 0, max: 999,
+                                            value: member.sortOrder, id: 'persona-' ~ member.id ~ '-ordine'
+                                        }) }}
+                                    </div>
+
+                                    {{ include('components/field.twig', {
+                                        name: 'bio', label: 'Biografia', type: 'textarea', rows: 2, maxlength: 600,
+                                        value: member.bio, id: 'persona-' ~ member.id ~ '-bio'
+                                    }) }}
+
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        {{ include('components/field.twig', {
+                                            name: 'email', label: 'Email', type: 'email', maxlength: 190,
+                                            value: member.email, id: 'persona-' ~ member.id ~ '-email',
+                                            help: 'Non viene mostrata sul sito pubblico.'
+                                        }) }}
+                                        {{ include('components/field.twig', {
+                                            name: 'phone', label: 'Telefono', type: 'tel',
+                                            value: member.phone, id: 'persona-' ~ member.id ~ '-telefono'
+                                        }) }}
+                                    </div>
+
+                                    {{ include('components/field.twig', {
+                                        name: 'photo', label: 'Fotografia', type: 'file',
+                                        accept: 'image/jpeg,image/png,image/webp', id: 'persona-' ~ member.id ~ '-foto'
+                                    }) }}
+
+                                    {% if member.hasPhoto %}
+                                        <label class="flex items-center gap-2 text-sm text-sabbia-700">
+                                            <input type="checkbox" name="remove_photo" value="1" class="campo-checkbox">
+                                            <span>Rimuovi la fotografia</span>
+                                        </label>
+                                    {% endif %}
+
+                                    <label class="flex items-center gap-2 text-sm text-sabbia-700">
+                                        <input type="checkbox" name="is_visible" value="1" class="campo-checkbox"
+                                               {{ member.isVisible ? 'checked' : '' }}>
+                                        <span>Mostra nella pagina Chi siamo</span>
+                                    </label>
+
+                                    <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-3">
+                                        <button type="submit" class="btn-secondario btn-piccolo">Salva</button>
+                                    </div>
+                                </form>
+
+                                <div class="border-t border-sabbia-200 p-3">
+                                    {{ include('components/admin-delete-button.twig', {
+                                        action: route('admin.organization.members.destroy', { memberId: member.id }),
+                                        question: 'Rimuovere questa persona?'
+                                    }) }}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    {% endif %}
+
+                    {# --- Nuova persona --- #}
+                    <form action="{{ route('admin.organization.members.store') }}" method="post"
+                          enctype="multipart/form-data" class="rounded-card border border-dashed border-sabbia-300 p-4">
+                        {{ csrf_field()|raw }}
+                        <p class="mb-3 font-display text-sm font-bold text-viola-900">Aggiungi una persona</p>
+
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            {{ include('components/field.twig', {
+                                name: 'full_name', label: 'Nome e cognome', required: true, maxlength: 120,
+                                id: 'nuova-persona-nome'
+                            }) }}
+                            {{ include('components/field.twig', {
+                                name: 'role_title', label: 'Titolo mostrato', maxlength: 120,
+                                id: 'nuova-persona-titolo'
+                            }) }}
+                            {{ include('components/field.twig', {
+                                name: 'role_id', label: 'Ruolo', type: 'select', options: roleOptions,
+                                placeholder: 'Nessuno', id: 'nuova-persona-ruolo'
+                            }) }}
+                            {{ include('components/field.twig', {
+                                name: 'photo', label: 'Fotografia', type: 'file',
+                                accept: 'image/jpeg,image/png,image/webp', id: 'nuova-persona-foto'
+                            }) }}
+                        </div>
+
+                        <input type="hidden" name="is_visible" value="1">
+
+                        <button type="submit" class="btn-primario btn-piccolo mt-3">
+                            {{ include('components/icon.twig', { name: 'plus', class: 'h-3.5 w-3.5' }) }}
+                            Aggiungi
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        {# --- Ruoli --- #}
+        <div class="lg:col-span-1">
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Ruoli</h2>
+                    <span class="text-xs text-sabbia-500">{{ roles|length }}</span>
+                </div>
+
+                <div class="pannello-corpo space-y-2">
+                    {% for role in roles %}
+                        <details class="rounded-card border border-sabbia-200">
+                            <summary class="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm font-semibold text-viola-900 focus-ring rounded-card">
+                                <span class="min-w-0 truncate">{{ role.name }}</span>
+                                <span class="shrink-0 text-xs font-normal text-sabbia-500">{{ role.membersCount }}</span>
+                            </summary>
+
+                            <form action="{{ route('admin.organization.roles.update', { roleId: role.id }) }}"
+                                  method="post" class="space-y-2 border-t border-sabbia-200 p-3">
+                                {{ csrf_field()|raw }}
+                                <div>
+                                    <label for="ruolo-{{ role.id }}-nome" class="campo-label text-xs">Nome</label>
+                                    <input type="text" id="ruolo-{{ role.id }}-nome" name="name" value="{{ role.name }}"
+                                           maxlength="100" class="campo-input text-sm">
+                                </div>
+                                <div>
+                                    <label for="ruolo-{{ role.id }}-descrizione" class="campo-label text-xs">Descrizione</label>
+                                    <input type="text" id="ruolo-{{ role.id }}-descrizione" name="description" value="{{ role.description }}"
+                                           maxlength="300" class="campo-input text-sm">
+                                </div>
+                                <div>
+                                    <label for="ruolo-{{ role.id }}-ordine" class="campo-label text-xs">Ordine</label>
+                                    <input type="number" id="ruolo-{{ role.id }}-ordine" name="sort_order" value="{{ role.sortOrder }}"
+                                           min="0" max="999" class="campo-input text-sm">
+                                </div>
+                                <button type="submit" class="btn-secondario btn-piccolo w-full">Salva</button>
+                            </form>
+
+                            <div class="border-t border-sabbia-200 p-3">
+                                {{ include('components/admin-delete-button.twig', {
+                                    action: route('admin.organization.roles.destroy', { roleId: role.id }),
+                                    question: 'Eliminare il ruolo?'
+                                }) }}
+                            </div>
+                        </details>
+                    {% endfor %}
+
+                    <form action="{{ route('admin.organization.roles.store') }}" method="post"
+                          class="rounded-card border border-dashed border-sabbia-300 p-3">
+                        {{ csrf_field()|raw }}
+                        <p class="mb-2 text-sm font-semibold text-viola-900">Nuovo ruolo</p>
+                        <label for="nuovo-ruolo-nome" class="sr-only">Nome del ruolo</label>
+                        <input type="text" id="nuovo-ruolo-nome" name="name" required placeholder="Es. Responsabile magazzino"
+                               maxlength="100" class="campo-input text-sm">
+                        <button type="submit" class="btn-primario btn-piccolo mt-2 w-full">
+                            {{ include('components/icon.twig', { name: 'plus', class: 'h-3.5 w-3.5' }) }}
+                            Aggiungi
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

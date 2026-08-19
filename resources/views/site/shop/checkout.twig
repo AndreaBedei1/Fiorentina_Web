@@ -1,0 +1,194 @@
+{% extends 'layouts/site.twig' %}
+
+{% block content %}
+    {{ include('components/page-hero.twig', {
+        eyebrow: 'Ultimo passaggio',
+        title: 'Conferma il tuo ordine',
+        subtitle: 'Compila i tuoi dati: non ti verra chiesto nessun dato di pagamento.'
+    }) }}
+
+    <section class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
+
+        {# Dichiarato subito e a chiare lettere: e la cosa che le persone si chiedono per prima. #}
+        <div class="mb-8 flex items-start gap-3 rounded-card border border-viola-200 bg-viola-50 px-4 py-4 text-sm text-viola-900">
+            <span class="mt-0.5 shrink-0 text-viola-600">{{ include('components/icon.twig', { name: 'shield', class: 'h-5 w-5' }) }}</span>
+            <div>
+                <p class="font-semibold">Nessun pagamento online</p>
+                <p class="mt-1 leading-relaxed">
+                    Questo modulo invia una richiesta d ordine. Riceverai una email di riepilogo con
+                    le istruzioni per pagare in sede o con bonifico. Non inserire mai dati di carte di credito.
+                </p>
+            </div>
+        </div>
+
+        <form action="{{ route('order.store') }}" method="post" class="grid gap-8 lg:grid-cols-3"
+              x-data="checkoutForm"
+              data-method="{{ selectedMethod }}"
+              data-delivery-cost="{{ shippingCost > 0 ? shippingCost|euro : 'gratuita' }}"
+              data-pickup-cost="gratuita">
+            {{ csrf_field()|raw }}
+
+            {# Trappola anti-spam: invisibile alle persone, compilata dai bot. #}
+            <div class="absolute left-[-9999px]" aria-hidden="true">
+                <label for="website">Non compilare questo campo</label>
+                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="space-y-6 lg:col-span-2">
+
+                {# --- Dati di contatto --- #}
+                <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
+                    <legend class="px-1 font-display text-lg font-bold text-viola-900">I tuoi dati</legend>
+
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        {{ include('components/field.twig', {
+                            name: 'first_name', label: 'Nome', required: true,
+                            autocomplete: 'given-name', maxlength: 80
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'last_name', label: 'Cognome', required: true,
+                            autocomplete: 'family-name', maxlength: 80
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'email', label: 'Email', type: 'email', required: true,
+                            autocomplete: 'email', maxlength: 190,
+                            help: 'Ci serve per inviarti il riepilogo e le istruzioni di pagamento.'
+                        }) }}
+                        {{ include('components/field.twig', {
+                            name: 'phone', label: 'Telefono', type: 'tel', required: true,
+                            autocomplete: 'tel', inputmode: 'tel',
+                            help: 'Ti contattiamo solo se serve un chiarimento sull ordine.'
+                        }) }}
+                    </div>
+                </fieldset>
+
+                {# --- Consegna --- #}
+                <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
+                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Consegna</legend>
+
+                    <div class="mt-4 space-y-2">
+                        {% for value, label in shippingMethods %}
+                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-sabbia-200 p-3.5 transition has-[:checked]:border-viola-600 has-[:checked]:bg-viola-50">
+                                <input type="radio" name="shipping_method" value="{{ value }}"
+                                       @change="onMethodChange"
+                                       class="campo-radio mt-0.5"
+                                       {{ selectedMethod == value ? 'checked' : '' }}>
+                                <span>
+                                    <span class="block text-sm font-semibold text-viola-900">{{ label }}</span>
+                                    <span class="mt-0.5 block text-sm text-sabbia-600">
+                                        {% if value == 'pickup' %}
+                                            Ritiri il pacco in sede negli orari di apertura. Nessun costo aggiuntivo.
+                                        {% else %}
+                                            Spedizione tramite corriere all indirizzo che indichi qui sotto.
+                                        {% endif %}
+                                    </span>
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    {# L indirizzo compare solo se serve davvero. #}
+                    <div x-show="isDelivery" x-collapse class="mt-5 grid gap-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            {{ include('components/field.twig', {
+                                name: 'address', label: 'Indirizzo', autocomplete: 'street-address', maxlength: 255,
+                                placeholder: 'Via, numero civico, eventuale scala o interno'
+                            }) }}
+                        </div>
+                        <div class="sm:col-span-2">
+                            {{ include('components/field.twig', {
+                                name: 'postal_code', label: 'CAP', autocomplete: 'postal-code',
+                                inputmode: 'numeric', maxlength: 5, pattern: '[0-9]{5}'
+                            }) }}
+                        </div>
+                        <div class="sm:col-span-3">
+                            {{ include('components/field.twig', {
+                                name: 'city', label: 'Citta', autocomplete: 'address-level2', maxlength: 100
+                            }) }}
+                        </div>
+                        <div class="sm:col-span-1">
+                            {{ include('components/field.twig', {
+                                name: 'province', label: 'Prov.', autocomplete: 'address-level1',
+                                maxlength: 2, placeholder: 'FI'
+                            }) }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                {# --- Note --- #}
+                <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
+                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Note</legend>
+
+                    <div class="mt-4">
+                        {{ include('components/field.twig', {
+                            name: 'notes', label: 'Vuoi aggiungere qualcosa?', type: 'textarea', rows: 4,
+                            maxlength: 1000,
+                            placeholder: 'Per esempio: sono socio, preferisco ritirare il giovedi sera...',
+                            help: 'Facoltativo.'
+                        }) }}
+                    </div>
+                </fieldset>
+            </div>
+
+            {# --- Riepilogo --- #}
+            <aside class="lg:col-span-1">
+                <div class="sticky top-24 rounded-panel bg-white p-5 shadow-panel">
+                    <h2 class="font-display text-lg font-bold text-viola-900">Il tuo ordine</h2>
+
+                    <ul class="mt-4 space-y-3 border-b border-sabbia-200 pb-4" role="list">
+                        {% for line in cart.lines %}
+                            <li class="flex gap-3 text-sm">
+                                <span class="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-sabbia-100">
+                                    {{ include('components/responsive-image.twig', {
+                                        key: line.imageKey, collection: 'products', alt: '', size: 'thumb',
+                                        class: 'h-full w-full object-cover', sizes: '48px'
+                                    }) }}
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-semibold leading-snug text-viola-900">{{ line.product.name }}</span>
+                                    {% if line.variant %}
+                                        <span class="block text-sabbia-600">{{ line.variant.label }}</span>
+                                    {% endif %}
+                                    <span class="block text-sabbia-600">{{ line.quantity }} x {{ line.unitPrice|euro }}</span>
+                                </span>
+                                <span class="shrink-0 font-semibold text-viola-900">{{ line.lineTotal|euro }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <dl class="mt-4 space-y-2.5 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-sabbia-700">Subtotale</dt>
+                            <dd class="font-semibold text-viola-900">{{ cart.subtotal|euro }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sabbia-700">Spedizione</dt>
+                            <dd class="font-semibold text-viola-900" x-text="shippingLabel">
+                                {{ shippingCost > 0 ? shippingCost|euro : 'gratuita' }}
+                            </dd>
+                        </div>
+                        <div class="flex justify-between border-t border-sabbia-200 pt-3">
+                            <dt class="font-display text-base font-bold text-viola-900">Totale</dt>
+                            <dd class="font-display text-lg font-extrabold text-viola-900">{{ total|euro }}</dd>
+                        </div>
+                    </dl>
+
+                    <p class="mt-3 text-xs text-sabbia-600">
+                        Il totale definitivo viene ricalcolato dal server alla conferma.
+                    </p>
+
+                    <button type="submit" class="btn-accento mt-5 w-full text-base">
+                        Invia la richiesta d ordine
+                    </button>
+
+                    <p class="mt-3 text-center text-xs text-sabbia-600">
+                        Inviando accetti il trattamento dei dati descritto nella
+                        <a href="{{ route('page.privacy') }}" class="font-semibold text-viola-800 underline underline-offset-2 focus-ring rounded">privacy policy</a>.
+                    </p>
+
+                    <a href="{{ route('cart.show') }}" class="btn-fantasma mt-2 w-full text-sm">Torna al carrello</a>
+                </div>
+            </aside>
+        </form>
+    </section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{#
+  Layout del sito pubblico: intestazione, contenuto, piede di pagina.
+  I punti di riferimento (header, nav, main, footer) sono elementi semantici,
+  non div: e cio che permette a uno screen reader di saltare fra le sezioni.
+#}
+{% extends 'layouts/base.twig' %}
+
+{% block body %}
+    {{ include('components/site-header.twig') }}
+
+    <main id="contenuto" class="min-h-[60vh]">
+        {% if not isHome|default(false) and seo is defined and seo and seo.hasBreadcrumbs %}
+            {{ include('components/breadcrumbs.twig', { crumbs: seo.breadcrumbs }) }}
+        {% endif %}
+
+        {{ include('components/alerts.twig') }}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {{ include('components/site-footer.twig') }}
+{% endblock %}

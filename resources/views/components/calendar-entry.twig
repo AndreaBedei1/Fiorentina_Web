@@ -1,0 +1,46 @@
+{# Voce dell elenco calendario: vale sia per le partite sia per gli eventi. #}
+<li>
+    <article class="flex items-start gap-3 rounded-card border-l-4 bg-white p-4 shadow-card {{ entry.accentClasses }}">
+        <div class="flex w-14 shrink-0 flex-col items-center rounded-lg bg-sabbia-50 px-2 py-2">
+            <span class="font-display text-xl font-extrabold leading-none text-viola-900">{{ entry.startsAt|giorno }}</span>
+            <span class="mt-0.5 text-2xs font-bold uppercase text-sabbia-600">{{ entry.startsAt|mese_breve }}</span>
+        </div>
+
+        <div class="min-w-0 flex-1">
+            <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-2xs font-bold uppercase tracking-wide ring-1 ring-inset {{ entry.badgeClasses }}">
+                {{ include('components/icon.twig', { name: entry.icon, class: 'h-3.5 w-3.5' }) }}
+                {{ entry.categoryLabel }}
+            </span>
+
+            <h3 class="mt-1.5 font-display text-base font-bold leading-snug text-viola-900">
+                {% if entry.url %}
+                    <a href="{{ entry.url }}" class="rounded transition hover:text-viola-700 focus-ring">{{ entry.title }}</a>
+                {% else %}
+                    {{ entry.title }}
+                {% endif %}
+            </h3>
+
+            <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-sabbia-600">
+                <span class="inline-flex items-center gap-1">
+                    {{ include('components/icon.twig', { name: 'clock', class: 'h-3.5 w-3.5' }) }}
+                    <time datetime="{{ entry.startsAt|iso }}">{{ entry.startsAt|ora }}</time>
+                </span>
+                {% if entry.location %}
+                    <span class="inline-flex items-center gap-1">
+                        {{ include('components/icon.twig', { name: 'pin', class: 'h-3.5 w-3.5' }) }}
+                        {{ entry.location }}
+                    </span>
+                {% endif %}
+                {% if entry.detail %}
+                    <span class="text-sabbia-500">{{ entry.detail }}</span>
+                {% endif %}
+            </p>
+
+            {% if entry.isCancelled %}
+                <p class="mt-1.5 inline-flex rounded-md bg-rosso-50 px-2 py-0.5 text-2xs font-bold uppercase text-rosso-800 ring-1 ring-rosso-200">
+                    Annullato
+                </p>
+            {% endif %}
+        </div>
+    </article>
+</li>

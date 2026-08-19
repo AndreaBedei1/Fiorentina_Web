@@ -1,0 +1,24 @@
+{# Intestazione delle pagine del pannello: titolo, descrizione e azione principale. #}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
+        {% if back is defined and back %}
+            <a href="{{ back.url }}" class="mb-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-sabbia-600 transition hover:text-viola-900 focus-ring rounded">
+                {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                {{ back.label }}
+            </a>
+        {% endif %}
+
+        <h1 class="font-display text-2xl font-bold text-viola-900">{{ title }}</h1>
+
+        {% if description is defined and description %}
+            <p class="mt-1 max-w-2xl text-sm leading-relaxed text-sabbia-600">{{ description }}</p>
+        {% endif %}
+    </div>
+
+    {% if action is defined and action %}
+        <a href="{{ action.url }}" class="btn-primario shrink-0">
+            {{ include('components/icon.twig', { name: action.icon|default('plus'), class: 'h-4 w-4' }) }}
+            {{ action.label }}
+        </a>
+    {% endif %}
+</div>

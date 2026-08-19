@@ -1,0 +1,322 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = album is null %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Nuovo album' : album.title,
+        description: isNew ? 'Crea l album, poi potrai caricare le fotografie.' : null,
+        back: { url: route('admin.gallery.index'), label: 'Torna alla galleria' }
+    }) }}
+
+    <div class="grid gap-5 lg:grid-cols-3">
+
+        {# --- Dati dell album --- #}
+        <form action="{{ isNew ? route('admin.gallery.store') : route('admin.gallery.update', { id: album.id }) }}"
+              method="post" class="lg:col-span-1">
+            {{ csrf_field()|raw }}
+
+            <section class="pannello">
+                <div class="pannello-testata">
+                    <h2 class="font-display text-base font-bold text-viola-900">Dati dell album</h2>
+                </div>
+
+                <div class="pannello-corpo space-y-4" x-data="slugField"
+                     data-slug="{{ isNew ? '' : album.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+
+                    <div>
+                        <label for="campo-title" class="campo-label" data-required>Titolo</label>
+                        <input type="text" id="campo-title" name="title" required maxlength="200"
+                               value="{{ old('title', isNew ? '' : album.title) }}"
+                               @input="fromTitle" class="campo-input"
+                               {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
+                        {% if has_error('title') %}
+                            <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('title') }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="campo-slug" class="campo-label">Indirizzo</label>
+                        <div class="flex items-center gap-2">
+                            <span class="shrink-0 text-sm text-sabbia-500">/galleria/</span>
+                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
+                                   maxlength="200" class="campo-input font-mono text-sm">
+                        </div>
+                        {% if not isNew %}
+                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
+                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
+                                <span>Aggiorna anche l indirizzo pubblico</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    {{ include('components/field.twig', {
+                        name: 'description', label: 'Descrizione', type: 'textarea', rows: 3, maxlength: 2000,
+                        value: old('description', isNew ? '' : album.description)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'event_date', label: 'Data', type: 'date',
+                        value: old('event_date', isNew or not album.eventDate ? '' : album.eventDate|iso_data),
+                        help: 'Serve a ordinare gli album e a filtrarli per anno.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'category', label: 'Tipo', type: 'select', options: categories,
+                        value: old('category', isNew ? 'altro' : album.category)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'status', label: 'Stato', type: 'select', options: statuses,
+                        value: old('status', isNew ? 'draft' : album.status)
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'sort_order', label: 'Ordinamento', type: 'number', min: 0, max: 9999,
+                        value: old('sort_order', isNew ? 0 : album.sortOrder),
+                        help: 'I valori piu bassi compaiono per primi.'
+                    }) }}
+
+                    {{ include('components/field.twig', {
+                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
+                        value: old('meta_description', isNew ? '' : album.metaDescription)
+                    }) }}
+
+                    <div class="border-t border-sabbia-200 pt-4">
+                        <button type="submit" class="btn-primario w-full">Salva album</button>
+                    </div>
+                </div>
+            </section>
+        </form>
+
+        {# --- Fotografie --- #}
+        <div class="space-y-5 lg:col-span-2">
+            {% if isNew %}
+                <section class="pannello">
+                    {{ include('components/admin-empty.twig', {
+                        icon: 'upload', title: 'Prima salva l album',
+                        message: 'Le fotografie si caricano dopo aver creato l album: servono a saperle dove archiviare.'
+                    }) }}
+                </section>
+            {% else %}
+
+                {# --- Caricamento multiplo --- #}
+                <section class="pannello">
+                    <div class="pannello-testata">
+                        <h2 class="font-display text-base font-bold text-viola-900">Carica fotografie</h2>
+                        <form action="{{ route('admin.gallery.regenerate', { id: album.id }) }}" method="post">
+                            {{ csrf_field()|raw }}
+                            <button type="submit" class="btn-fantasma btn-piccolo"
+                                    title="Riapplica la filigrana con le impostazioni correnti">
+                                Rielabora tutte
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="pannello-corpo">
+                        <div x-data="photoUploader"
+                             data-endpoint="{{ route('admin.gallery.upload', { id: album.id }) }}"
+                             data-token="{{ csrf_token() }}"
+                             data-max-bytes="{{ maxUploadBytes }}">
+
+                            {# Area di trascinamento. Il campo file resta comunque
+                               utilizzabile: trascinare non e possibile da tastiera. #}
+                            <div @dragover.prevent="onDragOver"
+                                 @dragleave="onDragLeave"
+                                 @drop.prevent="onDrop"
+                                 :class="dropZoneClass"
+                                 class="rounded-card border-2 border-dashed border-sabbia-300 bg-sabbia-50 p-6 text-center transition">
+
+                                <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-viola-600 shadow-sm">
+                                    {{ include('components/icon.twig', { name: 'upload', class: 'h-6 w-6' }) }}
+                                </span>
+
+                                <p class="mt-3 text-sm font-semibold text-viola-900">
+                                    Trascina qui le fotografie, oppure
+                                </p>
+
+                                <label class="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-viola-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-viola-900 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-viola-600">
+                                    {{ include('components/icon.twig', { name: 'image', class: 'h-4 w-4' }) }}
+                                    Scegli i file
+                                    <input type="file" multiple accept="image/jpeg,image/png,image/webp"
+                                           @change="onSelect" class="sr-only">
+                                </label>
+
+                                <p class="mt-3 text-xs text-sabbia-600">
+                                    JPG, PNG o WebP. Massimo {{ (maxUploadBytes / 1024 / 1024)|round }} MB per file.
+                                    Le immagini vengono ridimensionate e la filigrana applicata automaticamente.
+                                </p>
+                            </div>
+
+                            {# --- Coda --- #}
+                            <div x-show="hasQueue" x-cloak class="mt-4">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <p class="text-sm font-semibold text-viola-900" x-text="queueLabel"></p>
+                                    <div class="flex gap-2">
+                                        <button type="button" @click="clear" x-show="isIdle" class="btn-fantasma btn-piccolo">Svuota</button>
+                                        <button type="button" @click="upload" :disabled="uploading" class="btn-accento btn-piccolo">
+                                            {{ include('components/icon.twig', { name: 'upload', class: 'h-3.5 w-3.5' }) }}
+                                            Carica
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <ul class="mt-2 max-h-40 space-y-1 overflow-y-auto text-sm" role="list">
+                                    <template x-for="(file, index) in queue" :key="index">
+                                        <li class="flex items-center justify-between gap-2 rounded bg-sabbia-50 px-2.5 py-1.5">
+                                            <span class="min-w-0 flex-1 truncate text-sabbia-800" x-text="file.name"></span>
+                                            <button type="button" @click="removeFile" :data-index="index" x-show="isIdle"
+                                                    class="shrink-0 text-sabbia-500 hover:text-rosso-700 focus-ring rounded">
+                                                <span class="sr-only">Togli dalla coda</span>
+                                                {{ include('components/icon.twig', { name: 'close', class: 'h-4 w-4' }) }}
+                                            </button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            {# --- Avanzamento --- #}
+                            <div x-show="uploading" x-cloak class="mt-4" role="status" aria-live="polite">
+                                <div class="flex items-center justify-between text-sm font-semibold text-viola-900">
+                                    <span>Caricamento in corso...</span>
+                                    <span x-text="progressLabel"></span>
+                                </div>
+                                <div class="barra-avanzamento mt-1.5">
+                                    <span :style="progressStyle"></span>
+                                </div>
+                            </div>
+
+                            {# --- Errori --- #}
+                            <div x-show="hasErrors" x-cloak class="mt-4" role="alert">
+                                <p class="text-sm font-semibold text-rosso-800">Alcuni file non sono stati accettati:</p>
+                                <ul class="mt-1.5 space-y-1 text-sm text-rosso-700" role="list">
+                                    <template x-for="(message, index) in errors" :key="index">
+                                        <li x-text="message"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {# --- Elenco fotografie --- #}
+                <section class="pannello">
+                    <div class="pannello-testata">
+                        <h2 class="font-display text-base font-bold text-viola-900">
+                            Fotografie dell album
+                            <span class="ml-1 text-sm font-normal text-sabbia-500">({{ photos|length }})</span>
+                        </h2>
+                    </div>
+
+                    {% if photos is empty %}
+                        {{ include('components/admin-empty.twig', {
+                            icon: 'image', title: 'Album vuoto',
+                            message: 'Carica le prime fotografie usando il riquadro qui sopra.'
+                        }) }}
+                    {% else %}
+                        <div class="pannello-corpo"
+                             x-data="sortableList"
+                             data-endpoint="{{ route('admin.gallery.reorder', { id: album.id }) }}"
+                             data-token="{{ csrf_token() }}">
+
+                            <p class="mb-3 text-sm text-sabbia-600">
+                                Trascina le fotografie per riordinarle, oppure usa le frecce.
+                                <span x-show="hasMessage" x-cloak class="font-semibold text-viola-800" x-text="message" role="status"></span>
+                            </p>
+
+                            <ul x-ref="list" class="grid grid-cols-2 gap-3 sm:grid-cols-3" role="list">
+                                {% for photo in photos %}
+                                    <li data-sortable-item data-id="{{ photo.id }}" draggable="true"
+                                        @dragstart="onDragStart" @dragover.prevent="onDragOver" @drop.prevent="onDrop"
+                                        class="overflow-hidden rounded-card border border-sabbia-200 bg-white">
+
+                                        <span class="block aspect-square overflow-hidden bg-sabbia-100">
+                                            {{ include('components/responsive-image.twig', {
+                                                key: photo.storageKey, collection: 'gallery',
+                                                alt: photo.alt, size: 'thumb',
+                                                class: 'h-full w-full object-cover', sizes: '200px'
+                                            }) }}
+                                        </span>
+
+                                        <div class="p-2">
+                                            <div class="flex items-center justify-between gap-1">
+                                                <div class="flex gap-0.5">
+                                                    <button type="button" @click="moveUp"
+                                                            class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-sabbia-100 focus-ring">
+                                                        <span class="sr-only">Sposta indietro</span>
+                                                        {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-3.5 w-3.5' }) }}
+                                                    </button>
+                                                    <button type="button" @click="moveDown"
+                                                            class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-sabbia-100 focus-ring">
+                                                        <span class="sr-only">Sposta avanti</span>
+                                                        {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-3.5 w-3.5' }) }}
+                                                    </button>
+                                                </div>
+
+                                                <div class="flex gap-0.5">
+                                                    {% if album.coverPhotoId != photo.id %}
+                                                        <form action="{{ route('admin.gallery.photo.cover', { photoId: photo.id }) }}" method="post">
+                                                            {{ csrf_field()|raw }}
+                                                            <button type="submit" title="Usa come copertina"
+                                                                    class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-sabbia-100 focus-ring">
+                                                                <span class="sr-only">Usa come copertina</span>
+                                                                {{ include('components/icon.twig', { name: 'star', class: 'h-3.5 w-3.5' }) }}
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        <span class="flex h-7 w-7 items-center justify-center rounded text-amber-500" title="Copertina attuale">
+                                                            <span class="sr-only">Copertina attuale</span>
+                                                            {{ include('components/icon.twig', { name: 'star', class: 'h-3.5 w-3.5' }) }}
+                                                        </span>
+                                                    {% endif %}
+
+                                                    <form action="{{ route('admin.gallery.photo.destroy', { photoId: photo.id }) }}"
+                                                          method="post" x-data="confirmAction">
+                                                        {{ csrf_field()|raw }}
+                                                        <button type="button" @click="ask" x-show="isIdle"
+                                                                class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
+                                                            <span class="sr-only">Elimina fotografia</span>
+                                                            {{ include('components/icon.twig', { name: 'trash', class: 'h-3.5 w-3.5' }) }}
+                                                        </button>
+                                                        <span x-show="isConfirming" x-cloak class="flex gap-0.5">
+                                                            <button type="submit" class="rounded bg-rosso-600 px-1.5 py-1 text-2xs font-bold text-white">Si</button>
+                                                            <button type="button" @click="cancel" class="rounded bg-sabbia-200 px-1.5 py-1 text-2xs font-bold text-sabbia-800">No</button>
+                                                        </span>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            <details class="mt-1.5">
+                                                <summary class="cursor-pointer text-xs font-semibold text-viola-800 focus-ring rounded">
+                                                    Titolo e didascalia
+                                                </summary>
+                                                <form action="{{ route('admin.gallery.photo.update', { photoId: photo.id }) }}"
+                                                      method="post" class="mt-2 space-y-2">
+                                                    {{ csrf_field()|raw }}
+                                                    <label class="sr-only" for="foto-{{ photo.id }}-titolo">Titolo</label>
+                                                    <input type="text" id="foto-{{ photo.id }}-titolo" name="title" value="{{ photo.title }}"
+                                                           placeholder="Titolo" maxlength="200" class="campo-input text-xs">
+
+                                                    <label class="sr-only" for="foto-{{ photo.id }}-alt">Testo alternativo</label>
+                                                    <input type="text" id="foto-{{ photo.id }}-alt" name="alt_text" value="{{ photo.altText }}"
+                                                           placeholder="Testo alternativo" maxlength="300" class="campo-input text-xs">
+
+                                                    <label class="sr-only" for="foto-{{ photo.id }}-didascalia">Didascalia</label>
+                                                    <input type="text" id="foto-{{ photo.id }}-didascalia" name="caption" value="{{ photo.caption }}"
+                                                           placeholder="Didascalia" maxlength="500" class="campo-input text-xs">
+
+                                                    <input type="hidden" name="status" value="{{ photo.status }}">
+                                                    <button type="submit" class="btn-secondario btn-piccolo w-full">Salva</button>
+                                                </form>
+                                            </details>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </section>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

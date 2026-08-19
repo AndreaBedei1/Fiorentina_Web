@@ -1,0 +1,80 @@
+# =============================================================================
+#  Ambiente di sviluppo locale
+# =============================================================================
+#  Riproduce lo stack di produzione (Apache + PHP + MySQL 8) e aggiunge Mailpit
+#  per vedere le email senza spedirle davvero.
+#
+#      docker compose up -d
+#      docker compose exec app php scripts/migrate.php
+#      docker compose exec app php scripts/seed.php
+#
+#  Sito:    http://localhost:8080
+#  Email:   http://localhost:8025
+#
+#  Docker serve SOLO in sviluppo: la produzione e un hosting condiviso Aruba e
+#  non ha bisogno di nulla di tutto questo.
+# =============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      # Bind mount: le modifiche al codice si vedono subito, senza ricostruire.
+      - .:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: baraonda
+      DB_USERNAME: baraonda
+      DB_PASSWORD: baraonda
+      DB_TEST_DATABASE: baraonda_test
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_ENCRYPTION: "null"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      # Esposto per poter usare un client esterno; in rete interna basta "mysql".
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: baraonda
+      MYSQL_USER: baraonda
+      MYSQL_PASSWORD: baraonda
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # L'app deve partire solo a database pronto, altrimenti la prima
+      # migrazione fallisce con un errore di connessione poco chiaro.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # interfaccia web
+    environment:
+      MP_MAX_MESSAGES: "500"
+
+volumes:
+  mysql-data:
