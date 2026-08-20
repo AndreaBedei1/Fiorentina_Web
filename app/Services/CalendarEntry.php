@@ -38,6 +38,16 @@ final readonly class CalendarEntry
     ) {
     }
 
+    /**
+     * Vero se l'orario e davvero quello, falso se la lega ha fissato solo la
+     * data. Gli appuntamenti del gruppo hanno sempre un orario scelto da una
+     * persona, quindi per loro e sempre vero.
+     */
+    public function timeConfirmed(): bool
+    {
+        return $this->match?->kickoffTimeConfirmed ?? true;
+    }
+
     public static function fromEvent(Event $event): self
     {
         return new self(

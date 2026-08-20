@@ -59,7 +59,7 @@
                             <tr>
                                 <td class="text-sm">
                                     <time datetime="{{ match.kickoffAt|iso }}">{{ match.kickoffAt|data_numerica }}</time>
-                                    <span class="block text-xs text-sabbia-500">{{ match.kickoffAt|ora }}</span>
+                                    <span class="block text-xs text-sabbia-500">{{ match.kickoffTimeConfirmed ? match.kickoffAt|ora : 'orario da definire' }}</span>
                                 </td>
                                 <td>
                                     <span class="font-semibold text-viola-900">{{ match.title }}</span>

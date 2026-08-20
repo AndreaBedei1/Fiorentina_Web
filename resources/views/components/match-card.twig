@@ -48,7 +48,9 @@
             <div class="flex items-center gap-1.5">
                 <dt class="sr-only">Orario</dt>
                 {{ include('components/icon.twig', { name: 'clock', class: 'h-4 w-4' }) }}
-                <dd>{{ match.kickoffAt|ora }}</dd>
+                {# Quando la lega ha fissato solo la data, l'orario memorizzato
+                   e un segnaposto: dirlo e piu utile che mostrare le 02:00. #}
+                <dd>{{ match.kickoffTimeConfirmed ? match.kickoffAt|ora : 'orario da definire' }}</dd>
             </div>
             {% if match.venue %}
                 <div class="flex items-center gap-1.5">

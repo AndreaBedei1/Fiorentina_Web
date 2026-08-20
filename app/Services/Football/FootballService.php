@@ -87,6 +87,24 @@ final class FootballService
         $upcoming = 0;
         $results = 0;
 
+        /*
+         * Passando ai dati veri, le partite dimostrative restavano in
+         * calendario accanto a quelle autentiche. Un elenco meta vero e meta
+         * inventato e peggio di uno dichiaratamente inventato: chi lo legge non
+         * ha modo di distinguere.
+         *
+         * Si puliscono prima di scrivere, non dopo: se la sincronizzazione
+         * fallisse a meta, meglio un calendario vuoto che uno finto.
+         */
+        $rimosse = $this->repository->deleteFromOtherProviders($provider->name());
+
+        if ($rimosse > 0) {
+            $this->logger->info('Rimosse partite di un fornitore precedente.', [
+                'quante' => $rimosse,
+                'fornitore_attivo' => $provider->name(),
+            ]);
+        }
+
         try {
             foreach ($provider->fetchUpcomingMatches(20) as $match) {
                 $this->store($match, $provider->name());
@@ -147,10 +165,28 @@ final class FootballService
             'opponent' => $match->opponentOf($teamName),
             'venue' => $match->venue,
             'kickoff_at' => $match->kickoffAt->format('Y-m-d H:i:s'),
+            'kickoff_time_confirmed' => $match->timeConfirmed ? 1 : 0,
             'status' => $match->status,
             'home_score' => $match->homeScore,
             'away_score' => $match->awayScore,
         ]);
+    }
+
+    /** Nomi ammessi per il fornitore. */
+    private const FORNITORI = ['mock', 'football-data', 'apifootball'];
+
+    /**
+     * Ripulisce il valore letto dal .env.
+     *
+     * Spazi, maiuscole, virgolette e punteggiatura finale sono gli inciampi
+     * tipici di un valore copiato da un messaggio o da una guida: non c'e
+     * ragione di trattarli come errori quando l'intenzione e evidente.
+     */
+    private static function normalizzaNome(string $valore): string
+    {
+        $superflui = " " . chr(9) . chr(10) . chr(13) . chr(0) . chr(11) . ".,;:" . chr(39) . chr(34);
+
+        return strtolower(trim($valore, $superflui));
     }
 
     /** Costruisce il fornitore indicato dalla configurazione. */
@@ -160,7 +196,21 @@ final class FootballService
         $season = $this->config->int('services.football.season', (int) date('Y'));
         $apiKey = $this->config->string('services.football.api_key');
 
-        $configured = $this->config->string('services.football.provider', 'mock');
+        $configured = self::normalizzaNome($this->config->string('services.football.provider', 'mock'));
+
+        /*
+         * Un nome sconosciuto ricadeva in silenzio sul fornitore fittizio, e il
+         * sito continuava a mostrare partite inventate come se nulla fosse.
+         * E successo davvero, per un punto di troppo copiato insieme al nome:
+         * "football-data." invece di "football-data". Ora si sente.
+         */
+        if (! in_array($configured, self::FORNITORI, true)) {
+            $this->logger->error('Fornitore calcio sconosciuto: uso quello dimostrativo.', [
+                'configurato' => $this->config->string('services.football.provider'),
+                'ammessi' => self::FORNITORI,
+            ]);
+            $configured = 'mock';
+        }
 
         // Senza chiave non ha senso tentare il fornitore reale: ricadiamo su
         // quello fittizio, così il sito resta popolato e navigabile.

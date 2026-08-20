@@ -29,6 +29,12 @@ final readonly class FootballMatchData
         public ?string $venue = null,
         public ?int $homeScore = null,
         public ?int $awayScore = null,
+        /**
+         * Falso quando la lega ha fissato la data ma non ancora l'ora: in quel
+         * caso i fornitori mandano mezzanotte come segnaposto, e prenderla per
+         * buona significa mostrare una partita alle due di notte.
+         */
+        public bool $timeConfirmed = true,
     ) {
     }
 

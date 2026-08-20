@@ -368,4 +368,25 @@ final class FootballDataProviderTest extends TestCase
         self::assertStringContainsString('dateTo=2026-08-20', $http->chiamate[0]);
         self::assertStringContainsString('status=FINISHED', $http->chiamate[0]);
     }
+
+    #[Test]
+    public function distingue_l_orario_confermato_da_quello_ancora_da_fissare(): void
+    {
+        $conOra = self::partitaInProgramma();          // status TIMED
+
+        $senzaOra = self::partitaInProgramma();
+        $senzaOra['id'] = 498002;
+        $senzaOra['status'] = 'SCHEDULED';
+        // Quando la lega non ha ancora deciso l'ora, il servizio manda
+        // mezzanotte come segnaposto. Presa per buona diventa "le 02:00" in
+        // Italia: un orario inventato, identico a uno vero per chi legge.
+        $senzaOra['utcDate'] = '2026-10-11T00:00:00Z';
+
+        $provider = $this->provider(['/teams/99/matches' => ['matches' => [$conOra, $senzaOra]]]);
+
+        $partite = $provider->fetchUpcomingMatches(5);
+
+        self::assertTrue($partite[0]->timeConfirmed);
+        self::assertFalse($partite[1]->timeConfirmed);
+    }
 }

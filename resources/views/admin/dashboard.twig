@@ -124,7 +124,7 @@
                         <p class="text-2xs font-bold uppercase tracking-[0.12em] text-viola-300">{{ nextMatch.competition }}</p>
                         <p class="mt-1 font-display text-base font-bold">{{ nextMatch.title }}</p>
                         <p class="mt-0.5 text-sm text-viola-200">
-                            {{ nextMatch.kickoffAt|data_estesa }}, ore {{ nextMatch.kickoffAt|ora }} - {{ nextMatch.venueLabel|lower }}
+                            {{ nextMatch.kickoffAt|data_estesa }}{{ nextMatch.kickoffTimeConfirmed ? ', ore ' ~ nextMatch.kickoffAt|ora : ' (orario da definire)' }} - {{ nextMatch.venueLabel|lower }}
                         </p>
                     </div>
                 {% endif %}

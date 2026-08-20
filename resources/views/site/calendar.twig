@@ -93,16 +93,24 @@
                                     </span>
 
                                     {% for entry in cell.entries %}
+                                        {# Nella griglia lo spazio e pochissimo: senza orario
+                                           confermato si mostra solo il titolo, e il dettaglio
+                                           sta nel title dell'elemento. #}
+                                        {% set oraBreve = entry.timeConfirmed ? entry.startsAt|ora ~ ' ' : '' %}
+                                        {% set titoloEsteso = entry.timeConfirmed
+                                            ? entry.title ~ ' - ore ' ~ entry.startsAt|ora
+                                            : entry.title ~ ' - orario da definire' %}
+
                                         {% if entry.url %}
                                             <a href="{{ entry.url }}"
                                                class="mb-1 block truncate rounded border-l-2 px-1.5 py-1 text-2xs font-semibold transition hover:brightness-95 focus-ring {{ entry.badgeClasses }} {{ entry.accentClasses }}"
-                                               title="{{ entry.title }} - ore {{ entry.startsAt|ora }}">
-                                                {{ entry.startsAt|ora }} {{ entry.title }}
+                                               title="{{ titoloEsteso }}">
+                                                {{ oraBreve }}{{ entry.title }}
                                             </a>
                                         {% else %}
                                             <span class="mb-1 block truncate rounded border-l-2 px-1.5 py-1 text-2xs font-semibold {{ entry.badgeClasses }} {{ entry.accentClasses }}"
-                                                  title="{{ entry.title }} - ore {{ entry.startsAt|ora }}">
-                                                {{ entry.startsAt|ora }} {{ entry.title }}
+                                                  title="{{ titoloEsteso }}">
+                                                {{ oraBreve }}{{ entry.title }}
                                             </span>
                                         {% endif %}
                                     {% endfor %}

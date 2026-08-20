@@ -217,6 +217,9 @@ final class CalendarController extends Controller
             'opponent' => $isHome ? $awayTeam : $homeTeam,
             'venue' => $validated['venue'] ?? null,
             'kickoff_at' => Dates::combineToDatabase($validated['kickoff_date'] ?? null, $validated['kickoff_time'] ?? null),
+            // Un orario scritto a mano e per definizione quello giusto: chi
+            // compila il modulo sa a che ora si gioca.
+            'kickoff_time_confirmed' => 1,
             'status' => (string) ($validated['status'] ?? FootballMatch::STATUS_SCHEDULED),
             'home_score' => $validated['home_score'] ?? null,
             'away_score' => $validated['away_score'] ?? null,

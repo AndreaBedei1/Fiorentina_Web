@@ -305,6 +305,9 @@ final class FootballDataProvider implements FootballApiInterface
             venue: isset($partita['venue']) && is_string($partita['venue']) ? $partita['venue'] : null,
             homeScore: isset($punteggio['home']) && $punteggio['home'] !== null ? (int) $punteggio['home'] : null,
             awayScore: isset($punteggio['away']) && $punteggio['away'] !== null ? (int) $punteggio['away'] : null,
+            // TIMED = ora confermata, SCHEDULED = solo la data. Le partite
+            // gia giocate hanno ovviamente un orario reale.
+            timeConfirmed: (string) ($partita['status'] ?? '') !== 'SCHEDULED',
         );
     }
 

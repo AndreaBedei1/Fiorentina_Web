@@ -156,6 +156,29 @@ final class FootballMatchRepository extends BaseRepository
         return $this->db->statement('DELETE FROM football_matches WHERE id = :id', ['id' => $id]) > 0;
     }
 
+    /**
+     * Elimina le partite lasciate da un fornitore che non e piu quello attivo.
+     *
+     * Passando dai dati dimostrativi a quelli veri, le partite inventate
+     * restavano a database e comparivano in calendario accanto a quelle
+     * autentiche: un elenco meta vero e meta finto, che e peggio di un elenco
+     * dichiaratamente finto.
+     *
+     * Le partite inserite a mano non si toccano mai: le ha scritte una persona.
+     *
+     * @return int Quante ne sono state eliminate.
+     */
+    public function deleteFromOtherProviders(string $activeProvider): int
+    {
+        return $this->db->statement(
+            'DELETE FROM football_matches
+             WHERE is_manual = 0
+               AND provider <> :attivo
+               AND provider <> :manuale',
+            ['attivo' => $activeProvider, 'manuale' => 'manual'],
+        );
+    }
+
     public function lastSyncedAt(): ?string
     {
         $value = $this->db->scalar('SELECT MAX(synced_at) FROM football_matches');

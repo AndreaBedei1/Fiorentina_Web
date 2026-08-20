@@ -187,4 +187,62 @@ final class ExternalProvidersTest extends IntegrationTestCase
             $this->assertNotEmpty($provider->fetchLatest(3));
         }
     }
+
+    #[Test]
+    public function la_sincronizzazione_rimuove_le_partite_di_un_altro_fornitore(): void
+    {
+        $repository = self::app()->get(FootballMatchRepository::class);
+
+        // Una partita lasciata da un fornitore diverso da quello attivo:
+        // e la situazione che si crea passando dai dati dimostrativi a quelli
+        // veri, e che riempiva il calendario di partite meta vere e meta
+        // inventate senza che si potesse distinguerle.
+        $repository->upsert([
+            'provider' => 'un-altro-fornitore',
+            'external_id' => 'vecchia-1',
+            'competition' => 'Serie A',
+            'home_team' => 'Fiorentina',
+            'away_team' => 'Squadra Immaginaria',
+            'is_home' => 1,
+            'opponent' => 'Squadra Immaginaria',
+            'kickoff_at' => date('Y-m-d H:i:s', strtotime('+20 days')),
+            'status' => 'scheduled',
+            'is_manual' => 0,
+        ]);
+
+        $inserite = $repository->count();
+
+        self::app()->get(FootballService::class)->sync();
+
+        $rimaste = array_filter(
+            $repository->upcoming(50),
+            static fn ($partita): bool => $partita->awayTeam === 'Squadra Immaginaria',
+        );
+
+        $this->assertGreaterThan(0, $inserite);
+        $this->assertSame([], $rimaste, 'Le partite di un fornitore superato devono sparire.');
+    }
+
+    #[Test]
+    public function le_partite_inserite_a_mano_sopravvivono_al_cambio_di_fornitore(): void
+    {
+        $repository = self::app()->get(FootballMatchRepository::class);
+
+        $id = $repository->createManual([
+            'competition' => 'Amichevole',
+            'home_team' => 'Fiorentina',
+            'away_team' => 'Scritta A Mano',
+            'is_home' => 1,
+            'opponent' => 'Scritta A Mano',
+            'kickoff_at' => date('Y-m-d H:i:s', strtotime('+15 days')),
+            'status' => 'scheduled',
+        ]);
+
+        self::app()->get(FootballService::class)->sync();
+
+        // La pulizia guarda il fornitore, ma non deve mai toccare cio che ha
+        // scritto una persona: quello non e un dato scaduto.
+        $this->assertNotNull($repository->find($id));
+        $this->assertSame('Scritta A Mano', $repository->find($id)?->awayTeam);
+    }
 }

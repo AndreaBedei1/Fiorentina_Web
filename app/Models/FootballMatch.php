@@ -45,6 +45,11 @@ final class FootballMatch
         public readonly ?int $awayScore,
         public readonly bool $isManual,
         public readonly ?DateTimeImmutable $syncedAt,
+        /**
+         * Falso quando la lega ha fissato la data ma non ancora l'ora. In quel
+         * caso l'orario memorizzato e un segnaposto e non va mostrato.
+         */
+        public readonly bool $kickoffTimeConfirmed = true,
     ) {
     }
 
@@ -72,6 +77,7 @@ final class FootballMatch
             awayScore: self::castNullableInt($row, 'away_score'),
             isManual: self::castBool($row, 'is_manual'),
             syncedAt: self::castDate($row, 'synced_at'),
+            kickoffTimeConfirmed: self::castBool($row, 'kickoff_time_confirmed', true),
         );
     }
 

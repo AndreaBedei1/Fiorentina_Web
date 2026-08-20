@@ -23,7 +23,11 @@
             <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-sabbia-600">
                 <span class="inline-flex items-center gap-1">
                     {{ include('components/icon.twig', { name: 'clock', class: 'h-3.5 w-3.5' }) }}
-                    <time datetime="{{ entry.startsAt|iso }}">{{ entry.startsAt|ora }}</time>
+                    {% if entry.timeConfirmed %}
+                        <time datetime="{{ entry.startsAt|iso }}">{{ entry.startsAt|ora }}</time>
+                    {% else %}
+                        <span>orario da definire</span>
+                    {% endif %}
                 </span>
                 {% if entry.location %}
                     <span class="inline-flex items-center gap-1">
