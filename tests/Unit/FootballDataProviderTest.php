@@ -6,6 +6,7 @@ namespace Tests\Unit;
 
 use App\Core\Support\HttpClient;
 use App\Services\Football\FootballDataProvider;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -42,7 +43,14 @@ final class FootballDataProviderTest extends TestCase
             }
         };
 
-        return new FootballDataProvider($http, new NullLogger(), 'chiave-finta', 99, 'Fiorentina');
+        return new FootballDataProvider(
+            $http,
+            new NullLogger(),
+            'chiave-finta',
+            99,
+            'Fiorentina',
+            new DateTimeImmutable('2026-08-20 12:00:00'),
+        );
     }
 
     /** @return array<string, mixed> */
@@ -248,5 +256,116 @@ final class FootballDataProviderTest extends TestCase
         self::assertFalse($provider->isConfigured());
         self::assertSame([], $provider->fetchUpcomingMatches(5));
         self::assertSame([], $provider->fetchRecentResults(5));
+    }
+
+    #[Test]
+    public function se_le_risorse_della_squadra_sono_negate_ripiega_sul_campionato(): void
+    {
+        // E lo scenario che non si puo escludere senza una chiave in mano: il
+        // piano gratuito comprende la Serie A ma forse non l'elenco partite di
+        // una squadra, che spazia anche su coppe non comprese.
+        $provider = $this->provider([
+            '/teams/99/matches' => ['errorCode' => 403, 'message' => 'The resource you are looking for is restricted.'],
+            '/competitions/SA/matches' => ['matches' => [self::partitaInProgramma()]],
+        ]);
+
+        $partite = $provider->fetchUpcomingMatches(5);
+
+        self::assertCount(1, $partite);
+        self::assertSame('Fiorentina', $partite[0]->awayTeam);
+    }
+
+    #[Test]
+    public function dal_campionato_tiene_solo_le_partite_della_squadra(): void
+    {
+        $altrui = self::partitaInProgramma();
+        $altrui['id'] = 777;
+        $altrui['homeTeam'] = ['id' => 108, 'name' => 'FC Internazionale Milano', 'shortName' => 'Inter'];
+        $altrui['awayTeam'] = ['id' => 98, 'name' => 'AC Milan', 'shortName' => 'Milan'];
+
+        $provider = $this->provider([
+            '/teams/99/matches' => ['matches' => []],
+            '/competitions/SA/matches' => ['matches' => [$altrui, self::partitaInProgramma()]],
+        ]);
+
+        $partite = $provider->fetchUpcomingMatches(5);
+
+        // L'elenco del campionato contiene tutte e venti le squadre: senza
+        // filtro il calendario del sito si riempirebbe di partite altrui.
+        self::assertCount(1, $partite);
+        self::assertSame('498001', $partite[0]->externalId);
+    }
+
+    #[Test]
+    public function limita_la_ricerca_a_una_finestra_di_date(): void
+    {
+        $http = new class extends HttpClient {
+            /** @var list<string> */
+            public array $chiamate = [];
+
+            public function __construct()
+            {
+                parent::__construct(new NullLogger());
+            }
+
+            public function getJson(string $url, array $headers = []): ?array
+            {
+                $this->chiamate[] = $url;
+
+                return ['matches' => []];
+            }
+        };
+
+        $provider = new FootballDataProvider(
+            $http,
+            new NullLogger(),
+            'chiave-finta',
+            99,
+            'Fiorentina',
+            new DateTimeImmutable('2026-08-20 12:00:00'),
+        );
+
+        $provider->fetchUpcomingMatches(5);
+
+        // Senza limiti di data l'elenco del campionato restituirebbe tutte le
+        // 380 partite della stagione.
+        self::assertStringContainsString('dateFrom=2026-08-20', $http->chiamate[0]);
+        self::assertStringContainsString('dateTo=2026-12-18', $http->chiamate[0]);
+    }
+
+    #[Test]
+    public function i_risultati_guardano_indietro_nel_tempo(): void
+    {
+        $http = new class extends HttpClient {
+            /** @var list<string> */
+            public array $chiamate = [];
+
+            public function __construct()
+            {
+                parent::__construct(new NullLogger());
+            }
+
+            public function getJson(string $url, array $headers = []): ?array
+            {
+                $this->chiamate[] = $url;
+
+                return ['matches' => []];
+            }
+        };
+
+        $provider = new FootballDataProvider(
+            $http,
+            new NullLogger(),
+            'chiave-finta',
+            99,
+            'Fiorentina',
+            new DateTimeImmutable('2026-08-20 12:00:00'),
+        );
+
+        $provider->fetchRecentResults(5);
+
+        self::assertStringContainsString('dateFrom=2026-04-22', $http->chiamate[0]);
+        self::assertStringContainsString('dateTo=2026-08-20', $http->chiamate[0]);
+        self::assertStringContainsString('status=FINISHED', $http->chiamate[0]);
     }
 }

@@ -51,6 +51,7 @@
         "seed": "@php scripts/seed.php",
         "make:admin": "@php scripts/create-admin.php",
         "mail:test": "@php scripts/test-mail.php",
+        "football:check": "@php scripts/check-football-api.php",
         "test": "phpunit",
         "test:unit": "phpunit --testsuite=Unit",
         "test:integration": "phpunit --testsuite=Integration",

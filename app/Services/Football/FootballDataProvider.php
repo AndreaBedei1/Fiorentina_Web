@@ -20,6 +20,19 @@ use Psr\Log\LoggerInterface;
  * al servizio filtrando le squadre di Serie A per nome. Costa una richiesta in
  * piu la prima volta, ed evita a chi installa il sito di andare a caccia di un
  * numero su una pagina di documentazione.
+ *
+ * DUE STRADE PER LE STESSE PARTITE
+ *
+ * La documentazione non dice quali risorse comprenda il piano gratuito, e la
+ * risposta si scopre solo con una chiave in mano. C'e un motivo concreto per
+ * dubitare: /teams/{id}/matches restituisce le partite di TUTTE le competizioni
+ * a cui la squadra partecipa, comprese Coppa Italia e coppe europee, che nel
+ * piano gratuito non ci sono. Il servizio potrebbe rifiutare l'intera richiesta.
+ *
+ * Quindi si prova prima quella strada, che e la piu ricca, e se non arriva
+ * nulla si ripiega su /competitions/SA/matches filtrando la Fiorentina: la
+ * Serie A e sicuramente compresa nel piano gratuito, quindi quel percorso
+ * funziona in ogni caso. Si perdono le coppe, si tiene il campionato.
  */
 final class FootballDataProvider implements FootballApiInterface
 {
@@ -28,7 +41,17 @@ final class FootballDataProvider implements FootballApiInterface
     /** Codice della Serie A nel catalogo del servizio. */
     private const CAMPIONATO = 'SA';
 
+    /**
+     * Ampiezza della finestra temporale, in giorni, entro cui cercare le
+     * partite. Serve all'endpoint del campionato, che senza limiti di data
+     * restituirebbe tutte le 380 partite della stagione.
+     */
+    private const GIORNI_FINESTRA = 120;
+
     private ?int $teamIdRisolto = null;
+
+    /** Vero quando l'endpoint della squadra si e gia rivelato inutilizzabile. */
+    private bool $soloCampionato = false;
 
     public function __construct(
         private readonly HttpClient $http,
@@ -36,7 +59,13 @@ final class FootballDataProvider implements FootballApiInterface
         private readonly string $apiKey,
         private readonly int $teamId = 0,
         private readonly string $teamName = 'Fiorentina',
+        private readonly ?DateTimeImmutable $riferimento = null,
     ) {
+    }
+
+    private function adesso(): DateTimeImmutable
+    {
+        return $this->riferimento ?? new DateTimeImmutable();
     }
 
     public function name(): string
@@ -52,10 +81,12 @@ final class FootballDataProvider implements FootballApiInterface
     /** @return list<FootballMatchData> */
     public function fetchUpcomingMatches(int $limit = 10): array
     {
+        $adesso = $this->adesso();
+
         // SCHEDULED e TIMED sono entrambe "da giocare": la seconda indica che
         // l'orario e ormai confermato. Chiederne una sola perderebbe meta
         // calendario.
-        $partite = $this->fetchMatches(['status' => 'SCHEDULED,TIMED', 'limit' => $limit]);
+        $partite = $this->cerca('SCHEDULED,TIMED', $adesso, $adesso->modify('+' . self::GIORNI_FINESTRA . ' days'), $limit);
 
         usort($partite, static fn (FootballMatchData $a, FootballMatchData $b) => $a->kickoffAt <=> $b->kickoffAt);
 
@@ -65,7 +96,9 @@ final class FootballDataProvider implements FootballApiInterface
     /** @return list<FootballMatchData> */
     public function fetchRecentResults(int $limit = 10): array
     {
-        $partite = $this->fetchMatches(['status' => 'FINISHED', 'limit' => $limit]);
+        $adesso = $this->adesso();
+
+        $partite = $this->cerca('FINISHED', $adesso->modify('-' . self::GIORNI_FINESTRA . ' days'), $adesso, $limit);
 
         // Il servizio le restituisce dalla piu vecchia: qui servono al
         // contrario, perche in pagina si mostrano gli ultimi risultati.
@@ -75,24 +108,53 @@ final class FootballDataProvider implements FootballApiInterface
     }
 
     /**
-     * @param array<string, string|int> $query
+     * Cerca le partite, prima fra quelle della squadra e poi, se necessario,
+     * fra quelle di Serie A.
+     *
      * @return list<FootballMatchData>
      */
-    private function fetchMatches(array $query): array
+    private function cerca(string $stati, DateTimeImmutable $da, DateTimeImmutable $a, int $limit): array
     {
         if (! $this->isConfigured()) {
             return [];
         }
 
-        $teamId = $this->risolviTeamId();
+        $query = [
+            'status' => $stati,
+            'dateFrom' => $da->format('Y-m-d'),
+            'dateTo' => $a->format('Y-m-d'),
+            'limit' => max(1, min(100, $limit)),
+        ];
 
-        if ($teamId === null) {
-            return [];
+        if (! $this->soloCampionato) {
+            $teamId = $this->risolviTeamId();
+
+            if ($teamId !== null) {
+                $partite = $this->leggiElenco(sprintf('/teams/%d/matches?%s', $teamId, http_build_query($query)));
+
+                if ($partite !== []) {
+                    return $partite;
+                }
+
+                // Puo essere una settimana senza partite, oppure l'endpoint
+                // fuori dal piano. In entrambi i casi conviene provare la
+                // strada del campionato prima di arrendersi; se anche quella
+                // e vuota, vuol dire che partite non ce ne sono.
+                $this->logger->info('API calcio: nessuna partita dalle risorse della squadra, provo con quelle del campionato.');
+            }
         }
 
-        $query['limit'] = max(1, min(100, (int) $query['limit']));
+        $partite = $this->leggiElenco('/competitions/' . self::CAMPIONATO . '/matches?' . http_build_query($query));
 
-        $risposta = $this->richiesta(sprintf('/teams/%d/matches?%s', $teamId, http_build_query($query)));
+        return array_values(array_filter($partite, fn (FootballMatchData $p): bool => $this->riguardaLaSquadra($p)));
+    }
+
+    /**
+     * @return list<FootballMatchData>
+     */
+    private function leggiElenco(string $percorso): array
+    {
+        $risposta = $this->richiesta($percorso);
 
         if ($risposta === null) {
             return [];
@@ -113,6 +175,18 @@ final class FootballDataProvider implements FootballApiInterface
         }
 
         return $partite;
+    }
+
+    /**
+     * L'elenco del campionato contiene tutte le squadre: qui teniamo solo le
+     * partite che riguardano la nostra.
+     */
+    private function riguardaLaSquadra(FootballMatchData $partita): bool
+    {
+        $cercata = $this->normalizza($this->teamName);
+
+        return str_contains($this->normalizza($partita->homeTeam), $cercata)
+            || str_contains($this->normalizza($partita->awayTeam), $cercata);
     }
 
     /**
