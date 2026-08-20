@@ -79,6 +79,12 @@ final class SettingsService
             'group' => 'social', 'type' => 'url', 'sort' => 2,
             'label' => 'Pagina Facebook', 'default' => 'https://www.facebook.com/',
         ],
+        'social_youtube_channel_id' => [
+            'group' => 'social', 'type' => 'string', 'sort' => 6,
+            'label' => 'Identificativo del canale YouTube',
+            'default' => '',
+            'description' => "Si compila da solo partendo dall'indirizzo del canale. Serve a leggere i video dal feed pubblico di YouTube, che non richiede alcuna chiave.",
+        ],
         'social_youtube_url' => [
             'group' => 'social', 'type' => 'url', 'sort' => 3,
             'label' => 'Canale YouTube', 'default' => '',

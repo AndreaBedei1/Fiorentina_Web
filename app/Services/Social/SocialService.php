@@ -256,14 +256,19 @@ final class SocialService
         }
 
         $youtubeKey = $this->config->string('services.social.youtube.api_key');
+        $canaleYoutube = $this->canaleYouTube();
 
         if (trim($youtubeKey) !== '') {
             $providers[] = new YouTubeProvider(
                 $this->http,
                 $this->logger,
                 $youtubeKey,
-                $this->config->string('services.social.youtube.channel_id'),
+                $canaleYoutube !== '' ? $canaleYoutube : $this->config->string('services.social.youtube.channel_id'),
             );
+        } elseif ($canaleYoutube !== '') {
+            // Senza chiave si legge il feed pubblico del canale: e l'unico
+            // dei tre social che non chieda un token da rinnovare.
+            $providers[] = new YouTubeFeedProvider($this->http, $this->logger, $canaleYoutube);
         }
 
         /*
@@ -294,6 +299,64 @@ final class SocialService
             SocialPost::PROVIDER_YOUTUBE => $this->config->int('services.social.youtube.limit', 4),
             default => $this->config->int('services.social.instagram.limit', 8),
         };
+    }
+
+    /**
+     * Identificativo del canale YouTube.
+     *
+     * L'amministratore incolla l'indirizzo del canale, che puo essere in tre
+     * forme diverse: /channel/UC..., /@nomecanale oppure /c/nomecanale. Solo
+     * la prima contiene gia l'identificativo; per le altre va chiesto a
+     * YouTube, il che significa scaricare quasi un megabyte di pagina.
+     *
+     * Per questo il risultato viene memorizzato: la ricerca avviene una volta
+     * sola, non a ogni sincronizzazione.
+     */
+    private function canaleYouTube(): string
+    {
+        $memorizzato = trim($this->settings->string('social_youtube_channel_id'));
+
+        if ($memorizzato !== '') {
+            return $memorizzato;
+        }
+
+        $indirizzo = trim($this->settings->string('social_youtube_url'));
+
+        if ($indirizzo === '') {
+            return '';
+        }
+
+        // Caso facile: l'identificativo e gia nell'indirizzo.
+        if (preg_match('#/channel/(UC[A-Za-z0-9_-]{20,})#', $indirizzo, $trovato) === 1) {
+            $this->settings->updateMany(['social_youtube_channel_id' => $trovato[1]]);
+
+            return $trovato[1];
+        }
+
+        $pagina = $this->http->get($indirizzo);
+
+        if ($pagina === null) {
+            $this->logger->warning('Canale YouTube non raggiungibile.', ['indirizzo' => $indirizzo]);
+
+            return '';
+        }
+
+        foreach (['#"channelId":"(UC[A-Za-z0-9_-]{20,})"#', '#/channel/(UC[A-Za-z0-9_-]{20,})#'] as $schema) {
+            if (preg_match($schema, $pagina, $trovato) === 1) {
+                $this->settings->updateMany(['social_youtube_channel_id' => $trovato[1]]);
+
+                $this->logger->info('Canale YouTube risolto.', [
+                    'indirizzo' => $indirizzo,
+                    'canale' => $trovato[1],
+                ]);
+
+                return $trovato[1];
+            }
+        }
+
+        $this->logger->warning('Identificativo del canale YouTube non trovato nella pagina.', ['indirizzo' => $indirizzo]);
+
+        return '';
     }
 
     public function lastSyncedAt(): ?string

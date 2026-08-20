@@ -139,7 +139,23 @@
                     subtitle: 'Gli ultimi contenuti pubblicati sui nostri profili.'
                 }) }}
 
-                <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6" role="list">
+                {# Le colonne seguono il numero di contenuti: con due video, una
+                   griglia da sei lascerebbe due terzi di riga vuoti e sembrerebbe
+                   che manchi qualcosa. Le classi sono scritte per esteso perche
+                   Tailwind le cerca nel sorgente e non le costruisce a runtime. #}
+                {% set colonneDesktop = {
+                    1: 'lg:grid-cols-1', 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3',
+                    4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5'
+                } %}
+                {% set larghezza = {
+                    1: 'max-w-xs', 2: 'max-w-xl', 3: 'max-w-3xl',
+                    4: 'max-w-4xl', 5: 'max-w-5xl'
+                } %}
+
+                <ul class="mx-auto grid grid-cols-2 gap-3 sm:gap-4
+                           {{ larghezza[socialPosts|length]|default('max-w-7xl') }}
+                           {{ socialPosts|length >= 3 ? 'sm:grid-cols-3' : '' }}
+                           {{ colonneDesktop[socialPosts|length]|default('lg:grid-cols-6') }}" role="list">
                     {% for post in socialPosts %}
                         <li>{{ include('components/social-card.twig', { post: post }) }}</li>
                     {% endfor %}
