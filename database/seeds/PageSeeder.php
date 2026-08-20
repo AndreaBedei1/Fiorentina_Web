@@ -167,7 +167,7 @@ final class PageSeeder extends Seeder
                     [
                         'type' => PageBlock::TYPE_HIGHLIGHT,
                         'title' => 'Quota associativa',
-                        'body' => '<p><strong>DA CONFERMARE</strong> - indicare qui l importo della quota annuale, le eventuali riduzioni per under 18 e le modalita di pagamento accettate.</p>',
+                        'body' => "<p>Per conoscere l'importo della quota annuale e le modalità di pagamento, scrivici: ti rispondiamo in giornata.</p>",
                         'icon' => 'star',
                     ],
                     [

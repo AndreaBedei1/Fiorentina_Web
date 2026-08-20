@@ -39,6 +39,35 @@ final class SocialPostRepository extends BaseRepository
         return array_map(SocialPost::fromRow(...), $this->db->select($sql, $bindings));
     }
 
+    /**
+     * Gli ultimi contenuti di ogni piattaforma, non gli ultimi in assoluto.
+     *
+     * Ordinando solo per data, una settimana intensa su Instagram riempiva
+     * tutta la fila e Facebook spariva. Con una quota per piattaforma la
+     * vetrina resta equilibrata comunque vada.
+     *
+     * @param list<string> $providers
+     * @return list<SocialPost>
+     */
+    public function latestBalanced(int $perProvider, array $providers): array
+    {
+        $risultati = [];
+
+        foreach ($providers as $provider) {
+            foreach ($this->latest($perProvider, [$provider]) as $post) {
+                $risultati[] = $post;
+            }
+        }
+
+        // Il piu recente per primo, indipendentemente dalla piattaforma.
+        usort(
+            $risultati,
+            static fn (SocialPost $a, SocialPost $b): int => ($b->publishedAt?->getTimestamp() ?? 0) <=> ($a->publishedAt?->getTimestamp() ?? 0),
+        );
+
+        return $risultati;
+    }
+
     /** @return list<SocialPost> */
     public function allForAdmin(int $limit = 60): array
     {

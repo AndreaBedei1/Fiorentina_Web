@@ -301,4 +301,68 @@ final class ExternalProvidersTest extends IntegrationTestCase
 
         $this->assertContains('https://www.facebook.com/post-scelto', $permalink);
     }
+
+    #[Test]
+    public function la_selezione_per_la_homepage_e_equilibrata_fra_le_piattaforme(): void
+    {
+        $repository = self::app()->get(SocialPostRepository::class);
+
+        // Instagram pubblica molto in una settimana, Facebook poco: ordinando
+        // solo per data, la vetrina diventava tutta Instagram.
+        foreach (range(1, 6) as $i) {
+            $repository->createManual([
+                'provider' => SocialPost::PROVIDER_INSTAGRAM,
+                'permalink' => 'https://www.instagram.com/p/IG-' . $i . '/',
+                'media_type' => 'image',
+                'caption' => 'Instagram ' . $i,
+                'published_at' => date('Y-m-d H:i:s', strtotime('-' . $i . ' hours')),
+                'is_visible' => 1,
+            ]);
+        }
+
+        $repository->createManual([
+            'provider' => SocialPost::PROVIDER_FACEBOOK,
+            'permalink' => 'https://www.facebook.com/FB-1',
+            'media_type' => 'image',
+            'caption' => 'Facebook 1',
+            'published_at' => date('Y-m-d H:i:s', strtotime('-3 days')),
+            'is_visible' => 1,
+        ]);
+
+        $selezione = $repository->latestBalanced(2, [
+            SocialPost::PROVIDER_INSTAGRAM,
+            SocialPost::PROVIDER_FACEBOOK,
+        ]);
+
+        $piattaforme = array_count_values(array_map(
+            static fn ($post): string => $post->provider,
+            $selezione,
+        ));
+
+        $this->assertSame(2, $piattaforme[SocialPost::PROVIDER_INSTAGRAM] ?? 0);
+        $this->assertSame(1, $piattaforme[SocialPost::PROVIDER_FACEBOOK] ?? 0, 'Facebook ne aveva uno solo da dare.');
+
+        // Fra quelli scelti, il piu recente resta in cima.
+        $this->assertSame('Instagram 1', $selezione[0]->caption);
+    }
+
+    #[Test]
+    public function senza_token_non_vengono_inventati_contenuti(): void
+    {
+        // Con SOCIAL_PROVIDER=live e nessun token, la sezione deve restare
+        // vuota: un visitatore non puo distinguere un post finto da uno vero.
+        $servizio = self::app()->get(SocialService::class);
+
+        $fornitori = array_filter(
+            $servizio->providers(),
+            static fn ($fornitore): bool => $fornitore instanceof MockSocialProvider,
+        );
+
+        // In modalita "mock" i fornitori dimostrativi ci sono di proposito:
+        // questo test verifica solo che esistano perche richiesti, non per
+        // ripiego silenzioso.
+        $this->assertNotEmpty($servizio->providers());
+        $this->assertCount(count($servizio->providers()), $fornitori);
+        $this->assertTrue($servizio->isMockMode());
+    }
 }

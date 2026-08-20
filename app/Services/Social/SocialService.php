@@ -57,6 +57,35 @@ final class SocialService
         return $this->repository->latest($limit, $providers);
     }
 
+    /**
+     * Gli ultimi contenuti di ciascuna piattaforma configurata.
+     *
+     * Quante per piattaforma lo decide l'amministratore dalle impostazioni:
+     * con due, la homepage mostra gli ultimi due post di Instagram e gli
+     * ultimi due di Facebook, e quando ne esce uno nuovo prende il posto del
+     * piu vecchio da solo.
+     *
+     * @return list<SocialPost>
+     */
+    public function latestPerPlatform(int $perPlatform = 2): array
+    {
+        $piattaforme = [];
+
+        foreach ([SocialPost::PROVIDER_INSTAGRAM, SocialPost::PROVIDER_FACEBOOK, SocialPost::PROVIDER_YOUTUBE] as $piattaforma) {
+            // Una piattaforma senza indirizzo configurato non interessa al
+            // gruppo: inutile riservarle spazio in homepage.
+            if ($this->settings->string('social_' . $piattaforma . '_url') !== '') {
+                $piattaforme[] = $piattaforma;
+            }
+        }
+
+        if ($piattaforme === []) {
+            return $this->repository->latest($perPlatform * 2);
+        }
+
+        return $this->repository->latestBalanced(max(1, $perPlatform), $piattaforme);
+    }
+
     /** URL dell'anteprima: prima la copia locale, poi l'originale remoto. */
     public function thumbnailUrl(SocialPost $post): ?string
     {
@@ -237,12 +266,22 @@ final class SocialService
             );
         }
 
-        // Nessuna credenziale valida: meglio i contenuti dimostrativi che una
-        // sezione vuota in homepage.
+        /*
+         * Nessun token: non si inventa nulla.
+         *
+         * Qui prima si ricadeva sui contenuti dimostrativi, con la
+         * motivazione che una sezione vuota fosse peggio. Su un sito vero e
+         * il contrario: un visitatore che legge il racconto di una trasferta
+         * mai avvenuta non ha modo di sapere che e finto, e la sezione vuota
+         * semplicemente non compare.
+         *
+         * Per una dimostrazione con contenuti finti si chiede esplicitamente:
+         * SOCIAL_PROVIDER=mock.
+         */
         if ($providers === []) {
-            $this->logger->info('Nessun token social configurato: uso i fornitori dimostrativi.');
+            $this->logger->warning('Nessun token social configurato: nessun contenuto verra scaricato.');
 
-            return [new MockSocialProvider(SocialPost::PROVIDER_INSTAGRAM)];
+            return [];
         }
 
         return $providers;

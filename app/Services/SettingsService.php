@@ -61,11 +61,13 @@ final class SettingsService
         ],
         'contact_address' => [
             'group' => 'contatti', 'type' => 'text', 'sort' => 4,
-            'label' => 'Sede', 'default' => 'DA COMPLETARE - indirizzo della sede del gruppo',
+            'label' => 'Sede', 'default' => '',
+            'description' => 'Indirizzo della sede. Finche e vuoto, nel piede di pagina non compare nulla.',
         ],
         'contact_opening_hours' => [
             'group' => 'contatti', 'type' => 'text', 'sort' => 5,
-            'label' => 'Orari di apertura sede', 'default' => 'DA COMPLETARE - giorni e orari di apertura',
+            'label' => 'Orari di apertura sede', 'default' => '',
+            'description' => 'Per esempio: martedì e giovedì dalle 21 alle 23.',
         ],
 
         // --- Social ---------------------------------------------------------
@@ -104,6 +106,11 @@ final class SettingsService
             'group' => 'homepage', 'type' => 'bool', 'sort' => 4,
             'label' => 'Mostra la sezione social', 'default' => '1',
         ],
+        'home_social_per_platform' => [
+            'group' => 'homepage', 'type' => 'int', 'sort' => 5,
+            'label' => 'Contenuti social per piattaforma', 'default' => '2',
+            'description' => 'Quanti contenuti mostrare per ciascun social. Con 2 si vedono gli ultimi due post di Instagram e gli ultimi due di Facebook.',
+        ],
         'home_show_next_match' => [
             'group' => 'homepage', 'type' => 'bool', 'sort' => 5,
             'label' => 'Mostra la prossima partita', 'default' => '1',
@@ -117,7 +124,8 @@ final class SettingsService
         // --- Iscrizioni -----------------------------------------------------
         'membership_fee' => [
             'group' => 'iscrizioni', 'type' => 'string', 'sort' => 1,
-            'label' => 'Quota associativa annuale', 'default' => 'DA CONFERMARE',
+            'label' => 'Quota associativa annuale', 'default' => '',
+            'description' => 'Per esempio: 25 euro. Finche e vuota non viene mostrato alcun importo.',
         ],
         'membership_contact' => [
             'group' => 'iscrizioni', 'type' => 'string', 'sort' => 2,
@@ -146,8 +154,8 @@ final class SettingsService
         'shop_payment_instructions' => [
             'group' => 'merchandising', 'type' => 'text', 'sort' => 5,
             'label' => 'Istruzioni di pagamento',
-            'default' => "DA COMPLETARE - Indicare qui come pagare l'ordine: bonifico (IBAN intestato all'associazione), pagamento in sede o alla consegna. Queste istruzioni vengono inviate al cliente nella email di conferma.",
-            'description' => 'Testo inviato al cliente nella email di conferma ordine.',
+            'default' => '',
+            'description' => "Come pagare l'ordine: bonifico con IBAN, pagamento in sede o alla consegna. Questo testo viene inviato al cliente nella email di conferma, quindi conviene compilarlo prima di aprire il merchandising.",
         ],
 
         // --- Filigrana ------------------------------------------------------
@@ -178,7 +186,8 @@ final class SettingsService
         'footer_association_details' => [
             'group' => 'footer', 'type' => 'text', 'sort' => 2,
             'label' => 'Dati dell associazione',
-            'default' => 'DA COMPLETARE - denominazione, sede legale e codice fiscale dell associazione',
+            'default' => '',
+            'description' => "Denominazione, sede legale e codice fiscale. Vanno indicati se il gruppo e un'associazione registrata. Finche e vuoto, nel piede di pagina non compare nulla.",
         ],
     ];
 

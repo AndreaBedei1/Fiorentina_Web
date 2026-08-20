@@ -63,7 +63,7 @@ final class HomeController extends Controller
                 ? $this->football->nextMatch()
                 : null,
             'socialPosts' => $this->settings->bool('home_show_social', true)
-                ? $this->social->latest(6)
+                ? $this->social->latestPerPlatform($this->settings->int('home_social_per_platform', 2))
                 : [],
             'showTeamLogos' => $this->settings->bool('home_show_team_logos', false),
             'isHome' => true,
