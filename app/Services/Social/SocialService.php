@@ -12,6 +12,7 @@ use App\Repositories\SocialPostRepository;
 use App\Services\AuditLogger;
 use App\Services\Media\ImageProcessor;
 use App\Services\Media\MediaPaths;
+use App\Services\SettingsService;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -39,6 +40,7 @@ final class SocialService
         private readonly ImageProcessor $images,
         private readonly LoggerInterface $logger,
         private readonly AuditLogger $audit,
+        private readonly SettingsService $settings,
     ) {
     }
 
@@ -190,10 +192,13 @@ final class SocialService
         $timeout = $this->config->int('services.social.timeout', 10);
 
         if ($mode === 'mock') {
+            // Anche i contenuti dimostrativi portano al profilo vero, se e
+            // stato configurato: chi prova il sito clicca, e finire sulla home
+            // di Instagram non aiuta nessuno.
             return [
-                new MockSocialProvider(SocialPost::PROVIDER_INSTAGRAM),
-                new MockSocialProvider(SocialPost::PROVIDER_FACEBOOK),
-                new MockSocialProvider(SocialPost::PROVIDER_YOUTUBE),
+                new MockSocialProvider(SocialPost::PROVIDER_INSTAGRAM, $this->settings->string('social_instagram_url')),
+                new MockSocialProvider(SocialPost::PROVIDER_FACEBOOK, $this->settings->string('social_facebook_url')),
+                new MockSocialProvider(SocialPost::PROVIDER_YOUTUBE, $this->settings->string('social_youtube_url')),
             ];
         }
 

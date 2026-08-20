@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 return [
     'football' => [
-        // mock | apifootball | football-data
+        /*
+         * mock          dati inventati, per lavorare senza chiave
+         * football-data football-data.org: piano gratuito con la Serie A
+         * apifootball   api-sports.io: piano gratuito limitato
+         *
+         * Con "football-data" l'identificativo della squadra puo restare 0:
+         * il fornitore lo cerca da se fra le squadre di Serie A.
+         */
         'provider' => env('FOOTBALL_PROVIDER', 'mock'),
         'api_key' => env('FOOTBALL_API_KEY', ''),
         'base_url' => env('FOOTBALL_API_BASE', 'https://v3.football.api-sports.io'),
-        'team_id' => (int) env('FOOTBALL_TEAM_ID', 502),
+        'team_id' => (int) env('FOOTBALL_TEAM_ID', 0),
         'season' => (int) env('FOOTBALL_SEASON', (int) date('Y')),
         'cache_ttl_minutes' => (int) env('FOOTBALL_CACHE_TTL', 360),
         'team_name' => 'Fiorentina',

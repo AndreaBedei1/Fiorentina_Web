@@ -45,8 +45,16 @@ final class MockSocialProvider implements SocialProviderInterface
         ],
     ];
 
-    public function __construct(private readonly string $provider = SocialPost::PROVIDER_INSTAGRAM)
-    {
+    /**
+     * @param string $profileUrl Indirizzo del profilo vero, se configurato.
+     *                           Senza, le card dimostrative porterebbero alla
+     *                           home del social invece che al gruppo: un vicolo
+     *                           cieco proprio per chi sta provando il sito.
+     */
+    public function __construct(
+        private readonly string $provider = SocialPost::PROVIDER_INSTAGRAM,
+        private readonly string $profileUrl = '',
+    ) {
     }
 
     public function provider(): string
@@ -87,6 +95,10 @@ final class MockSocialProvider implements SocialProviderInterface
 
     private function profileUrl(): string
     {
+        if (trim($this->profileUrl) !== '') {
+            return $this->profileUrl;
+        }
+
         return match ($this->provider) {
             SocialPost::PROVIDER_FACEBOOK => 'https://www.facebook.com/',
             SocialPost::PROVIDER_YOUTUBE => 'https://www.youtube.com/',

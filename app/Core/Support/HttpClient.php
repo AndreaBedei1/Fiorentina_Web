@@ -17,8 +17,13 @@ use Psr\Log\LoggerInterface;
  * Una chiamata che fallisce non solleva eccezioni: restituisce null e lascia
  * traccia nei log, perché l'indisponibilita di un servizio esterno non deve
  * mai far fallire una sincronizzazione notturna.
+ *
+ * La classe non e final di proposito: e il confine con la rete, ed e l'unico
+ * punto che i test hanno bisogno di sostituire con una risposta finta. Senza
+ * questa possibilita, la lettura dei dati di un fornitore esterno resterebbe
+ * verificabile solo con una chiamata vera.
  */
-final class HttpClient
+class HttpClient
 {
     public function __construct(
         private readonly LoggerInterface $logger,

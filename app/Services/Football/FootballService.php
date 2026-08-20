@@ -107,6 +107,16 @@ final class FootballService
             $this->logger->error('Sincronizzazione risultati non riuscita.', ['error' => $e->getMessage()]);
         }
 
+        /*
+         * Un fornitore reale che non restituisce nulla e quasi sempre una
+         * chiave sbagliata o un limite superato: il provider registra il
+         * dettaglio nei log e va avanti, ma senza questo avviso il comando
+         * stamperebbe "aggiornato" e chi lo lancia penserebbe che funzioni.
+         */
+        if ($provider->name() !== 'mock' && $upcoming === 0 && $results === 0 && $errors === []) {
+            $errors[] = 'Il fornitore non ha restituito alcuna partita: controlla la chiave API in FOOTBALL_API_KEY e il dettaglio in storage/logs.';
+        }
+
         $this->audit->logSystem(
             AuditLogger::SYNC_RUN,
             sprintf('Sincronizzazione calcio (%s): %d partite, %d risultati', $provider->name(), $upcoming, $results),
@@ -160,6 +170,13 @@ final class FootballService
         }
 
         return match ($configured) {
+            'football-data' => new FootballDataProvider(
+                http: $this->http,
+                logger: $this->logger,
+                apiKey: $apiKey,
+                teamId: $this->config->int('services.football.team_id'),
+                teamName: $teamName,
+            ),
             'apifootball' => new ApiFootballProvider(
                 http: $this->http,
                 logger: $this->logger,

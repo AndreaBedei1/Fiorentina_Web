@@ -28,7 +28,7 @@ final readonly class FootballSyncReport
             $this->provider,
             $this->upcomingCount,
             $this->resultsCount,
-            $this->hasErrors() ? sprintf(', %d\'errori', count($this->errors)) : '',
+            $this->hasErrors() ? sprintf(', %d con avvisi', count($this->errors)) : '',
         );
     }
 }

@@ -581,6 +581,15 @@ Controlla `upload_max_filesize`, `post_max_size` e `max_file_uploads` nella
 configurazione PHP (punto 2). Il caricamento avviene comunque a lotti di quattro
 file per volta, proprio per non superare i limiti.
 
+**Il calendario resta vuoto dopo aver messo la chiave API**
+Lancia `php scripts/sync-football.php`: se dice «il fornitore non ha restituito
+alcuna partita», il messaggio esatto del servizio e in `storage/logs/app-*.log`,
+alla voce «Chiamata HTTP con esito negativo». Le cause tipiche sono la chiave
+sbagliata o il limite di richieste superato. Se invece l'errore parla di
+certificati (`unable to get local issuer certificate`), al PHP manca il bundle
+dei certificati radice: su Aruba non capita, in locale si risolve indicando un
+file `cacert.pem` in `curl.cainfo` dentro il `php.ini`.
+
 **Le email non arrivano**
 Guarda `storage/logs/app-*.log`. Verifica porta e cifratura: Aruba vuole
 `smtps.aruba.it` sulla porta `465` con `ssl`. L'indirizzo mittente deve
