@@ -73,7 +73,7 @@ final class SocialSyncReport
             '%s (%d miniature scaricate)%s.',
             implode(', ', $parts),
             $this->thumbnailsDownloaded,
-            $this->hasErrors() ? sprintf(', %d\'errori', count($this->errors)) : '',
+            $this->hasErrors() ? sprintf(', %d con avvisi', count($this->errors)) : '',
         );
     }
 }
