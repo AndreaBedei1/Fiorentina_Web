@@ -14,8 +14,8 @@ use App\Repositories\ProductRepository;
  * Carrello basato sulla sessione.
  *
  * In sessione teniamo soltanto identificativi e quantita: prezzi, nomi e
- * disponibilita si rileggono a ogni richiesta dal database. Cosi un prezzo
- * modificato dall'amministratore vale subito, e nessuno puo manipolare gli
+ * disponibilità si rileggono a ogni richiesta dal database. Cosi un prezzo
+ * modificato dall'amministratore vale subito, e nessuno può manipolare gli
  * importi agendo sui dati del proprio browser.
  *
  * Il visitatore non ha e non deve avere un account: il carrello vive per la
@@ -61,7 +61,7 @@ final class CartService
     /**
      * Aggiunge un articolo al carrello.
      *
-     * @return CartActionResult Esito con messaggio gia pronto per l'utente.
+     * @return CartActionResult Esito con messaggio già pronto per l'utente.
      */
     public function add(int $productId, ?int $variantId, int $quantity): CartActionResult
     {
@@ -110,7 +110,7 @@ final class CartService
         } else {
             if (count($cart) >= $maxItems) {
                 return CartActionResult::failure(sprintf(
-                    'Il carrello puo contenere al massimo %d articoli diversi.',
+                    'Il carrello può contenere al massimo %d\'articoli diversi.',
                     $maxItems,
                 ));
             }
@@ -174,7 +174,7 @@ final class CartService
     /**
      * Contenuto del carrello con prezzi ricalcolati.
      *
-     * Le righe che nel frattempo non sono piu acquistabili (prodotto ritirato,
+     * Le righe che nel frattempo non sono più acquistabili (prodotto ritirato,
      * variante esaurita) vengono segnalate e rimosse: meglio dirlo qui che al
      * momento della conferma.
      */
@@ -197,7 +197,7 @@ final class CartService
 
             if ($product === null || ! $product->isPublished() || ! $product->isOrderable()) {
                 $removedMessages[] = sprintf(
-                    'Un articolo non piu disponibile e stato rimosso dal carrello%s.',
+                    'Un articolo non più disponibile è stato rimosso dal carrello%s.',
                     $product !== null ? ' (' . $product->name . ')' : '',
                 );
                 unset($cart[$key]);
@@ -213,7 +213,7 @@ final class CartService
 
                 if ($variant === null || $variant->isSoldOut()) {
                     $removedMessages[] = sprintf(
-                        'La variante scelta per "%s" non e piu disponibile ed e stata rimossa.',
+                        'La variante scelta per "%s" non è più disponibile ed è stata rimossa.',
                         $product->name,
                     );
                     unset($cart[$key]);

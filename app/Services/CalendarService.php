@@ -11,11 +11,11 @@ use App\Services\Football\FootballService;
 use DateTimeImmutable;
 
 /**
- * Calendario unificato: partite della Fiorentina piu appuntamenti del gruppo.
+ * Calendario unificato: partite della Fiorentina più appuntamenti del gruppo.
  *
  * Le due fonti restano distinte a database (le partite arrivano da un'API, gli
  * eventi li scrivono gli amministratori) e vengono unite solo al momento della
- * visualizzazione, in voci con un tipo esplicito. Cosi il template puo
+ * visualizzazione, in voci con un tipo esplicito. Cosi il template può
  * distinguerle graficamente senza dover indovinare da cosa sta guardando.
  */
 final class CalendarService
@@ -77,7 +77,7 @@ final class CalendarService
     }
 
     /**
-     * Struttura della griglia mensile: settimane da lunedi a domenica,
+     * Struttura della griglia mensile: settimane da lunedì a domenica,
      * completate con i giorni dei mesi adiacenti.
      *
      * @return list<list<array{date: DateTimeImmutable, inMonth: bool, entries: list<CalendarEntry>}>>
@@ -89,7 +89,7 @@ final class CalendarService
         $firstOfMonth = (new DateTimeImmutable())->setDate($year, $month, 1)->setTime(0, 0);
         $daysInMonth = (int) $firstOfMonth->format('t');
 
-        // In Italia la settimana inizia di lunedi: 'N' vale 1 per lunedi.
+        // In Italia la settimana inizia di lunedì: 'N' vale 1 per lunedì.
         $leadingDays = (int) $firstOfMonth->format('N') - 1;
         $gridStart = $firstOfMonth->modify(sprintf('-%d days', $leadingDays));
 

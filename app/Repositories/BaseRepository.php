@@ -31,7 +31,7 @@ abstract class BaseRepository
     /**
      * Esegue una query paginata.
      *
-     * LIMIT e OFFSET vengono interpolati come interi gia validati: alcune
+     * LIMIT e OFFSET vengono interpolati come interi già validati: alcune
      * combinazioni di MySQL e PDO rifiutano di trattarli come parametri
      * associati, e forzare il cast a int rende comunque impossibile l'iniezione.
      *

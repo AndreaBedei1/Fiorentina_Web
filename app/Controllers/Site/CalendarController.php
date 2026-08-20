@@ -19,7 +19,7 @@ use App\Services\SettingsService;
 use DateTimeImmutable;
 
 /**
- * Calendario: partite della Fiorentina piu appuntamenti del gruppo.
+ * Calendario: partite della Fiorentina più appuntamenti del gruppo.
  *
  * Il controller prepara entrambe le viste, griglia mensile ed elenco: il
  * passaggio fra le due avviene lato client in base allo spazio disponibile,

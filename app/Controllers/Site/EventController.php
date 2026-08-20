@@ -79,7 +79,7 @@ final class EventController extends Controller
         $event = $this->events->findPublishedBySlug($slug);
 
         if ($event === null) {
-            $this->notFound('L evento che cerchi non esiste o non e piu pubblicato.');
+            $this->notFound('L\'evento che cerchi non esiste o non è più pubblicato.');
         }
 
         $imageUrl = $event->imageKey !== null
@@ -107,7 +107,7 @@ final class EventController extends Controller
     /**
      * Dati strutturati dell'evento.
      *
-     * Con questi Google puo mostrare data e luogo direttamente nei risultati,
+     * Con questi Google può mostrare data e luogo direttamente nei risultati,
      * cosa che per trasferte e raduni fa una differenza concreta.
      *
      * @return array<string, mixed>

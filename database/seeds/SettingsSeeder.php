@@ -6,7 +6,7 @@ namespace Database\Seeders;
 
 use App\Services\SettingsService;
 
-/** Crea le impostazioni mancanti senza toccare quelle gia configurate. */
+/** Crea le impostazioni mancanti senza toccare quelle già configurate. */
 final class SettingsSeeder extends Seeder
 {
     public function name(): string
@@ -19,8 +19,8 @@ final class SettingsSeeder extends Seeder
         $created = $this->app->get(SettingsService::class)->ensureDefaults();
 
         $this->say($created === 0
-            ? 'Tutte le impostazioni erano gia presenti.'
-            : sprintf('%d impostazioni create.', $created));
+            ? 'Tutte le impostazioni erano già presenti.'
+            : sprintf('%d\'impostazioni create.', $created));
 
         return $created;
     }

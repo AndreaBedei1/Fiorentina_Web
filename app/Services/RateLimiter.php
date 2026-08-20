@@ -19,7 +19,7 @@ final class RateLimiter
     {
     }
 
-    /** Numero di tentativi gia registrati nella finestra corrente. */
+    /** Numero di tentativi già registrati nella finestra corrente. */
     public function attempts(string $action, string $identifier): int
     {
         return $this->repository->findRateLimit($this->bucket($action, $identifier))['attempts'] ?? 0;
@@ -59,7 +59,7 @@ final class RateLimiter
     }
 
     /**
-     * La chiave e un hash: l'identificatore puo essere un indirizzo email o un
+     * La chiave e un hash: l'identificatore può essere un indirizzo email o un
      * IP, e non c'e ragione di conservarli in chiaro in una tabella tecnica.
      */
     private function bucket(string $action, string $identifier): string

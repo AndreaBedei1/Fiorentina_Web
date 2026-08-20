@@ -40,7 +40,7 @@ final class NewsController extends Controller
 
         $seo = $this->seo(
             'Notizie',
-            'Le ultime novita di ' . $this->settings->string('site_group_name') . ': trasferte, iniziative, comunicazioni e vita del gruppo.',
+            'Le ultime novità di ' . $this->settings->string('site_group_name') . ': trasferte, iniziative, comunicazioni e vita del gruppo.',
         )
             ->withCanonical($this->url->absoluteRoute('news.index'))
             ->withBreadcrumbs([
@@ -66,7 +66,7 @@ final class NewsController extends Controller
         $article = $this->news->findPublishedBySlug($slug);
 
         if ($article === null) {
-            $this->notFound('La notizia che cerchi non esiste o non e piu pubblicata.');
+            $this->notFound('La notizia che cerchi non esiste o non è più pubblicata.');
         }
 
         $this->news->incrementViews($article->id);

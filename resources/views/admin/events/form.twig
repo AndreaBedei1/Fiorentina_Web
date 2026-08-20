@@ -45,7 +45,7 @@
                         {% if not isNew %}
                             <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
                                 <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l indirizzo pubblico</span>
+                                <span>Aggiorna anche l'indirizzo pubblico</span>
                             </label>
                         {% endif %}
                     </div>
@@ -53,7 +53,7 @@
                     {{ include('components/field.twig', {
                         name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 400,
                         value: old('short_description', isNew ? '' : event.shortDescription),
-                        help: 'Una o due righe: e quello che si legge nelle card e nel calendario.'
+                        help: 'Una o due righe: è quello che si legge nelle card e nel calendario.'
                     }) }}
 
                     <div>
@@ -96,7 +96,7 @@
                         {{ include('components/field.twig', {
                             name: 'end_date', label: 'Data di fine', type: 'date',
                             value: old('end_date', isNew or not event.endsAt ? '' : event.endsAt|iso_data),
-                            help: 'Solo per eventi su piu giorni.'
+                            help: 'Solo per eventi su più giorni.'
                         }) }}
                         {{ include('components/field.twig', {
                             name: 'end_time', label: 'Ora di fine', type: 'time',
@@ -182,7 +182,7 @@
                         name: 'cost', label: 'Costo (euro)', type: 'text', inputmode: 'decimal',
                         value: old('cost', isNew or not event.cost ? '' : event.cost|number_format(2, ',', '')),
                         placeholder: '0,00',
-                        help: 'Lascia vuoto se l evento e gratuito.'
+                        help: 'Lascia vuoto se l'evento è gratuito.'
                     }) }}
 
                     {{ include('components/field.twig', {
@@ -226,7 +226,7 @@
                         </figure>
                         <label class="flex items-start gap-2 text-sm text-sabbia-700">
                             <input type="checkbox" name="remove_image" value="1" class="campo-checkbox mt-0.5">
-                            <span>Rimuovi l immagine attuale</span>
+                            <span>Rimuovi l'immagine attuale</span>
                         </label>
                     {% endif %}
 

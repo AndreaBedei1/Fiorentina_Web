@@ -22,8 +22,8 @@ use App\Services\Shop\ShippingCalculator;
 /**
  * Catalogo merchandising.
  *
- * Nota importante sui dati strutturati: dichiariamo prezzo e disponibilita, ma
- * non un metodo di pagamento, perche il sito non ne ha. Un ordine e una
+ * Nota importante sui dati strutturati: dichiariamo prezzo e disponibilità, ma
+ * non un metodo di pagamento, perché il sito non ne ha. Un ordine e una
  * richiesta che si perfeziona offline, e i dati strutturati lo rispecchiano.
  */
 final class ShopController extends Controller

@@ -22,7 +22,7 @@ final class DatesTest extends TestCase
         $this->assertSame('19/08/2026', Dates::numeric($data));
         $this->assertSame('19/08/2026 15:30', Dates::numericWithTime($data));
         $this->assertSame('15:30', Dates::time($data));
-        $this->assertSame('mercoledi 19 agosto 2026', Dates::longWithWeekday($data));
+        $this->assertSame('mercoledì 19 agosto 2026', Dates::longWithWeekday($data));
         $this->assertSame('19 agosto 2026 alle 15:30', Dates::longWithTime($data));
     }
 

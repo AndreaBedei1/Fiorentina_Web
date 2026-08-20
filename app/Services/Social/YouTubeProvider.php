@@ -13,8 +13,8 @@ use Psr\Log\LoggerInterface;
 /**
  * Canale YouTube tramite Data API v3.
  *
- * Richiede solo una chiave API (nessun OAuth) perche legge dati pubblici: e
- * l'integrazione piu semplice da attivare fra le tre.
+ * Richiede solo una chiave API (nessun OAuth) perché legge dati pubblici: e
+ * l'integrazione più semplice da attivare fra le tre.
  */
 final class YouTubeProvider implements SocialProviderInterface
 {

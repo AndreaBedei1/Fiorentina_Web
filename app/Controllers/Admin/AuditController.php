@@ -16,7 +16,7 @@ use App\Repositories\UserRepository;
 use App\Services\AuthService;
 
 /**
- * Registro delle attivita. Riservato ai super amministratori.
+ * Registro delle attività. Riservato ai super amministratori.
  *
  * E in sola lettura, di proposito: un registro modificabile da chi vi compare
  * non e un registro.

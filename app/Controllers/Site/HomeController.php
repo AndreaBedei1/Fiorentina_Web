@@ -11,9 +11,6 @@ use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
-use App\Repositories\AlbumRepository;
-use App\Repositories\NewsRepository;
-use App\Repositories\ProductRepository;
 use App\Services\AuthService;
 use App\Services\Football\FootballService;
 use App\Services\SettingsService;
@@ -23,10 +20,14 @@ use App\Repositories\EventRepository;
 /**
  * Homepage.
  *
- * Assembla le sezioni pescando da piu repository, ma nessuna di queste letture
- * esce dal sito: partite e contenuti social arrivano dalla copia locale
- * alimentata dal cron. La homepage e la pagina piu visitata, e deve restare
- * veloce anche quando un servizio esterno non risponde.
+ * Mostra il gruppo e cosa succede adesso: prossima partita, prossimi
+ * appuntamenti, contenuti social. Notizie, galleria e merchandising hanno la
+ * loro voce nel menu e non vengono ripetute qui.
+ *
+ * Nessuna di queste letture esce dal sito: partite e contenuti social arrivano
+ * dalla copia locale alimentata dal cron. La homepage e la pagina più
+ * visitata, e deve restare veloce anche quando un servizio esterno non
+ * risponde.
  */
 final class HomeController extends Controller
 {
@@ -36,10 +37,7 @@ final class HomeController extends Controller
         UrlGenerator $url,
         AuthService $auth,
         Config $config,
-        private readonly NewsRepository $news,
         private readonly EventRepository $events,
-        private readonly AlbumRepository $albums,
-        private readonly ProductRepository $products,
         private readonly FootballService $football,
         private readonly SocialService $social,
         private readonly SettingsService $settings,
@@ -58,13 +56,10 @@ final class HomeController extends Controller
 
         return $this->render('site/home.twig', [
             'seo' => $seo,
-            'latestNews' => $this->news->latestPublished(3),
             'upcomingEvents' => $this->events->upcoming(3),
             'nextMatch' => $this->settings->bool('home_show_next_match', true)
                 ? $this->football->nextMatch()
                 : null,
-            'recentAlbums' => $this->albums->latestPublished(3),
-            'featuredProducts' => $this->products->featured(4),
             'socialPosts' => $this->settings->bool('home_show_social', true)
                 ? $this->social->latest(6)
                 : [],

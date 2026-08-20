@@ -11,7 +11,7 @@ use DateTimeImmutable;
  * Partita della Fiorentina, copiata in locale dal provider esterno.
  *
  * Il sito legge esclusivamente questa tabella: nessuna pagina interroga l'API
- * in tempo reale. E cio che rende la homepage veloce e indipendente dallo stato
+ * in tempo reale. E cio che rende la homepage veloce è indipendente dallo stato
  * del servizio esterno.
  */
 final class FootballMatch

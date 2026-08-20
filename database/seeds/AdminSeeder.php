@@ -56,7 +56,7 @@ final class AdminSeeder extends Seeder
         $users = $this->app->get(UserRepository::class);
 
         if ($users->findByEmail($email) !== null) {
-            $this->say(sprintf('Amministratore gia presente: %s', $email));
+            $this->say(sprintf('Amministratore già presente: %s', $email));
 
             return 0;
         }

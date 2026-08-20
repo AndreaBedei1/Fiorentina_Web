@@ -12,9 +12,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Fornitore basato su API-Football (api-sports.io), versione 3.
  *
- * Implementazione completa ma non attivabile finche non viene inserita una
+ * Implementazione completa ma non attivabile finché non viene inserita una
  * chiave in `FOOTBALL_API_KEY`: la scelta del fornitore a pagamento resta
- * aperta, e finche non e presa il sito usa il fornitore fittizio.
+ * aperta, e finché non e presa il sito usa il fornitore fittizio.
  *
  * Per adottare un servizio diverso basta scrivere un'altra classe che
  * implementi FootballApiInterface e registrarla nella factory: nessun'altra

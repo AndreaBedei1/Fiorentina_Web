@@ -12,7 +12,7 @@ use App\Models\User;
  *
  * Tutte le letture escludono per default gli account soft-deleted: un
  * amministratore rimosso non deve poter accedere ne comparire negli elenchi,
- * ma resta nel database perche l'audit log continui ad avere senso.
+ * ma resta nel database perché l'audit log continui ad avere senso.
  */
 final class UserRepository extends BaseRepository
 {
@@ -173,7 +173,7 @@ final class UserRepository extends BaseRepository
         return $this->update($id, ['role' => $role]);
     }
 
-    /** Disattivazione definitiva: soft delete piu invalidazione delle sessioni. */
+    /** Disattivazione definitiva: soft delete più invalidazione delle sessioni. */
     public function softDeleteUser(int $id): bool
     {
         return $this->update($id, [
@@ -187,7 +187,7 @@ final class UserRepository extends BaseRepository
      * Numero di super amministratori ancora operativi.
      *
      * Serve alla salvaguardia che impedisce di rimuovere, bloccare o declassare
-     * l'ultimo super amministratore, lasciando il sito senza chi puo gestirlo.
+     * l'ultimo super amministratore, lasciando il sito senza chi può gestirlo.
      */
     public function countActiveSuperAdmins(?int $excludingId = null): int
     {

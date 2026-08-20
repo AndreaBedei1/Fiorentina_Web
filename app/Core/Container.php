@@ -14,8 +14,8 @@ use ReflectionParameter;
  * Container di dipendenze minimale con autowiring.
  *
  * Non implementiamo l'intero PSR-11 con le sue eccezioni tipizzate: il progetto
- * ha una superficie contenuta e un container di ~150 righe resta piu leggibile
- * (e piu facile da manutenere per chi ereditera il codice) di una dipendenza
+ * ha una superficie contenuta è un container di ~150 righe resta più leggibile
+ * (è più facile da manutenere per chi ereditera il codice) di una dipendenza
  * esterna. L'autowiring per type-hint evita centinaia di factory manuali.
  */
 class Container
@@ -48,7 +48,7 @@ class Container
 
         $this->bindings[$id] = ['factory' => $factory, 'shared' => $shared];
 
-        // Una nuova definizione invalida l'eventuale istanza gia risolta.
+        // Una nuova definizione invalida l'eventuale istanza già risolta.
         unset($this->instances[$id]);
     }
 
@@ -57,7 +57,7 @@ class Container
         $this->bind($id, $concrete, true);
     }
 
-    /** Registra un oggetto gia costruito. */
+    /** Registra un oggetto già costruito. */
     public function instance(string $id, mixed $object): void
     {
         $this->instances[$id] = $object;

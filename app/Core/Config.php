@@ -8,7 +8,7 @@ namespace App\Core;
  * Repository di configurazione con accesso "a punti" (`config('mail.from.address')`).
  *
  * I file in config/ restituiscono array e leggono le variabili di ambiente: il
- * codice applicativo non tocca mai `$_ENV` direttamente, cosi ogni valore ha un
+ * codice applicativo non tocca mai `$_ENV` direttamente, così ogni valore ha un
  * default esplicito e un unico punto di verita.
  */
 final class Config
@@ -16,7 +16,7 @@ final class Config
     /** @var array<string, mixed> */
     private array $items = [];
 
-    /** @var array<string, mixed> Cache piatta delle chiavi gia risolte. */
+    /** @var array<string, mixed> Cache piatta delle chiavi già risolte. */
     private array $cache = [];
 
     /** @param array<string, mixed> $items */

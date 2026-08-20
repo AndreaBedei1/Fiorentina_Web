@@ -82,7 +82,7 @@ final class SettingsRepository extends BaseRepository
     }
 
     /**
-     * Crea l'impostazione se assente, senza toccare il valore gia presente.
+     * Crea l'impostazione se assente, senza toccare il valore già presente.
      * Serve ai seed e agli aggiornamenti: introdurre una nuova chiave non deve
      * sovrascrivere cio che gli amministratori hanno configurato.
      *

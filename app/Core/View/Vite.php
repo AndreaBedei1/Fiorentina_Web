@@ -36,7 +36,7 @@ final class Vite
     }
 
     /**
-     * Tag HTML (CSS + JS) per uno o piu entrypoint.
+     * Tag HTML (CSS + JS) per uno o più entrypoint.
      *
      * @param string|list<string> $entrypoints Percorsi come dichiarati in vite.config.js.
      */
@@ -90,7 +90,7 @@ final class Vite
         return $styles . $preloads . $scripts;
     }
 
-    /** URL pubblico di un file gia presente nel manifest. */
+    /** URL pubblico di un file già presente nel manifest. */
     public function asset(string $file): string
     {
         return rtrim($this->buildDirectory, '/') . '/' . ltrim($file, '/');

@@ -23,7 +23,7 @@ final class News
         public readonly string $title,
         public readonly string $slug,
         public readonly ?string $excerpt,
-        /** HTML gia sanificato in scrittura: nei template va stampato con |raw. */
+        /** HTML già sanificato in scrittura: nei template va stampato con |raw. */
         public readonly ?string $content,
         public readonly ?string $imageKey,
         public readonly ?string $imageAlt,

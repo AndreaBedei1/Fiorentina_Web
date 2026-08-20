@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Shop;
 
-/** Contenuto del carrello con i totali gia calcolati. */
+/** Contenuto del carrello con i totali già calcolati. */
 final readonly class CartContents
 {
     /**

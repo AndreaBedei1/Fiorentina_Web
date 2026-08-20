@@ -101,7 +101,7 @@ final class OrderController extends Controller
 
         $updated
             ? $this->success('Stato aggiornato a: ' . Order::statusLabelFor($status))
-            : $this->error('Non e stato possibile aggiornare lo stato.');
+            : $this->error('Non è stato possibile aggiornare lo stato.');
 
         return $this->redirectToRoute('admin.orders.show', ['id' => $id]);
     }
@@ -150,7 +150,7 @@ final class OrderController extends Controller
             sprintf('Ordine %s archiviato', $order->orderNumber),
         );
 
-        $this->success('Ordine archiviato. Resta nel database e puo essere recuperato.');
+        $this->success('Ordine archiviato. Resta nel database e può essere recuperato.');
 
         return $this->redirectToRoute('admin.orders.index');
     }

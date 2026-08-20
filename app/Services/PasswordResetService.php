@@ -38,7 +38,7 @@ final class PasswordResetService
      * Avvia il recupero.
      *
      * Restituisce sempre true: il chiamante mostra un messaggio neutro e non
-     * puo, nemmeno volendo, rivelare l'esito reale.
+     * può, nemmeno volendo, rivelare l'esito reale.
      */
     public function requestReset(string $email, string $ip): bool
     {
@@ -100,14 +100,14 @@ final class PasswordResetService
 
         if ($record === null) {
             return AdminActionResult::failure(
-                'Il link non e piu valido. I link di reimpostazione scadono dopo poco tempo e valgono una sola volta.'
+                'Il link non è più valido. I link di reimpostazione scadono dopo poco tempo e valgono una sola volta.'
             );
         }
 
         $user = $this->users->find((int) $record['user_id']);
 
         if ($user === null || ! $user->isActive()) {
-            return AdminActionResult::failure('L account collegato non e attivo.');
+            return AdminActionResult::failure('L\'account collegato non e attivo.');
         }
 
         // updatePassword aggiorna anche sessions_valid_after: tutte le sessioni

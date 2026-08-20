@@ -19,7 +19,7 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Baraonda Fiorentina'),
     ],
 
-    // Destinatari di default: il pannello Impostazioni puo sovrascriverli.
+    // Destinatari di default: il pannello Impostazioni può sovrascriverli.
     'to' => [
         'orders' => env('MAIL_ORDERS_TO', 'merchandising@baraondafiorentina.it'),
         'contact' => env('MAIL_CONTACT_TO', 'info@baraondafiorentina.it'),

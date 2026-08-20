@@ -40,7 +40,7 @@ final class MockSocialProvider implements SocialProviderInterface
             'type' => 'image',
         ],
         [
-            'caption' => 'Riunione mensile giovedi alle 21. Si parla di trasferte e tesseramento. [contenuto dimostrativo]',
+            'caption' => 'Riunione mensile giovedì alle 21. Si parla di trasferte e tesseramento. [contenuto dimostrativo]',
             'type' => 'text',
         ],
     ];

@@ -37,7 +37,7 @@ $palette = [
 /**
  * Disegna il marchio segnaposto: scudo con giglio stilizzato.
  *
- * Le proporzioni sono espresse in frazioni del lato, cosi lo stesso disegno
+ * Le proporzioni sono espresse in frazioni del lato, così lo stesso disegno
  * funziona a 32 come a 512 pixel.
  */
 function drawMark(GdImage $image, int $size, array $palette, bool $transparentBackground = false): void
@@ -51,7 +51,7 @@ function drawMark(GdImage $image, int $size, array $palette, bool $transparentBa
 
         imagefilledrectangle($image, 0, 0, $size, $size, $violet);
 
-        // Banda diagonale piu scura: da profondita senza aggiungere dettagli
+        // Banda diagonale più scura: da profondita senza aggiungere dettagli
         // che a 32 pixel diventerebbero illeggibili.
         imagefilledpolygon($image, [
             0, $size,

@@ -23,7 +23,7 @@ use Psr\Log\LoggerInterface;
  *
  * 1. Le miniature vengono scaricate e archiviate in locale. Gli URL dei CDN di
  *    Meta scadono nel giro di giorni: senza copia locale la homepage si
- *    riempirebbe di riquadri vuoti. In piu il visitatore non contatta i server
+ *    riempirebbe di riquadri vuoti. In più il visitatore non contatta i server
  *    di Meta, cosa che ha effetti anche sul fronte cookie e tracciamento.
  *
  * 2. La sincronizzazione non cancella mai i contenuti esistenti. Se l'API non

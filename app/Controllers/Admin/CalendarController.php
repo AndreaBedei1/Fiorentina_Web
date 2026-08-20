@@ -23,9 +23,9 @@ use App\Validation\Validator;
 /**
  * Calendario partite dal pannello.
  *
- * Le partite arrivano dall API tramite cron, ma l amministratore puo
+ * Le partite arrivano dall API tramite cron, ma l amministratore può
  * aggiungerne o correggerne a mano: amichevoli, recuperi, orari cambiati
- * all ultimo. Una partita marcata come manuale non viene piu sovrascritta
+ * all ultimo. Una partita marcata come manuale non viene più sovrascritta
  * dalla sincronizzazione, altrimenti la correzione durerebbe fino al cron
  * successivo.
  */
@@ -141,7 +141,7 @@ final class CalendarController extends Controller
         $this->matches->update($id, $data);
 
         $this->audit->log(AuditLogger::CONTENT_UPDATED, 'match', $id, 'Partita aggiornata a mano');
-        $this->success('Partita aggiornata. Non verra piu sovrascritta dalla sincronizzazione automatica.');
+        $this->success('Partita aggiornata. Non verrà più sovrascritta dalla sincronizzazione automatica.');
 
         return $this->redirectToRoute('admin.calendar.index');
     }

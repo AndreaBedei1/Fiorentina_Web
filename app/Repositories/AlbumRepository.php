@@ -195,7 +195,7 @@ final class AlbumRepository extends BaseRepository
 
     /**
      * Riallinea il contatore delle fotografie e, se manca, sceglie una copertina.
-     * Chiamato dopo ogni upload o eliminazione, cosi il valore denormalizzato
+     * Chiamato dopo ogni upload o eliminazione, così il valore denormalizzato
      * non si disallinea mai in silenzio.
      */
     public function refreshCounters(int $albumId): void

@@ -11,7 +11,7 @@ use App\Models\User;
  *
  * Il motivo del fallimento serve internamente (per l'audit log e per il
  * messaggio di attesa), ma cio che l'utente legge resta generico: solo il caso
- * "troppi tentativi" viene esplicitato, perche altrimenti sembrerebbe un guasto.
+ * "troppi tentativi" viene esplicitato, perché altrimenti sembrerebbe un guasto.
  */
 final readonly class AuthResult
 {

@@ -150,7 +150,7 @@ final class NewsController extends Controller
         $data = $this->buildData($request, $validated);
 
         // Lo slug si aggiorna solo su richiesta esplicita: cambiarlo rompe i
-        // link gia condivisi sui social e azzera il posizionamento acquisito.
+        // link già condivisi sui social e azzera il posizionamento acquisito.
         if (! $request->bool('update_slug')) {
             unset($data['slug']);
         }
@@ -233,7 +233,7 @@ final class NewsController extends Controller
             ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO')
             ->in('status', [News::STATUS_DRAFT, News::STATUS_PUBLISHED, News::STATUS_ARCHIVED], 'Lo stato')
             ->date('published_date', 'La data di pubblicazione')
-            ->time('published_time', 'L orario di pubblicazione');
+            ->time('published_time', 'L\'orario di pubblicazione');
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());

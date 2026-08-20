@@ -7,7 +7,7 @@ namespace App\Repositories;
 /**
  * Token di autenticazione, tentativi di accesso e contatori di rate limiting.
  *
- * Tutti i token sono salvati come hash SHA-256: chi legge il database non puo
+ * Tutti i token sono salvati come hash SHA-256: chi legge il database non può
  * accettare un invito o completare un reset password al posto di qualcun altro.
  * La ricerca avviene per hash, quindi resta una lookup indicizzata.
  */

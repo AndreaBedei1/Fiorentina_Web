@@ -48,7 +48,7 @@ abstract class Seeder
         Console::bullet($message);
     }
 
-    /** Verifica se una tabella contiene gia dati: evita di duplicare i seed. */
+    /** Verifica se una tabella contiene già dati: evita di duplicare i seed. */
     protected function tableHasRows(string $table, string $where = '', array $bindings = []): bool
     {
         $sql = 'SELECT COUNT(*) FROM ' . $this->db->quoteIdentifier($table);

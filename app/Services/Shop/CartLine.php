@@ -7,7 +7,7 @@ namespace App\Services\Shop;
 use App\Models\Product;
 use App\Models\ProductVariant;
 
-/** Riga del carrello, con prezzo gia calcolato sulla variante scelta. */
+/** Riga del carrello, con prezzo già calcolato sulla variante scelta. */
 final readonly class CartLine
 {
     public function __construct(

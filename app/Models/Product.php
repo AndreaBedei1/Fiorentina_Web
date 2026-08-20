@@ -140,7 +140,7 @@ final class Product
         return match ($this->availability) {
             self::AVAILABILITY_OUT_OF_STOCK => 'Esaurito',
             self::AVAILABILITY_PREORDER => 'Su prenotazione',
-            self::AVAILABILITY_DISCONTINUED => 'Non piu disponibile',
+            self::AVAILABILITY_DISCONTINUED => 'Non più disponibile',
             default => 'Disponibile',
         };
     }

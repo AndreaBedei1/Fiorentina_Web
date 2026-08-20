@@ -17,8 +17,8 @@ use App\Services\Mail\MailService;
  * Gestione degli account amministratore.
  *
  * Concentra qui le regole che non devono poter essere aggirate da nessuna
- * schermata: nessuna registrazione pubblica, solo un SUPER_ADMIN puo creare o
- * modificare account, e non si puo mai rimanere senza super amministratori
+ * schermata: nessuna registrazione pubblica, solo un SUPER_ADMIN può creare o
+ * modificare account, e non si può mai rimanere senza super amministratori
  * attivi (sarebbe un sito impossibile da riprendere in mano).
  */
 final class AdminUserService
@@ -52,7 +52,7 @@ final class AdminUserService
         $email = mb_strtolower(trim($email));
 
         if ($this->users->emailExists($email)) {
-            return AdminActionResult::failure('Esiste gia un amministratore con questo indirizzo email.');
+            return AdminActionResult::failure('Esiste già un amministratore con questo indirizzo email.');
         }
 
         if (! in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPER_ADMIN], true)) {
@@ -99,7 +99,7 @@ final class AdminUserService
         return AdminActionResult::success(
             $sent
                 ? 'Invito inviato correttamente a ' . $email . '.'
-                : 'Account creato, ma l invio dell email non e riuscito. Consegna il link manualmente.',
+                : 'Account creato, ma l\'invio dell\'email non e riuscito. Consegna il link manualmente.',
             ['user_id' => $userId, 'link' => $link, 'email_sent' => $sent],
         );
     }
@@ -110,20 +110,20 @@ final class AdminUserService
         return $this->tokens->findValidInvite(TokenGenerator::hash($plainToken));
     }
 
-    /** Completa l'invito: imposta la password e attiva l'account. */
+    /** Completa l'invito: imposta la password è attiva l'account. */
     public function acceptInvite(string $plainToken, string $password): AdminActionResult
     {
         $invite = $this->findInviteByToken($plainToken);
 
         if ($invite === null) {
-            return AdminActionResult::failure('Il link di invito non e valido o e scaduto. Chiedi un nuovo invito.');
+            return AdminActionResult::failure('Il link di invito non è valido o e scaduto. Chiedi un nuovo invito.');
         }
 
         $userId = (int) $invite['user_id'];
         $user = $this->users->find($userId);
 
         if ($user === null) {
-            return AdminActionResult::failure('L account collegato a questo invito non esiste piu.');
+            return AdminActionResult::failure('L\'account collegato a questo invito non esiste più.');
         }
 
         $this->users->update($userId, [
@@ -138,7 +138,7 @@ final class AdminUserService
             AuditLogger::ADMIN_ACTIVATED,
             'user',
             $userId,
-            sprintf('%s ha completato l attivazione dell account', $user->name),
+            sprintf('%s ha completato l\'attivazione dell\'account', $user->name),
             [],
             $user,
         );
@@ -155,7 +155,7 @@ final class AdminUserService
         }
 
         if (! $user->isPending()) {
-            return AdminActionResult::failure('Questo account e gia attivo: non serve un nuovo invito.');
+            return AdminActionResult::failure('Questo account è già attivo: non serve un nuovo invito.');
         }
 
         $this->tokens->revokeInvitesForUser($userId);
@@ -177,7 +177,7 @@ final class AdminUserService
 
         if ($this->users->isLastActiveSuperAdmin($targetId)) {
             return AdminActionResult::failure(
-                'Non puoi bloccare l ultimo super amministratore attivo: il sito resterebbe senza nessuno in grado di gestirlo.'
+                'Non puoi bloccare l\'ultimo super amministratore attivo: il sito resterebbe senza nessuno in grado di gestirlo.'
             );
         }
 
@@ -243,12 +243,12 @@ final class AdminUserService
         }
 
         if ($target->role === $newRole) {
-            return AdminActionResult::success('Il ruolo era gia impostato su questo valore.');
+            return AdminActionResult::success('Il ruolo era già impostato su questo valore.');
         }
 
         if ($newRole === User::ROLE_ADMIN && $this->users->isLastActiveSuperAdmin($targetId)) {
             return AdminActionResult::failure(
-                'Non puoi declassare l ultimo super amministratore attivo. Nominane prima un altro.'
+                'Non puoi declassare l\'ultimo super amministratore attivo. Nominane prima un altro.'
             );
         }
 
@@ -275,7 +275,7 @@ final class AdminUserService
 
         if ($this->users->isLastActiveSuperAdmin($targetId)) {
             return AdminActionResult::failure(
-                'Non puoi eliminare l ultimo super amministratore attivo.'
+                'Non puoi eliminare l\'ultimo super amministratore attivo.'
             );
         }
 
@@ -292,7 +292,7 @@ final class AdminUserService
         );
 
         return AdminActionResult::success(
-            'Account disattivato. Resta nel registro delle attivita, come richiesto dalla tracciabilita.'
+            'Account disattivato. Resta nel registro delle attività, come richiesto dalla tracciabilita.'
         );
     }
 
@@ -302,11 +302,11 @@ final class AdminUserService
         $email = mb_strtolower(trim($email));
 
         if ($this->users->emailExists($email, $targetId)) {
-            return AdminActionResult::failure('Un altro amministratore utilizza gia questo indirizzo email.');
+            return AdminActionResult::failure('Un altro amministratore utilizza già questo indirizzo email.');
         }
 
         if ($targetId !== $actor->id && ! $actor->isSuperAdmin()) {
-            return AdminActionResult::failure('Solo un super amministratore puo modificare altri account.');
+            return AdminActionResult::failure('Solo un super amministratore può modificare altri account.');
         }
 
         $this->users->update($targetId, ['name' => $name, 'email' => $email, 'phone' => $phone]);
@@ -324,7 +324,7 @@ final class AdminUserService
     private function guardTarget(int $targetId, User $actor, string $verb, bool $allowSelf = false): ?AdminActionResult
     {
         if (! $actor->isSuperAdmin()) {
-            return AdminActionResult::failure('Solo un super amministratore puo ' . $verb . ' un account.');
+            return AdminActionResult::failure('Solo un super amministratore può ' . $verb . ' un account.');
         }
 
         if ($targetId === $actor->id && ! $allowSelf) {

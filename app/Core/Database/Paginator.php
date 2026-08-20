@@ -7,7 +7,7 @@ namespace App\Core\Database;
 /**
  * Risultato paginato.
  *
- * La paginazione e obbligatoria su galleria, notizie, ordini e audit log:
+ * La paginazione è obbligatoria su galleria, notizie, ordini e audit log:
  * senza, un archivio di migliaia di fotografie manderebbe in sofferenza sia il
  * database sia il browser dell'amministratore.
  *

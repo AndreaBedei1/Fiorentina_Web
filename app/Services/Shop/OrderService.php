@@ -21,8 +21,8 @@ use App\Services\SettingsService;
  * Nessun dato di pagamento viene raccolto, in nessun punto del flusso.
  *
  * L'ordine viene salvato prima di tentare gli invii: se l'email non parte,
- * l'ordine esiste comunque ed e visibile nel pannello. Il contrario, cioe
- * perdere un ordine perche il server di posta non risponde, sarebbe grave.
+ * l'ordine esiste comunque ed e visibile nel pannello. Il contrario, cioè
+ * perdere un ordine perché il server di posta non risponde, sarebbe grave.
  */
 final class OrderService
 {
@@ -40,7 +40,7 @@ final class OrderService
     /**
      * Trasforma il carrello in un ordine registrato.
      *
-     * @param array<string, mixed> $customer Dati gia validati del cliente.
+     * @param array<string, mixed> $customer Dati già validati del cliente.
      */
     public function placeOrder(array $customer, Request $request): OrderPlacementResult
     {

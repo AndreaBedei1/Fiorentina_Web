@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * Gli indirizzi sono in italiano e descrittivi: sono parte dell'identita del
  * sito e contano per il posizionamento. Cambiarli in futuro significa rompere i
- * link gia condivisi, quindi vanno scelti una volta e mantenuti.
+ * link già condivisi, quindi vanno scelti una volta e mantenuti.
  */
 
 use App\Controllers\Site\CalendarController;

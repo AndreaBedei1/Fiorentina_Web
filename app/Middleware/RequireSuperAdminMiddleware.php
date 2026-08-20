@@ -13,7 +13,7 @@ use Closure;
 /**
  * Riserva una rotta ai soli super amministratori.
  *
- * Copre gestione degli account, impostazioni e registro attivita. E il secondo
+ * Copre gestione degli account, impostazioni e registro attività. E il secondo
  * livello di difesa: i controller ricontrollano comunque i permessi prima di
  * ogni operazione sensibile.
  */

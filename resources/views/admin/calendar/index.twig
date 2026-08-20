@@ -3,7 +3,7 @@
 {% block content %}
     {{ include('components/admin-page-header.twig', {
         title: 'Calendario partite',
-        description: 'Le partite arrivano dal fornitore configurato. Puoi aggiungerne o correggerne a mano: le partite modificate non vengono piu sovrascritte.',
+        description: 'Le partite arrivano dal fornitore configurato. Puoi aggiungerne o correggerne a mano: le partite modificate non vengono più sovrascritte.',
         action: { url: route('admin.calendar.create'), label: 'Aggiungi partita' }
     }) }}
 

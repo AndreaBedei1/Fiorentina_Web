@@ -15,7 +15,7 @@ final class TaxonomySeeder extends Seeder
         ['Cena sociale', 'dinner', 'ambra', 'Cene e momenti conviviali del gruppo.', 3],
         ['Raduno', 'flag', 'verde', 'Ritrovi prima delle partite casalinghe.', 4],
         ['Festa', 'party', 'blu', 'Feste, anniversari e ricorrenze del gruppo.', 5],
-        ['Iniziativa', 'star', 'sabbia', 'Iniziative solidali e attivita speciali.', 6],
+        ['Iniziativa', 'star', 'sabbia', 'Iniziative solidali e attività speciali.', 6],
     ];
 
     private const PRODUCT_CATEGORIES = [
@@ -29,7 +29,7 @@ final class TaxonomySeeder extends Seeder
     private const ROLES = [
         ['Presidente', 'Rappresenta il gruppo e coordina il direttivo.', 1],
         ['Vicepresidente', 'Affianca il presidente e ne fa le veci quando serve.', 2],
-        ['Responsabile contabile', 'Cura la contabilita, le quote associative e il bilancio.', 3],
+        ['Responsabile contabile', 'Cura la contabilita, le quote associative è il bilancio.', 3],
         ['Responsabile trasferte', 'Organizza pullman, biglietti e logistica delle trasferte.', 4],
         ['Responsabile merchandising', 'Segue produzione, magazzino e ordini del materiale.', 5],
         ['Responsabile comunicazione', 'Gestisce sito, social e rapporti con la stampa.', 6],

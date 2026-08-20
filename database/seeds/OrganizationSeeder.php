@@ -14,8 +14,8 @@ namespace Database\Seeders;
 final class OrganizationSeeder extends Seeder
 {
     private const MEMBERS = [
-        ['presidente', 'Nome Cognome (presidente)', 'Presidente', 'Guida il gruppo dal 2019. Segue i rapporti con la societa e con le istituzioni.', 2005, 1],
-        ['vicepresidente', 'Nome Cognome (vicepresidente)', 'Vicepresidente', 'Coordina le attivita quotidiane e sostituisce il presidente quando serve.', 2008, 2],
+        ['presidente', 'Nome Cognome (presidente)', 'Presidente', 'Guida il gruppo dal 2019. Segue i rapporti con la società e con le istituzioni.', 2005, 1],
+        ['vicepresidente', 'Nome Cognome (vicepresidente)', 'Vicepresidente', 'Coordina le attività quotidiane e sostituisce il presidente quando serve.', 2008, 2],
         ['responsabile-contabile', 'Nome Cognome (contabile)', 'Responsabile contabile', 'Cura quote, bilancio e rendicontazione delle trasferte.', 2010, 3],
         ['responsabile-trasferte', 'Nome Cognome (trasferte)', 'Responsabile trasferte', 'Organizza pullman, biglietti e logistica.', 2012, 4],
         ['responsabile-merchandising', 'Nome Cognome (merchandising)', 'Responsabile merchandising', 'Segue produzione, magazzino e consegna del materiale.', 2015, 5],
@@ -30,7 +30,7 @@ final class OrganizationSeeder extends Seeder
     public function run(): int
     {
         if ($this->tableHasRows('organization_members')) {
-            $this->say('Organigramma gia popolato: salto.');
+            $this->say('Organigramma già popolato: salto.');
 
             return 0;
         }

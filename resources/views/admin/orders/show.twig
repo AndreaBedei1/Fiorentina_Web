@@ -20,7 +20,7 @@
 
                 <div class="tabella-scroll">
                     <table class="tabella">
-                        <caption class="sr-only">Articoli dell ordine {{ order.orderNumber }}</caption>
+                        <caption class="sr-only">Articoli dell'ordine {{ order.orderNumber }}</caption>
                         <thead>
                             <tr>
                                 <th scope="col">Prodotto</th>
@@ -100,7 +100,7 @@
 
                 <form action="{{ route('admin.orders.notes', { id: order.id }) }}" method="post" class="pannello-corpo">
                     {{ csrf_field()|raw }}
-                    <label for="campo-admin-notes" class="sr-only">Note interne sull ordine</label>
+                    <label for="campo-admin-notes" class="sr-only">Note interne sull'ordine</label>
                     <textarea id="campo-admin-notes" name="admin_notes" rows="4" class="campo-textarea"
                               placeholder="Annotazioni per il gruppo: chi segue l ordine, quando e stato pagato...">{{ order.adminNotes }}</textarea>
                     <button type="submit" class="btn-secondario mt-3">Salva note</button>
@@ -201,7 +201,7 @@
 
                     <p class="text-xs leading-relaxed text-sabbia-500">
                         Gli ordini non vengono mai eliminati dal database: archiviarli li toglie
-                        dall elenco, ma restano recuperabili.
+                        dall'elenco, ma restano recuperabili.
                     </p>
                 </div>
             </section>

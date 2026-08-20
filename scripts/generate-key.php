@@ -37,7 +37,7 @@ $contents = (string) file_get_contents($envPath);
 
 if (preg_match('/^APP_KEY=(.*)$/m', $contents, $matches) === 1) {
     if (trim($matches[1]) !== '') {
-        fwrite(STDERR, "APP_KEY e gia impostata. Sovrascriverla scollegherebbe tutti gli amministratori.\n");
+        fwrite(STDERR, "APP_KEY e già impostata. Sovrascriverla scollegherebbe tutti gli amministratori.\n");
         fwrite(STDERR, "Se vuoi davvero cambiarla, modifica il file .env a mano.\n");
         exit(1);
     }

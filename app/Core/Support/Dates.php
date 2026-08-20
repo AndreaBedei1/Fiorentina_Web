@@ -10,7 +10,7 @@ use DateTimeInterface;
 /**
  * Formattazione delle date in italiano.
  *
- * Non usiamo IntlDateFormatter perche l'estensione intl non e garantita su
+ * Non usiamo IntlDateFormatter perché l'estensione intl non e garantita su
  * tutti i piani Aruba: le tabelle di traduzione sono poche righe e rendono il
  * comportamento identico ovunque.
  */
@@ -29,8 +29,8 @@ final class Dates
     ];
 
     private const DAYS = [
-        0 => 'domenica', 1 => 'lunedi', 2 => 'martedi', 3 => 'mercoledi',
-        4 => 'giovedi', 5 => 'venerdi', 6 => 'sabato',
+        0 => 'domenica', 1 => 'lunedì', 2 => 'martedì', 3 => 'mercoledì',
+        4 => 'giovedì', 5 => 'venerdì', 6 => 'sabato',
     ];
 
     private const DAYS_SHORT = [
@@ -76,7 +76,7 @@ final class Dates
         return sprintf('%d %s %d', (int) $date->format('j'), self::MONTHS[(int) $date->format('n')], (int) $date->format('Y'));
     }
 
-    /** mercoledi 19 agosto 2026 */
+    /** mercoledì 19 agosto 2026 */
     public static function longWithWeekday(DateTimeInterface|string|null $value): string
     {
         $date = self::parse($value);

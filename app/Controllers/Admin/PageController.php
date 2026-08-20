@@ -230,7 +230,7 @@ final class PageController extends Controller
     /**
      * Dati di un blocco.
      *
-     * Gli elenchi vengono scritti una voce per riga: e il modo piu naturale per
+     * Gli elenchi vengono scritti una voce per riga: e il modo più naturale per
      * chi non e tecnico, e la conversione in struttura avviene qui.
      *
      * @return array<string, mixed>

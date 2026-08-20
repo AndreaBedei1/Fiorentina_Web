@@ -23,25 +23,47 @@ use App\Console\Console;
 
 require __DIR__ . '/bootstrap.php';
 
-/** Palette del design system, allineata a tailwind.config.js. */
-const PALETTE = [
-    'viola-50' => '#f6f3fb', 'viola-100' => '#ece4f7', 'viola-200' => '#d8c9ee',
-    'viola-300' => '#bda3e0', 'viola-400' => '#9d76ce', 'viola-500' => '#8151b8',
-    'viola-600' => '#6b3aa0', 'viola-700' => '#582d84', 'viola-800' => '#41215f',
-    'viola-900' => '#2c1640', 'viola-950' => '#1a0d27',
+/**
+ * La palette si legge da tailwind.config.js, che ne e la fonte unica.
+ *
+ * Ricopiarla qui sembrava più semplice, ed e durato finché qualcuno non ha
+ * cambiato un colore da una parte sola: il controllo continuava a passare
+ * misurando tinte che il sito non usava più. Un controllo che valida la copia
+ * sbagliata e peggio di nessun controllo.
+ *
+ * @return array<string, string>
+ */
+function leggiPalette(string $percorso): array
+{
+    $sorgente = (string) file_get_contents($percorso);
 
-    'rosso-50' => '#fef2f3', 'rosso-100' => '#fde3e6', 'rosso-200' => '#fbccd2',
-    'rosso-300' => '#f7a4af', 'rosso-400' => '#f07387', 'rosso-500' => '#e34460',
-    'rosso-600' => '#cd2247', 'rosso-700' => '#ac173a', 'rosso-800' => '#901637',
-    'rosso-900' => '#7b1634', 'rosso-950' => '#450718',
+    if (preg_match('/colors:\s*\{(.*?)
+            \},/s', $sorgente, $blocco) !== 1) {
+        Console::error('Non riesco a leggere la sezione "colors" di tailwind.config.js.');
+        exit(1);
+    }
 
-    'sabbia-50' => '#faf9f7', 'sabbia-100' => '#f3f1ed', 'sabbia-200' => '#e7e3dc',
-    'sabbia-300' => '#d5cec3', 'sabbia-400' => '#b8ae9e', 'sabbia-500' => '#9c9081',
-    'sabbia-600' => '#7a6f63', 'sabbia-700' => '#6b6157', 'sabbia-800' => '#57504a',
-    'sabbia-900' => '#3d3833', 'sabbia-950' => '#231f1c',
+    preg_match_all(
+        '/(?<famiglia>[a-z]+):\s*\{(?<gradini>[^}]*)\}/s',
+        $blocco[1],
+        $famiglie,
+        PREG_SET_ORDER,
+    );
 
-    'bianco' => '#ffffff',
-];
+    $palette = ['bianco' => '#ffffff'];
+
+    foreach ($famiglie as $famiglia) {
+        preg_match_all("/(?<gradino>\d+):\s*'(?<valore>#[0-9a-fA-F]{6})'/", $famiglia['gradini'], $tinte, PREG_SET_ORDER);
+
+        foreach ($tinte as $tinta) {
+            $palette[$famiglia['famiglia'] . '-' . $tinta['gradino']] = strtolower($tinta['valore']);
+        }
+    }
+
+    return $palette;
+}
+
+$palette = leggiPalette(dirname(__DIR__) . '/tailwind.config.js');
 
 /**
  * Accostamenti effettivamente presenti nell'interfaccia.
@@ -131,14 +153,14 @@ printf("%-46s %-22s %8s  %-6s %s\n", 'DOVE', 'COLORI', 'RAPPORTO', 'SOGLIA', 'ES
 echo str_repeat('-', 100), "\n";
 
 foreach (COMBINAZIONI as [$foreground, $background, $where, $threshold]) {
-    if (! isset(PALETTE[$foreground], PALETTE[$background])) {
+    if (! isset($palette[$foreground], $palette[$background])) {
         Console::error(sprintf('Colore sconosciuto nella combinazione "%s".', $where));
         $failures++;
 
         continue;
     }
 
-    $ratio = contrastRatio(PALETTE[$foreground], PALETTE[$background]);
+    $ratio = contrastRatio($palette[$foreground], $palette[$background]);
     $passes = $ratio >= $threshold;
 
     // Il livello AAA (7:1) non e un requisito, ma segnalarlo aiuta a capire

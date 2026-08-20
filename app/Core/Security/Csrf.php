@@ -10,8 +10,8 @@ use App\Core\Session\Session;
  * Token CSRF sincronizzato con la sessione.
  *
  * Un solo token per sessione (non uno per form): e sufficiente contro il CSRF e
- * non rompe la navigazione con piu schede aperte, che invece e un problema
- * concreto per gli amministratori che lavorano su piu contenuti insieme.
+ * non rompe la navigazione con più schede aperte, che invece e un problema
+ * concreto per gli amministratori che lavorano su più contenuti insieme.
  * Il token viene rigenerato a ogni cambio di privilegio.
  */
 final class Csrf

@@ -11,7 +11,7 @@ use Closure;
 /**
  * Contratto dei middleware.
  *
- * Ogni middleware avvolge il resto della catena: puo agire prima di passare la
+ * Ogni middleware avvolge il resto della catena: può agire prima di passare la
  * richiesta a `$next`, dopo averne ricevuto la risposta, oppure interromperla
  * restituendo direttamente una Response.
  */

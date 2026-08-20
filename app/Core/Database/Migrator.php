@@ -190,7 +190,7 @@ final class Migrator
         /*
          * MySQL applica il DDL con commit implicito: una transazione qui darebbe
          * una falsa sensazione di atomicita. Per questo ogni migrazione resta
-         * piccola e indipendente, e un errore viene segnalato indicando il file
+         * piccola è indipendente, e un errore viene segnalato indicando il file
          * esatto in cui intervenire.
          */
         foreach ($statements as $index => $statement) {

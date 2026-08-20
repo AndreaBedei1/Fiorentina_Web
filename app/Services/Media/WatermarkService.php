@@ -80,7 +80,7 @@ final class WatermarkService
     }
 
     /**
-     * Applica la filigrana a un'immagine gia ridimensionata.
+     * Applica la filigrana a un'immagine già ridimensionata.
      *
      * @param string $sizeName Misura corrente: determina se applicarla o no.
      */
@@ -139,7 +139,7 @@ final class WatermarkService
     /**
      * Filigrana ripetuta a scacchiera.
      *
-     * Molto piu difficile da rimuovere con un ritaglio rispetto a un singolo
+     * Molto più difficile da rimuovere con un ritaglio rispetto a un singolo
      * logo in un angolo, al prezzo di una maggiore invadenza: resta una scelta
      * dell'amministratore.
      */
@@ -180,7 +180,7 @@ final class WatermarkService
             'top-left' => 'In alto a sinistra',
             'bottom-center' => 'In basso al centro',
             'center' => 'Al centro',
-            'tiled' => 'Ripetuta (piu difficile da rimuovere)',
+            'tiled' => 'Ripetuta (più difficile da rimuovere)',
         ];
     }
 }

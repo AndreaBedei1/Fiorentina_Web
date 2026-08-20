@@ -108,7 +108,7 @@ final class OrganizationController extends Controller
 
         // Le persone collegate restano: perdono solo il riferimento al ruolo.
         $this->organization->deleteRole($request->routeInt('roleId'));
-        $this->success('Ruolo eliminato. Le persone collegate restano nell elenco.');
+        $this->success('Ruolo eliminato. Le persone collegate restano nell\'elenco.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
@@ -145,7 +145,7 @@ final class OrganizationController extends Controller
         $id = $this->organization->createMember($data);
 
         $this->audit->log(AuditLogger::CONTENT_CREATED, 'member', $id, sprintf('Persona aggiunta: %s', $data['full_name']));
-        $this->success('Persona aggiunta all organigramma.');
+        $this->success('Persona aggiunta all\'organigramma.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
@@ -214,7 +214,7 @@ final class OrganizationController extends Controller
         }
 
         $this->audit->log(AuditLogger::CONTENT_DELETED, 'member', $id, sprintf('Persona rimossa: %s', $member->fullName));
-        $this->success('Persona rimossa dall organigramma.');
+        $this->success('Persona rimossa dall\'organigramma.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
@@ -226,9 +226,9 @@ final class OrganizationController extends Controller
             ->required('full_name', 'Il nome')->max('full_name', 120, 'Il nome')
             ->optional('role_title')->max('role_title', 120, 'Il titolo')
             ->optional('bio')->max('bio', 600, 'La biografia')
-            ->optional('email')->email('email', 'L indirizzo email')
+            ->optional('email')->email('email', 'L\'indirizzo email')
             ->optional('phone')->phone('phone', 'Il telefono')
-            ->integer('member_since', 'L anno di ingresso', 1900, (int) date('Y'))
+            ->integer('member_since', 'L\'anno di ingresso', 1900, (int) date('Y'))
             ->integer('sort_order', 'L ordinamento', 0, 999);
 
         if ($validator->fails()) {

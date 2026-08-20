@@ -118,7 +118,7 @@ final class OrderController extends Controller
             ->honeypot('website')
             ->required('first_name', 'Il nome')->max('first_name', 80, 'Il nome')
             ->required('last_name', 'Il cognome')->max('last_name', 80, 'Il cognome')
-            ->required('email', 'L indirizzo email')->email('email', 'L indirizzo email')->max('email', 190, 'L indirizzo email')
+            ->required('email', 'L\'indirizzo email')->email('email', 'L\'indirizzo email')->max('email', 190, 'L\'indirizzo email')
             ->required('phone', 'Il telefono')->phone('phone', 'Il telefono')
             ->optional('notes')->max('notes', 1000, 'Le note')
             ->in('shipping_method', array_keys($this->shipping->availableMethods()), 'Il metodo di consegna');

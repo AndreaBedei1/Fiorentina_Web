@@ -84,7 +84,7 @@ final class SettingsController extends Controller
             AuditLogger::SETTINGS_UPDATED,
             'settings',
             null,
-            sprintf('%d impostazioni aggiornate', count($values)),
+            sprintf('%d\'impostazioni aggiornate', count($values)),
             ['keys' => array_keys($values)],
         );
 

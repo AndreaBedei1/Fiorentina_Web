@@ -130,7 +130,7 @@ final class AuthController extends Controller
         $token = (string) $request->route('token');
 
         if (! $this->passwordReset->tokenIsValid($token)) {
-            $this->error('Il link non e piu valido. Richiedi una nuova reimpostazione.');
+            $this->error('Il link non è più valido. Richiedi una nuova reimpostazione.');
 
             return $this->redirectToRoute('admin.password.forgot');
         }

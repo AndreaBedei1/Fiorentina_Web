@@ -229,8 +229,8 @@ final class Router
     }
 
     /**
-     * Esegue la catena di middleware "a cipolla": ogni middleware puo agire
-     * prima e dopo il resto della pipeline, e puo interromperla restituendo
+     * Esegue la catena di middleware "a cipolla": ogni middleware può agire
+     * prima e dopo il resto della pipeline, e può interromperla restituendo
      * direttamente una Response.
      *
      * @param list<class-string> $middleware

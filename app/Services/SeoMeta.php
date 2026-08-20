@@ -145,7 +145,7 @@ final class SeoMeta
         return $this;
     }
 
-    /** Dati strutturati Schema.org gia serializzati per il tag script. */
+    /** Dati strutturati Schema.org già serializzati per il tag script. */
     public function structuredDataJson(): ?string
     {
         if ($this->structuredData === null) {
@@ -158,7 +158,7 @@ final class SeoMeta
         ) ?: null;
     }
 
-    /** Breadcrumb in formato Schema.org, generato dai breadcrumb gia impostati. */
+    /** Breadcrumb in formato Schema.org, generato dai breadcrumb già impostati. */
     public function breadcrumbJson(string $baseUrl): ?string
     {
         if ($this->breadcrumbs === []) {

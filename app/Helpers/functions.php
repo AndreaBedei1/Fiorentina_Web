@@ -17,7 +17,7 @@ if (! function_exists('env')) {
      * Legge una variabile di ambiente con conversione dei valori tipici.
      *
      * Usata soltanto dai file in config/: il resto del codice legge la
-     * configurazione, cosi ogni valore ha un default esplicito in un solo punto.
+     * configurazione, così ogni valore ha un default esplicito in un solo punto.
      */
     function env(string $key, mixed $default = null): mixed
     {

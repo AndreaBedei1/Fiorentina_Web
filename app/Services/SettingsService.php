@@ -37,7 +37,7 @@ final class SettingsService
         ],
         'site_founded_year' => [
             'group' => 'generale', 'type' => 'int', 'sort' => 3,
-            'label' => 'Anno di fondazione', 'default' => '1998',
+            'label' => 'Anno di fondazione', 'default' => '2015',
         ],
         'site_description' => [
             'group' => 'generale', 'type' => 'text', 'sort' => 4,
@@ -94,7 +94,7 @@ final class SettingsService
         'home_hero_subtitle' => [
             'group' => 'homepage', 'type' => 'text', 'sort' => 2,
             'label' => 'Sottotitolo sezione di apertura',
-            'default' => 'Dal 1998 seguiamo la Fiorentina ovunque giochi. Trasferte, curva, amicizia: entra anche tu nella Baraonda.',
+            'default' => 'Dal 2015 seguiamo la Fiorentina ovunque giochi. Trasferte, curva, amicizia: entra anche tu nella Baraonda.',
         ],
         'home_cta_label' => [
             'group' => 'homepage', 'type' => 'string', 'sort' => 3,
@@ -173,7 +173,7 @@ final class SettingsService
         'footer_text' => [
             'group' => 'footer', 'type' => 'text', 'sort' => 1,
             'label' => 'Testo del piede di pagina',
-            'default' => 'Baraonda Fiorentina e un gruppo di tifosi indipendente. Non e affiliato ne rappresenta ACF Fiorentina.',
+            'default' => 'Baraonda Fiorentina è un gruppo di tifosi indipendente. Non è affiliato né rappresenta ACF Fiorentina.',
         ],
         'footer_association_details' => [
             'group' => 'footer', 'type' => 'text', 'sort' => 2,

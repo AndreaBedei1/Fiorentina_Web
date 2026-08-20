@@ -86,7 +86,7 @@ final class GalleryController extends Controller
         $album = $this->albums->findPublishedBySlug($slug);
 
         if ($album === null) {
-            $this->notFound('L album che cerchi non esiste o non e piu pubblicato.');
+            $this->notFound('L album che cerchi non esiste o non è più pubblicato.');
         }
 
         $page = $this->page($request);

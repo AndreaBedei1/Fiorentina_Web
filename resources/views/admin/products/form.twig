@@ -46,7 +46,7 @@
                         {% if not isNew %}
                             <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
                                 <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l indirizzo pubblico</span>
+                                <span>Aggiorna anche l'indirizzo pubblico</span>
                             </label>
                         {% endif %}
                     </div>
@@ -54,7 +54,7 @@
                     {{ include('components/field.twig', {
                         name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 300,
                         value: old('short_description', isNew ? '' : product.shortDescription),
-                        help: 'Una riga: e quella che si legge nelle card del catalogo.'
+                        help: 'Una riga: è quella che si legge nelle card del catalogo.'
                     }) }}
 
                     <div>
@@ -76,7 +76,7 @@
                 <div class="pannello-corpo">
                     <p class="mb-4 text-sm leading-relaxed text-sabbia-600">
                         Se il prodotto ha taglie o colori, aggiungi una riga per ciascuna combinazione.
-                        Lasciando l elenco vuoto il prodotto viene venduto in versione unica.
+                        Lasciando l'elenco vuoto il prodotto viene venduto in versione unica.
                     </p>
 
                     {% set variantData = [] %}
@@ -286,12 +286,12 @@
                     {{ include('components/field.twig', {
                         name: 'images[]', label: 'Aggiungi immagini', type: 'file', multiple: true,
                         accept: 'image/jpeg,image/png,image/webp',
-                        help: 'Puoi selezionarne piu di una. La prima caricata diventa l immagine principale.'
+                        help: 'Puoi selezionarne più di una. La prima caricata diventa l immagine principale.'
                     }) }}
 
                     {{ include('components/field.twig', {
                         name: 'image_alt', label: 'Testo alternativo', maxlength: 300,
-                        help: 'Descrive il prodotto a chi non puo vedere le immagini.'
+                        help: 'Descrive il prodotto a chi non può vedere le immagini.'
                     }) }}
                 </div>
             </section>

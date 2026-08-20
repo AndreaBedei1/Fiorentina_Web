@@ -2,11 +2,11 @@
   Intestazione del sito.
 
   Il menu mobile e un pannello a scomparsa: si chiude con Esc, il fuoco resta
-  al suo interno finche e aperto e il pulsante dichiara il proprio stato con
+  al suo interno finché e aperto e il pulsante dichiara il proprio stato con
   aria-expanded.
 
   Nota sulla sintassi Alpine: usiamo la build CSP, quindi negli attributi si
-  possono scrivere solo nomi di proprieta e di metodi. Niente espressioni
+  possono scrivere solo nomi di proprietà e di metodi. Niente espressioni
   in linea, niente parentesi: tutta la logica sta in resources/js/modules/header.ts.
   In cambio la Content-Security-Policy resta senza 'unsafe-eval'.
 
@@ -78,6 +78,18 @@
                 {% endif %}
             </a>
 
+            {#
+              Area riservata: un collegamento vero, non un indirizzo da
+              ricordare a memoria. E volutamente discreto - serve a due o tre
+              persone - ma raggiungibile da tastiera come tutto il resto.
+            #}
+            <a href="{{ route('admin.login') }}"
+               class="hidden items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2.5 text-sm font-semibold text-viola-100 transition hover:border-white/40 hover:bg-white/10 hover:text-white focus-ring-light sm:inline-flex">
+                {{ include('components/icon.twig', { name: 'lock', class: 'h-4 w-4' }) }}
+                <span class="hidden md:inline">Area riservata</span>
+                <span class="md:hidden">Accedi</span>
+            </a>
+
             <a href="{{ route('page.join') }}"
                class="hidden rounded-lg bg-rosso-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-rosso-700 focus-ring-light sm:inline-flex">
                 {{ setting('home_cta_label', 'Diventa socio') }}
@@ -123,6 +135,13 @@
                @click="close"
                class="mt-3 flex items-center justify-center rounded-lg bg-rosso-600 px-4 py-3.5 text-base font-bold text-white focus-ring-light">
                 {{ setting('home_cta_label', 'Diventa socio') }}
+            </a>
+
+            <a href="{{ route('admin.login') }}"
+               @click="close"
+               class="mt-1 flex items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-3 text-sm font-semibold text-viola-100 focus-ring-light">
+                {{ include('components/icon.twig', { name: 'lock', class: 'h-4 w-4' }) }}
+                Area riservata
             </a>
         </nav>
     </div>

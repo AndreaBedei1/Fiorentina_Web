@@ -93,7 +93,7 @@ final class PhotoService
                     'error' => $e->getMessage(),
                 ]);
 
-                // Un'elaborazione interrotta a meta puo aver lasciato file su
+                // Un'elaborazione interrotta a meta può aver lasciato file su
                 // disco: li rimuoviamo per non accumulare spazzatura.
                 $this->paths->deleteAll(MediaPaths::COLLECTION_GALLERY, $key, $validation->extension);
 

@@ -59,7 +59,7 @@ class HttpException extends \RuntimeException
         return new self(419, $message);
     }
 
-    public static function tooManyRequests(string $message = 'Troppi tentativi. Riprova piu tardi.', int $retryAfter = 60): self
+    public static function tooManyRequests(string $message = 'Troppi tentativi. Riprova più tardi.', int $retryAfter = 60): self
     {
         return new self(429, $message, ['Retry-After' => (string) $retryAfter]);
     }

@@ -13,7 +13,7 @@ namespace App\Validation;
  * una regola che vale solo in met&agrave; dei casi.
  *
  * Nessun requisito barocco di simboli obbligatori: lunghezza e varieta contano
- * piu di regole che spingono le persone verso password prevedibili del tipo
+ * più di regole che spingono le persone verso password prevedibili del tipo
  * "Password1!".
  */
 final class PasswordPolicy
@@ -34,7 +34,7 @@ final class PasswordPolicy
         $minLength ??= self::MIN_LENGTH;
 
         if ($password === '') {
-            return 'La password e obbligatoria.';
+            return 'La password è obbligatoria.';
         }
 
         if (mb_strlen($password) < $minLength) {
@@ -42,7 +42,7 @@ final class PasswordPolicy
         }
 
         if (mb_strlen($password) > self::MAX_LENGTH) {
-            return sprintf('La password non puo superare %d caratteri.', self::MAX_LENGTH);
+            return sprintf('La password non può superare %d caratteri.', self::MAX_LENGTH);
         }
 
         if (self::countCharacterClasses($password) < self::MIN_CHARACTER_CLASSES) {

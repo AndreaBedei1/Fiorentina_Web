@@ -10,7 +10,7 @@ use App\DTO\SocialPostData;
  * Contratto verso una piattaforma social.
  *
  * Instagram, Facebook e YouTube hanno API molto diverse fra loro: questa
- * interfaccia le riduce all'unica cosa che serve al sito, cioe "dammi gli
+ * interfaccia le riduce all'unica cosa che serve al sito, cioè "dammi gli
  * ultimi contenuti pubblicati".
  */
 interface SocialProviderInterface

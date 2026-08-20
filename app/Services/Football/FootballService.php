@@ -153,7 +153,7 @@ final class FootballService
         $configured = $this->config->string('services.football.provider', 'mock');
 
         // Senza chiave non ha senso tentare il fornitore reale: ricadiamo su
-        // quello fittizio, cosi il sito resta popolato e navigabile.
+        // quello fittizio, così il sito resta popolato e navigabile.
         if ($configured !== 'mock' && trim($apiKey) === '') {
             $this->logger->info('Chiave API calcio assente: uso il fornitore fittizio.');
             $configured = 'mock';
@@ -183,7 +183,7 @@ final class FootballService
         return $this->repository->lastSyncedAt();
     }
 
-    /** Indica se i dati sono piu vecchi della soglia configurata. */
+    /** Indica se i dati sono più vecchi della soglia configurata. */
     public function isStale(): bool
     {
         $last = $this->lastSyncedAt();

@@ -5,7 +5,7 @@
   data e l'informazione che si cerca per prima.
   Il livello del titolo e un parametro: in una pagina d'elenco la card sta
   subito sotto l'h1 e deve essere h2, mentre in una sezione della homepage
-  segue gia un h2 e deve essere h3. Saltare un livello confonde chi naviga
+  segue già un h2 e deve essere h3. Saltare un livello confonde chi naviga
   per intestazioni con uno screen reader.
 #}
 {% set livello = heading|default('h3') in ['h2', 'h3', 'h4'] ? heading|default('h3') : 'h3' %}

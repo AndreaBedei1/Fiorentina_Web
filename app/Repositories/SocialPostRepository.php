@@ -129,7 +129,7 @@ final class SocialPostRepository extends BaseRepository
     }
 
     /**
-     * Mantiene solo i contenuti piu recenti per ciascun provider.
+     * Mantiene solo i contenuti più recenti per ciascun provider.
      *
      * @return list<string> Chiavi delle miniature locali da eliminare da disco.
      */

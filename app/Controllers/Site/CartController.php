@@ -20,7 +20,7 @@ use App\Services\Shop\ShippingCalculator;
  * Carrello.
  *
  * L'unica funzione che il visitatore ha a disposizione senza account, ed e
- * volutamente cosi: nessun profilo, nessuna lista dei desideri, nessuno storico.
+ * volutamente così: nessun profilo, nessuna lista dei desideri, nessuno storico.
  * Il carrello vive nella sessione e si chiude con l'invio della richiesta.
  */
 final class CartController extends Controller
@@ -85,7 +85,7 @@ final class CartController extends Controller
 
         $result->successful ? $this->success($result->message) : $this->error($result->message);
 
-        // Restando sulla pagina del prodotto l'utente puo aggiungere altre
+        // Restando sulla pagina del prodotto l'utente può aggiungere altre
         // taglie senza rifare tutto il percorso.
         return $this->back($request, $this->url->route('cart.show'));
     }

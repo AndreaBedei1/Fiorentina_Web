@@ -76,7 +76,7 @@ final class PageBlock
             self::TYPE_LIST => 'Elenco puntato',
             self::TYPE_STEPS => 'Passaggi numerati',
             self::TYPE_HIGHLIGHT => 'Riquadro in evidenza',
-            self::TYPE_CTA => 'Invito all azione',
+            self::TYPE_CTA => 'Invito all\'azione',
             self::TYPE_FAQ => 'Domande frequenti',
             self::TYPE_STATS => 'Numeri chiave',
             self::TYPE_TIMELINE => 'Linea del tempo',

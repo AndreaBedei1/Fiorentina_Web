@@ -65,7 +65,7 @@ final class MediaPaths
      * Verifica che una chiave sia nella forma attesa.
      *
      * Ogni percorso costruito parte da qui: e il punto in cui si blocca il path
-     * traversal, perche una chiave con `..` o con separatori anomali non passa.
+     * traversal, perché una chiave con `..` o con separatori anomali non passa.
      */
     public function isValidKey(string $key): bool
     {
@@ -102,7 +102,7 @@ final class MediaPaths
         );
     }
 
-    /** Percorso di una versione pubblica gia elaborata. */
+    /** Percorso di una versione pubblica già elaborata. */
     public function publicPath(string $collection, string $key, string $size, string $format = 'webp'): string
     {
         $this->assertValidKey($key);

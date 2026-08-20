@@ -23,7 +23,7 @@ use App\Services\SettingsService;
  *
  * Chi siamo, Diventa socio, Privacy e Cookie policy hanno una rotta dedicata e
  * un template proprio, ma il contenuto arriva sempre dal database: il gruppo
- * puo riscriverle senza toccare il codice.
+ * può riscriverle senza toccare il codice.
  */
 final class PageController extends Controller
 {
@@ -90,7 +90,7 @@ final class PageController extends Controller
         $page = $this->pages->findBySlug($slug);
 
         if ($page === null) {
-            $this->notFound('Questa pagina non e ancora stata pubblicata.');
+            $this->notFound('Questa pagina non è ancora stata pubblicata.');
         }
 
         return $page;

@@ -69,7 +69,7 @@ final class ProductRepository extends BaseRepository
              LIMIT ' . max(1, min(12, $limit)),
         );
 
-        // Se non ci sono articoli in evidenza mostriamo comunque i piu recenti:
+        // Se non ci sono articoli in evidenza mostriamo comunque i più recenti:
         // una sezione vuota in homepage e peggio di una scelta automatica.
         if ($rows === []) {
             $rows = $this->db->select(

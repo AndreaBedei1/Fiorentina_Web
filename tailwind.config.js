@@ -20,18 +20,24 @@ export default {
     theme: {
         extend: {
             colors: {
+                /*
+                 * Il gradino 600 e il viola ufficiale della societa
+                 * (Pantone 267 C, #482E92). Tutti gli altri gradini nascono
+                 * da li mantenendone la tonalita: cambia la luminosita, non
+                 * il colore. Non usare un viola scelto a occhio.
+                 */
                 viola: {
-                    50: '#f6f3fb',
-                    100: '#ece4f7',
-                    200: '#d8c9ee',
-                    300: '#bda3e0',
-                    400: '#9d76ce',
-                    500: '#8151b8',
-                    600: '#6b3aa0',
-                    700: '#582d84',
-                    800: '#41215f',
-                    900: '#2c1640',
-                    950: '#1a0d27',
+                    50: '#f5f3fc',
+                    100: '#eae5fa',
+                    200: '#d4c8f5',
+                    300: '#b7a5ea',
+                    400: '#8b71d6',
+                    500: '#603dc2',
+                    600: '#482e92',
+                    700: '#3b247d',
+                    800: '#2f1d64',
+                    900: '#221547',
+                    950: '#150d2d',
                 },
                 rosso: {
                     50: '#fef2f3',

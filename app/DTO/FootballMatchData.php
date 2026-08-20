@@ -7,7 +7,7 @@ namespace App\DTO;
 use DateTimeImmutable;
 
 /**
- * Partita cosi come arriva da un provider, prima di essere normalizzata e
+ * Partita così come arriva da un provider, prima di essere normalizzata e
  * scritta a database. Confine fra il mondo esterno e il dominio applicativo:
  * ogni provider produce questo tipo, e il resto del codice non sa quale API
  * sia stata usata.

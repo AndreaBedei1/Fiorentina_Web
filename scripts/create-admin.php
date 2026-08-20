@@ -85,7 +85,7 @@ if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
 $existing = $users->findByEmail($email);
 
 if ($existing !== null) {
-    Console::warn(sprintf('Esiste gia un account con questa email (%s, %s).', $existing->name, $existing->statusLabel()));
+    Console::warn(sprintf('Esiste già un account con questa email (%s, %s).', $existing->name, $existing->statusLabel()));
 
     $answer = mb_strtolower(ask('Vuoi promuoverlo a super amministratore e reimpostarne la password? [s/N]: ', required: false));
 

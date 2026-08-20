@@ -11,7 +11,7 @@ use DateTimeImmutable;
  * Fotografia della galleria.
  *
  * Il modello conosce solo la chiave di archiviazione: la traduzione in URL
- * pubblici e responsabilita di App\Services\Media\MediaPaths, cosi la
+ * pubblici e responsabilita di App\Services\Media\MediaPaths, così la
  * convenzione dei nomi resta in un solo punto.
  */
 final class Photo
@@ -86,7 +86,7 @@ final class Photo
         }
 
         return $this->albumTitle !== null
-            ? 'Fotografia dell album ' . $this->albumTitle
+            ? 'Fotografia dell\'album ' . $this->albumTitle
             : 'Fotografia di Baraonda Fiorentina';
     }
 

@@ -11,7 +11,7 @@ use App\Core\Http\UploadedFile;
  * persona del direttivo, testata di pagina.
  *
  * Rispetto alle fotografie della galleria non c'e filigrana (su un prodotto
- * sarebbe controproducente) e la gestione e piu semplice: un solo file per
+ * sarebbe controproducente) e la gestione è più semplice: un solo file per
  * contenuto, sostituibile.
  */
 final class SimpleImageService
@@ -54,7 +54,7 @@ final class SimpleImageService
         } catch (\Throwable $e) {
             $this->paths->deleteAll($collection, $key, $validation->extension);
 
-            return ['key' => null, 'extension' => null, 'error' => 'Elaborazione dell immagine non riuscita.'];
+            return ['key' => null, 'extension' => null, 'error' => 'Elaborazione dell\'immagine non riuscita.'];
         }
 
         // La vecchia immagine si elimina solo a nuova elaborazione riuscita:

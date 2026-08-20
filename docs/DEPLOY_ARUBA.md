@@ -512,6 +512,13 @@ Dopo un aggiornamento dei template, svuota la cache: cancella il contenuto di
 | `resources/static/logo.svg` | logo nell'intestazione e nel piede di pagina |
 | `resources/static/hero.svg` | immagine di apertura della homepage |
 | `resources/images/watermark.png` | filigrana applicata alle fotografie (PNG con trasparenza) |
+| `resources/views/components/giglio.twig` | giglio fiorentino usato come decorazione di sfondo |
+
+> Il giglio non e un segnaposto: e un disegno originale dello stemma civico di
+> Firenze, simbolo araldico di pubblico dominio. Lo stemma della ACF Fiorentina
+> e invece un marchio registrato e non puo essere usato senza autorizzazione
+> della societa. Se un giorno il gruppo la ottenesse, quel componente e il punto
+> in cui sostituirlo.
 
 Dopo aver sostituito logo e immagine di apertura serve `npm run build` e un
 nuovo caricamento di `public/assets/`. La filigrana invece si applica alle

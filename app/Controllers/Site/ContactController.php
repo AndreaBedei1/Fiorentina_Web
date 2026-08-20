@@ -76,7 +76,7 @@ final class ContactController extends Controller
         $decay = $this->config->int('security.rate_limits.contact.decay_minutes', 60);
 
         if ($this->limiter->tooManyAttempts('contact', $request->ip(), $maxAttempts)) {
-            $this->error('Hai gia inviato diversi messaggi. Attendi qualche minuto oppure scrivici direttamente via email.');
+            $this->error('Hai già inviato diversi messaggi. Attendi qualche minuto oppure scrivici direttamente via email.');
 
             return $this->redirectToRoute('contact.show');
         }
@@ -84,7 +84,7 @@ final class ContactController extends Controller
         $validator = Validator::make($request->all())
             ->honeypot('website')
             ->required('name', 'Il nome')->max('name', 120, 'Il nome')
-            ->required('email', 'L indirizzo email')->email('email', 'L indirizzo email')->max('email', 190, 'L indirizzo email')
+            ->required('email', 'L\'indirizzo email')->email('email', 'L\'indirizzo email')->max('email', 190, 'L\'indirizzo email')
             ->required('subject', 'L oggetto')->max('subject', 200, 'L oggetto')
             ->required('message', 'Il messaggio')->min('message', 20, 'Il messaggio')->max('message', 5000, 'Il messaggio');
 

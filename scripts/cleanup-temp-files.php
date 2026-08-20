@@ -9,7 +9,7 @@ declare(strict_types=1);
  *
  * Da pianificare nel cron una volta a settimana. Su hosting condiviso lo
  * spazio e limitato: senza questa pulizia, cache di Twig e log si accumulano
- * finche qualcuno non se ne accorge, di solito nel momento peggiore.
+ * finché qualcuno non se ne accorge, di solito nel momento peggiore.
  */
 
 use App\Console\Console;
@@ -21,7 +21,7 @@ $app = require __DIR__ . '/bootstrap.php';
 Console::title('Pulizia file temporanei');
 
 /**
- * Elimina i file di una directory piu vecchi di N giorni.
+ * Elimina i file di una directory più vecchi di N giorni.
  *
  * @return array{files: int, bytes: int}
  */

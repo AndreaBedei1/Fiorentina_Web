@@ -18,7 +18,7 @@
 
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Dati dell album</h2>
+                    <h2 class="font-display text-base font-bold text-viola-900">Dati dell'album</h2>
                 </div>
 
                 <div class="pannello-corpo space-y-4" x-data="slugField"
@@ -45,7 +45,7 @@
                         {% if not isNew %}
                             <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
                                 <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l indirizzo pubblico</span>
+                                <span>Aggiorna anche l'indirizzo pubblico</span>
                             </label>
                         {% endif %}
                     </div>
@@ -74,7 +74,7 @@
                     {{ include('components/field.twig', {
                         name: 'sort_order', label: 'Ordinamento', type: 'number', min: 0, max: 9999,
                         value: old('sort_order', isNew ? 0 : album.sortOrder),
-                        help: 'I valori piu bassi compaiono per primi.'
+                        help: 'I valori più bassi compaiono per primi.'
                     }) }}
 
                     {{ include('components/field.twig', {
@@ -203,7 +203,7 @@
                 <section class="pannello">
                     <div class="pannello-testata">
                         <h2 class="font-display text-base font-bold text-viola-900">
-                            Fotografie dell album
+                            Fotografie dell'album
                             <span class="ml-1 text-sm font-normal text-sabbia-500">({{ photos|length }})</span>
                         </h2>
                     </div>

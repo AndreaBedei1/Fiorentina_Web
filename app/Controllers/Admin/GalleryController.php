@@ -24,7 +24,7 @@ use App\Validation\Validator;
  * Gestione di album e fotografie.
  *
  * Il caricamento multiplo passa da un endpoint dedicato che risponde in JSON:
- * cosi la barra di avanzamento e reale, l'esito e per file e l'amministratore
+ * così la barra di avanzamento e reale, l'esito e per file e l'amministratore
  * non resta davanti a una pagina bloccata mentre carica trenta immagini.
  */
 final class GalleryController extends Controller

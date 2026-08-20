@@ -10,7 +10,7 @@ use App\Exceptions\ValidationException;
  * Validazione lato server.
  *
  * La validazione JavaScript esiste solo per comodita dell'utente: qualunque
- * richiesta puo aggirarla. Ogni form del sito passa da qui prima che un dato
+ * richiesta può aggirarla. Ogni form del sito passa da qui prima che un dato
  * raggiunga il database.
  *
  * Uso:
@@ -81,7 +81,7 @@ final class Validator
         $value = $this->current($field);
 
         if (is_string($value) && mb_strlen($value) > $length) {
-            return $this->addError($field, sprintf('%s non puo superare %d caratteri.', $label, $length));
+            return $this->addError($field, sprintf('%s non può superare %d caratteri.', $label, $length));
         }
 
         return $this;
@@ -150,11 +150,11 @@ final class Validator
         $number = (int) $value;
 
         if ($min !== null && $number < $min) {
-            return $this->addError($field, sprintf('%s non puo essere inferiore a %d.', $label, $min));
+            return $this->addError($field, sprintf('%s non può essere inferiore a %d.', $label, $min));
         }
 
         if ($max !== null && $number > $max) {
-            return $this->addError($field, sprintf('%s non puo essere superiore a %d.', $label, $max));
+            return $this->addError($field, sprintf('%s non può essere superiore a %d.', $label, $max));
         }
 
         return $this->keep($field, $number);
@@ -180,11 +180,11 @@ final class Validator
         $number = round((float) $value, 2);
 
         if ($min !== null && $number < $min) {
-            return $this->addError($field, sprintf('%s non puo essere inferiore a %s.', $label, number_format($min, 2, ',', '.')));
+            return $this->addError($field, sprintf('%s non può essere inferiore a %s.', $label, number_format($min, 2, ',', '.')));
         }
 
         if ($max !== null && $number > $max) {
-            return $this->addError($field, sprintf('%s non puo superare %s.', $label, number_format($max, 2, ',', '.')));
+            return $this->addError($field, sprintf('%s non può superare %s.', $label, number_format($max, 2, ',', '.')));
         }
 
         return $this->keep($field, $number);
@@ -295,7 +295,7 @@ final class Validator
      * Robustezza minima della password.
      *
      * Nessun requisito barocco di simboli obbligatori: la lunghezza e la
-     * varieta contano piu di regole che spingono a password prevedibili.
+     * varieta contano più di regole che spingono a password prevedibili.
      */
     public function password(string $field, string $label, int $minLength = PasswordPolicy::MIN_LENGTH): self
     {
@@ -306,7 +306,7 @@ final class Validator
         }
 
         // Le regole vivono in PasswordPolicy: le condivide con lo script di
-        // creazione del primo amministratore, cosi non possono divergere.
+        // creazione del primo amministratore, così non possono divergere.
         $problem = PasswordPolicy::check($value, $minLength);
 
         if ($problem !== null) {

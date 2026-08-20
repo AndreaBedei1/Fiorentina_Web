@@ -17,7 +17,7 @@ use Closure;
  * che nessun form aggiunto in futuro resti scoperto per dimenticanza.
  *
  * Le richieste di sola lettura (GET, HEAD, OPTIONS) non vengono controllate,
- * perche per definizione non devono cambiare nulla.
+ * perché per definizione non devono cambiare nulla.
  */
 final class CsrfMiddleware implements MiddlewareInterface
 {
@@ -41,7 +41,7 @@ final class CsrfMiddleware implements MiddlewareInterface
 
         if (! $this->csrf->verify($token)) {
             throw HttpException::pageExpired(
-                'La sessione e scaduta oppure la pagina e rimasta aperta troppo a lungo. Ricarica e riprova.'
+                'La sessione è scaduta oppure la pagina è rimasta aperta troppo a lungo. Ricarica e riprova.'
             );
         }
 

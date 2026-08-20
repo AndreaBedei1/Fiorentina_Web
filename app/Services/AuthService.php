@@ -16,7 +16,7 @@ use App\Repositories\UserRepository;
 /**
  * Autenticazione e autorizzazione degli amministratori.
  *
- * Ogni richiesta ricontrolla l'utente a database: e piu lavoro rispetto a
+ * Ogni richiesta ricontrolla l'utente a database: è più lavoro rispetto a
  * fidarsi della sessione, ma e cio che rende immediato il blocco di un account.
  * Senza questa verifica, un amministratore bloccato resterebbe operativo fino
  * alla scadenza della sua sessione.
@@ -28,7 +28,7 @@ final class AuthService
     private const SESSION_LAST_ACTIVITY = 'auth_last_activity';
     private const SESSION_FINGERPRINT = 'auth_fingerprint';
 
-    /** Permessi del ruolo ADMIN. Il SUPER_ADMIN li possiede tutti, piu i propri. */
+    /** Permessi del ruolo ADMIN. Il SUPER_ADMIN li possiede tutti, più i propri. */
     private const ADMIN_PERMISSIONS = [
         'dashboard.view',
         'news.manage',
@@ -297,7 +297,7 @@ final class AuthService
     /**
      * Impronta del browser: solo lo user agent.
      *
-     * L'indirizzo IP e escluso di proposito. Sulle reti mobili cambia di
+     * L'indirizzo IP è escluso di proposito. Sulle reti mobili cambia di
      * continuo e includerlo scollegherebbe gli amministratori a meta lavoro,
      * senza un guadagno di sicurezza paragonabile al fastidio.
      */

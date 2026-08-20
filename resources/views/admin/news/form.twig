@@ -49,9 +49,9 @@
                             <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
                                 <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
                                 <span>
-                                    Aggiorna anche l indirizzo pubblico
+                                    Aggiorna anche l'indirizzo pubblico
                                     <span class="block text-xs text-sabbia-500">
-                                        Cambiandolo, i link gia condivisi smettono di funzionare.
+                                        Cambiandolo, i link già condivisi smettono di funzionare.
                                     </span>
                                 </span>
                             </label>
@@ -164,7 +164,7 @@
 
                         <label class="flex items-start gap-2 text-sm text-sabbia-700">
                             <input type="checkbox" name="remove_image" value="1" class="campo-checkbox mt-0.5">
-                            <span>Rimuovi l immagine attuale</span>
+                            <span>Rimuovi l'immagine attuale</span>
                         </label>
                     {% endif %}
 
@@ -177,7 +177,7 @@
                     {{ include('components/field.twig', {
                         name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
                         value: old('image_alt', isNew ? '' : article.imageAlt),
-                        help: 'Descrive la fotografia a chi non puo vederla. Importante per l accessibilita.'
+                        help: 'Descrive la fotografia a chi non può vederla. Importante per l accessibilita.'
                     }) }}
                 </div>
             </section>

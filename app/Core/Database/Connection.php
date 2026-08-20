@@ -71,7 +71,7 @@ final class Connection
                 ],
             );
         } catch (PDOException $e) {
-            // Il messaggio originale di PDO puo contenere le credenziali: lo sostituiamo.
+            // Il messaggio originale di PDO può contenere le credenziali: lo sostituiamo.
             throw new \RuntimeException(sprintf(
                 'Connessione al database non riuscita (host %s:%d, database "%s"). Verifica le variabili DB_* nel file .env.',
                 $host,
@@ -370,7 +370,7 @@ final class Connection
     }
 
     /**
-     * Sdoppia i segnaposto con nome usati piu volte nella stessa query.
+     * Sdoppia i segnaposto con nome usati più volte nella stessa query.
      *
      * Con i prepared statement nativi (EMULATE_PREPARES = false) MySQL rifiuta
      * di riutilizzare lo stesso `:nome` in due punti diversi e risponde
@@ -380,7 +380,7 @@ final class Connection
      *
      * e il modo naturale di esprimere quella condizione: costringere chi scrive
      * query a inventare `:ricerca2`, `:ricerca3` significa lasciare una
-     * trappola che si manifesta solo quando qualcuno usa quel filtro, cioe
+     * trappola che si manifesta solo quando qualcuno usa quel filtro, cioè
      * spesso solo in produzione.
      *
      * Qui la occorrenze successive alla prima vengono rinominate e il valore

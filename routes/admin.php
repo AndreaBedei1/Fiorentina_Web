@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Struttura in tre livelli di accesso:
  *  - pubbliche: login, recupero password, accettazione invito;
  *  - autenticate: tutto il resto della gestione contenuti;
- *  - super amministratore: account, impostazioni, registro attivita.
+ *  - super amministratore: account, impostazioni, registro attività.
  *
  * Non esiste alcuna rotta di registrazione: gli account nascono solo da invito.
  */

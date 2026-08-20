@@ -30,7 +30,7 @@ try {
     Console::bullet(sprintf('Contatori di frequenza rimossi: %d', $purged['rate_limits']));
 
     /*
-     * Il registro attivita si conserva a lungo: e la memoria di chi ha fatto
+     * Il registro attività si conserva a lungo: e la memoria di chi ha fatto
      * cosa. Due anni sono un compromesso fra utilita e dimensione della tabella.
      */
     $auditPurged = $app->get(AuditLogRepository::class)->purgeOlderThan(730);

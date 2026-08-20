@@ -45,7 +45,7 @@ final class AdminAuthMiddleware implements MiddlewareInterface
             $this->session->put('admin_intended_url', $request->fullPath());
         }
 
-        $this->session->flash('warning', 'Accedi per entrare nell area riservata.');
+        $this->session->flash('warning', 'Accedi per entrare nell\'area riservata.');
 
         return RedirectResponse::to('/admin/login');
     }

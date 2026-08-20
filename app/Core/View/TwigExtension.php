@@ -27,7 +27,7 @@ use Twig\TwigFunction;
  * Funzioni e filtri disponibili nei template.
  *
  * I servizi che toccano il database (impostazioni, utente autenticato) sono
- * risolti in modo pigro e protetti da try/catch: cosi la pagina di errore
+ * risolti in modo pigro e protetti da try/catch: così la pagina di errore
  * resta renderizzabile anche quando e proprio il database a non rispondere.
  */
 final class TwigExtension extends AbstractExtension implements GlobalsInterface
@@ -190,7 +190,7 @@ final class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Collegamenti social configurati, gia filtrati: il footer non deve
+     * Collegamenti social configurati, già filtrati: il footer non deve
      * mostrare icone che puntano a nulla.
      *
      * @return list<array{name: string, label: string, url: string}>

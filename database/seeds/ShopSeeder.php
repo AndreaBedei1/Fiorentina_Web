@@ -28,7 +28,7 @@ final class ShopSeeder extends Seeder
             'name' => 'Maglietta Curva Fiesole',
             'category' => 'magliette',
             'short' => 'T-shirt in cotone pesante con stampa serigrafica sul fronte.',
-            'description' => '<p>Cotone 100% da 190 grammi, stampa serigrafica resistente al lavaggio.</p><p>Vestibilita regolare: chi la preferisce piu larga puo prendere una taglia in piu.</p><p><em>Descrizione dimostrativa.</em></p>',
+            'description' => '<p>Cotone 100% da 190 grammi, stampa serigrafica resistente al lavaggio.</p><p>Vestibilita regolare: chi la preferisce più larga può prendere una taglia in più.</p><p><em>Descrizione dimostrativa.</em></p>',
             'price' => 22.00,
             'compare' => 28.00,
             'featured' => true,
@@ -40,7 +40,7 @@ final class ShopSeeder extends Seeder
             'name' => 'Felpa con cappuccio',
             'category' => 'felpe',
             'short' => 'Felpa pesante con cappuccio e tasca a marsupio, ricamo sul petto.',
-            'description' => '<p>Felpa invernale in cotone garzato, 320 grammi. Ricamo sul petto e stampa sul retro.</p><p>La piu richiesta per le trasferte invernali.</p><p><em>Descrizione dimostrativa.</em></p>',
+            'description' => '<p>Felpa invernale in cotone garzato, 320 grammi. Ricamo sul petto e stampa sul retro.</p><p>La più richiesta per le trasferte invernali.</p><p><em>Descrizione dimostrativa.</em></p>',
             'price' => 45.00,
             'compare' => null,
             'featured' => true,
@@ -64,7 +64,7 @@ final class ShopSeeder extends Seeder
             'name' => 'Set adesivi (10 pezzi)',
             'category' => 'gadget',
             'short' => 'Dieci adesivi resistenti agli agenti atmosferici, formati misti.',
-            'description' => '<p>Adesivi in vinile resistente, adatti anche all esterno. Formati misti, dieci pezzi per confezione.</p><p><em>Descrizione dimostrativa.</em></p>',
+            'description' => '<p>Adesivi in vinile resistente, adatti anche all\'esterno. Formati misti, dieci pezzi per confezione.</p><p><em>Descrizione dimostrativa.</em></p>',
             'price' => 5.00,
             'compare' => null,
             'featured' => true,
@@ -83,7 +83,7 @@ final class ShopSeeder extends Seeder
         [
             'name' => 'Bandiera da asta',
             'category' => 'gadget',
-            'short' => 'Bandiera 100x140 cm in poliestere, con asola per l asta.',
+            'short' => 'Bandiera 100x140 cm in poliestere, con asola per l\'asta.',
             'description' => '<p>Poliestere resistente, stampa su entrambi i lati.</p><p><em>Descrizione dimostrativa.</em></p>',
             'price' => 25.00,
             'compare' => null,
@@ -93,7 +93,7 @@ final class ShopSeeder extends Seeder
         [
             'name' => 'Maglietta celebrativa anniversario',
             'category' => 'magliette',
-            'short' => 'Edizione limitata per l anniversario del gruppo. Esaurita.',
+            'short' => 'Edizione limitata per l\'anniversario del gruppo. Esaurita.',
             'description' => '<p>Prodotta in tiratura limitata. Al momento non e disponibile.</p><p><em>Descrizione dimostrativa: mostra come appare un articolo esaurito.</em></p>',
             'price' => 25.00,
             'compare' => null,
@@ -111,7 +111,7 @@ final class ShopSeeder extends Seeder
     public function run(): int
     {
         if ($this->tableHasRows('products')) {
-            $this->say('Prodotti gia presenti: salto.');
+            $this->say('Prodotti già presenti: salto.');
 
             return 0;
         }

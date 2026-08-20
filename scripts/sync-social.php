@@ -9,7 +9,7 @@ declare(strict_types=1);
  *
  * Da pianificare nel cron, indicativamente ogni sei ore.
  *
- * Nota importante: la sincronizzazione non cancella mai i contenuti gia
+ * Nota importante: la sincronizzazione non cancella mai i contenuti già
  * salvati. Se le API non rispondono, il sito continua a mostrare l ultimo
  * stato utile invece di una sezione vuota.
  */
@@ -35,7 +35,7 @@ try {
     Console::line();
 
     if ($report->total() === 0) {
-        Console::warn('Nessun contenuto sincronizzato: i post gia presenti restano visibili.');
+        Console::warn('Nessun contenuto sincronizzato: i post già presenti restano visibili.');
         exit(0);
     }
 

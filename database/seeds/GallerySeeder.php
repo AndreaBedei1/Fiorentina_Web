@@ -36,7 +36,7 @@ final class GallerySeeder extends Seeder
     public function run(): int
     {
         if ($this->tableHasRows('albums')) {
-            $this->say('Album gia presenti: salto.');
+            $this->say('Album già presenti: salto.');
 
             return 0;
         }

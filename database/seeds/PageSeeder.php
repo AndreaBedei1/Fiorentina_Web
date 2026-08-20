@@ -86,13 +86,13 @@ final class PageSeeder extends Seeder
                 'title' => 'Chi siamo',
                 'subtitle' => 'Un gruppo di tifosi nato in curva e cresciuto in trasferta.',
                 'intro' => 'Siamo un gruppo organizzato di tifosi della Fiorentina. Non siamo un club esclusivo: siamo persone che hanno scelto di seguire la squadra insieme, dentro e fuori dallo stadio.',
-                'content' => '<h2>Come e nato il gruppo</h2>'
+                'content' => '<h2>Come è nato il gruppo</h2>'
                     . '<p>La Baraonda nasce da un gruppo di amici che seguiva la squadra in trasferta con mezzi propri. Con il tempo il gruppo e cresciuto, sono arrivati i primi pullman organizzati, poi la sede, poi le coreografie.</p>'
                     . '<p><em>Testo dimostrativo: sostituire con la storia reale del gruppo, con date e nomi corretti.</em></p>'
                     . '<h2>Cosa facciamo</h2>'
                     . '<p>Organizziamo trasferte, curiamo le coreografie della curva, teniamo viva la sede come punto di ritrovo, promuoviamo iniziative solidali sul territorio.</p>'
                     . '<h2>Il rapporto con Firenze</h2>'
-                    . '<p>Il legame con la citta non finisce con la partita: partecipiamo a iniziative di quartiere, raccolte alimentari e attivita con le scuole.</p>'
+                    . '<p>Il legame con la città non finisce con la partita: partecipiamo a iniziative di quartiere, raccolte alimentari e attività con le scuole.</p>'
                     . '<p><em>Testo dimostrativo.</em></p>',
                 'blocks' => [
                     [
@@ -100,7 +100,7 @@ final class PageSeeder extends Seeder
                         'title' => 'Il gruppo in numeri',
                         'subtitle' => 'Dati dimostrativi: da aggiornare con quelli reali.',
                         'items' => [
-                            ['title' => 'Anno di fondazione', 'text' => '1998'],
+                            ['title' => 'Anno di fondazione', 'text' => '2015'],
                             ['title' => 'Soci tesserati', 'text' => 'oltre 400'],
                             ['title' => 'Trasferte all anno', 'text' => 'circa 20'],
                             ['title' => 'Coreografie realizzate', 'text' => 'piu di 60'],
@@ -111,7 +111,7 @@ final class PageSeeder extends Seeder
                         'title' => 'I nostri valori',
                         'items' => [
                             ['title' => 'Appartenenza', 'text' => 'Si entra per restare, non per una stagione.'],
-                            ['title' => 'Rispetto', 'text' => 'Fra noi, verso la citta e verso chi tifa un altra squadra.'],
+                            ['title' => 'Rispetto', 'text' => 'Fra noi, verso la città e verso chi tifa un altra squadra.'],
                             ['title' => 'Indipendenza', 'text' => 'Il gruppo si autofinanzia e decide da se.'],
                             ['title' => 'Solidarieta', 'text' => 'Quello che possiamo fare per il territorio, lo facciamo.'],
                         ],
@@ -121,10 +121,10 @@ final class PageSeeder extends Seeder
                         'title' => 'Le tappe principali',
                         'subtitle' => 'Segnaposto: inserire le date reali della storia del gruppo.',
                         'items' => [
-                            ['title' => '1998', 'text' => 'Nasce il gruppo, prime trasferte con mezzi propri.'],
-                            ['title' => '2004', 'text' => 'Apre la prima sede.'],
-                            ['title' => '2011', 'text' => 'Prima grande coreografia della curva.'],
-                            ['title' => '2019', 'text' => 'Nasce l attivita solidale sul territorio.'],
+                            ['title' => '2015', 'text' => 'Nasce il gruppo, prime trasferte con mezzi propri.'],
+                            ['title' => '2018', 'text' => 'Apre la prima sede.'],
+                            ['title' => '2021', 'text' => 'Prima grande coreografia della curva.'],
+                            ['title' => '2023', 'text' => 'Nasce l attività solidale sul territorio.'],
                             ['title' => 'Oggi', 'text' => 'Oltre quattrocento soci e una trasferta quasi ogni settimana.'],
                         ],
                     ],
@@ -160,7 +160,7 @@ final class PageSeeder extends Seeder
                         'subtitle' => 'Tre passaggi, si fa tutto in sede.',
                         'items' => [
                             ['title' => 'Vieni in sede', 'text' => 'Negli orari di apertura, senza appuntamento.'],
-                            ['title' => 'Porta i documenti', 'text' => 'Documento di identita valido e una fotografia formato tessera.'],
+                            ['title' => 'Porta i documenti', 'text' => 'Documento di identità valido e una fotografia formato tessera.'],
                             ['title' => 'Versa la quota', 'text' => 'Ricevi subito la tessera e sei dei nostri.'],
                         ],
                     ],
@@ -175,9 +175,9 @@ final class PageSeeder extends Seeder
                         'title' => 'Domande frequenti',
                         'items' => [
                             ['title' => 'Devo essere maggiorenne?', 'text' => 'I minori possono iscriversi con l autorizzazione di un genitore.'],
-                            ['title' => 'Posso iscrivermi se non vivo a Firenze?', 'text' => 'Certo. Molti soci arrivano da fuori citta e raggiungono i pullman lungo il percorso.'],
+                            ['title' => 'Posso iscrivermi se non vivo a Firenze?', 'text' => 'Certo. Molti soci arrivano da fuori città e raggiungono i pullman lungo il percorso.'],
                             ['title' => 'La tessera dura un anno?', 'text' => 'Si, segue la stagione sportiva e si rinnova ogni anno.'],
-                            ['title' => 'Devo partecipare a tutte le attivita?', 'text' => 'No. Ognuno partecipa a quello che puo e che vuole.'],
+                            ['title' => 'Devo partecipare a tutte le attività?', 'text' => 'No. Ognuno partecipa a quello che può e che vuole.'],
                         ],
                     ],
                     [
@@ -193,7 +193,7 @@ final class PageSeeder extends Seeder
                 'slug' => Page::SLUG_CONTATTI,
                 'title' => 'Contatti',
                 'subtitle' => 'Scrivici per informazioni su iscrizioni, trasferte, materiale ed eventi.',
-                'intro' => 'Il modo piu rapido per parlarci e passare in sede negli orari di apertura. Altrimenti usa il modulo qui sotto o scrivici via email.',
+                'intro' => 'Il modo più rapido per parlarci e passare in sede negli orari di apertura. Altrimenti usa il modulo qui sotto o scrivici via email.',
                 'content' => null,
                 'blocks' => [],
             ],
@@ -217,7 +217,7 @@ final class PageSeeder extends Seeder
                     . '<h2>Conservazione</h2>'
                     . '<p>DA COMPLETARE: indicare per quanto tempo vengono conservati messaggi e ordini.</p>'
                     . '<h2>Diritti dell interessato</h2>'
-                    . '<p>Ogni persona puo chiedere accesso, rettifica o cancellazione dei propri dati scrivendo all indirizzo email del titolare.</p>'
+                    . '<p>Ogni persona può chiedere accesso, rettifica o cancellazione dei propri dati scrivendo all indirizzo email del titolare.</p>'
                     . '<h2>Servizi di terze parti</h2>'
                     . '<p>Il sito non utilizza servizi di analisi statistica ne strumenti pubblicitari. Le anteprime dei contenuti social sono copiate sul nostro server: consultando il sito non vengono contattati i server di terze parti.</p>',
                 'blocks' => [],
@@ -235,7 +235,7 @@ final class PageSeeder extends Seeder
                     . '</ul>'
                     . '<p>Non vengono utilizzati cookie di profilazione, di analisi statistica o di terze parti. Per questo motivo non e presente alcun banner di consenso: i cookie tecnici non lo richiedono.</p>'
                     . '<h2>Se in futuro cambiassero le cose</h2>'
-                    . '<p>Se venissero introdotti strumenti che richiedono il consenso (per esempio statistiche o mappe incorporate), questa pagina verra aggiornata e comparira il relativo banner.</p>'
+                    . '<p>Se venissero introdotti strumenti che richiedono il consenso (per esempio statistiche o mappe incorporate), questa pagina verrà aggiornata e comparira il relativo banner.</p>'
                     . '<h2>Come disattivare i cookie</h2>'
                     . '<p>Ogni browser permette di bloccare i cookie dalle proprie impostazioni. Disattivando i cookie tecnici, carrello e moduli del sito smettono di funzionare correttamente.</p>',
                 'blocks' => [],

@@ -24,7 +24,7 @@ interface FootballApiInterface
     public function fetchUpcomingMatches(int $limit = 10): array;
 
     /**
-     * Partite gia disputate, dalla piu recente.
+     * Partite già disputate, dalla più recente.
      *
      * @return list<FootballMatchData>
      */

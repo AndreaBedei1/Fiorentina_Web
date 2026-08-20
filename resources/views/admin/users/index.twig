@@ -3,7 +3,7 @@
 {% block content %}
     {{ include('components/admin-page-header.twig', {
         title: 'Amministratori',
-        description: 'Chi puo accedere al pannello. Gli account nascono solo da invito: non esiste una registrazione pubblica.'
+        description: 'Chi può accedere al pannello. Gli account nascono solo da invito: non esiste una registrazione pubblica.'
     }) }}
 
     <div class="grid gap-5 lg:grid-cols-3">
@@ -189,17 +189,17 @@
                         name: 'role', label: 'Ruolo', type: 'select',
                         options: { 'ADMIN': 'Amministratore', 'SUPER_ADMIN': 'Super amministratore' },
                         value: 'ADMIN',
-                        help: 'Il super amministratore puo gestire account, impostazioni e registro attivita.'
+                        help: 'Il super amministratore può gestire account, impostazioni e registro attività.'
                     }) }}
 
                     <button type="submit" class="btn-primario w-full">
                         {{ include('components/icon.twig', { name: 'mail', class: 'h-4 w-4' }) }}
-                        Invia l invito
+                        Invia l'invito
                     </button>
 
                     <p class="text-xs leading-relaxed text-sabbia-600">
                         La persona ricevera un collegamento monouso per scegliere la propria password.
-                        Nessuno, nemmeno tu, potra conoscerla.
+                        Nessuno, nemmeno tu, potrà conoscerla.
                     </p>
                 </form>
             </section>
@@ -211,10 +211,10 @@
                         Salvaguardie attive
                     </h2>
                     <ul class="mt-3 space-y-2 text-xs leading-relaxed text-sabbia-600" role="list">
-                        <li>Non e possibile bloccare, declassare o eliminare l ultimo super amministratore attivo.</li>
+                        <li>Non è possibile bloccare, declassare o eliminare l'ultimo super amministratore attivo.</li>
                         <li>Non puoi bloccare o eliminare il tuo stesso account.</li>
                         <li>Bloccando un account, le sue sessioni aperte vengono chiuse immediatamente.</li>
-                        <li>Un amministratore normale non puo modificare i privilegi di nessuno.</li>
+                        <li>Un amministratore normale non può modificare i privilegi di nessuno.</li>
                     </ul>
                 </div>
             </section>

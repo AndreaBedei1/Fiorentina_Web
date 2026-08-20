@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
  * da caricare via FTP.
  *
  * Una chiamata che fallisce non solleva eccezioni: restituisce null e lascia
- * traccia nei log, perche l'indisponibilita di un servizio esterno non deve
+ * traccia nei log, perché l'indisponibilita di un servizio esterno non deve
  * mai far fallire una sincronizzazione notturna.
  */
 final class HttpClient
@@ -162,7 +162,7 @@ final class HttpClient
             return false;
         }
 
-        // Se l'host e gia un indirizzo IP, deve essere pubblico.
+        // Se l'host è già un indirizzo IP, deve essere pubblico.
         if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
             return filter_var(
                 $host,

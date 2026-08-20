@@ -86,8 +86,8 @@ final class AdminUserController extends Controller
 
         $this->success($result->message);
 
-        // Se la posta non e configurata mostriamo il link, cosi il super
-        // amministratore puo comunque consegnarlo a mano.
+        // Se la posta non e configurata mostriamo il link, così il super
+        // amministratore può comunque consegnarlo a mano.
         if ($result->get('email_sent') === false) {
             $this->warning('Link di invito da consegnare manualmente: ' . (string) $result->get('link'));
         }

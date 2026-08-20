@@ -16,8 +16,8 @@ use Throwable;
  * Punto unico di gestione degli errori.
  *
  * Regola centrale: in produzione il visitatore vede una pagina curata e nulla
- * di piu; il dettaglio tecnico finisce nei log. In sviluppo succede il
- * contrario, perche cercare uno stack trace nei file rallenta il lavoro.
+ * di più; il dettaglio tecnico finisce nei log. In sviluppo succede il
+ * contrario, perché cercare uno stack trace nei file rallenta il lavoro.
  */
 final class ExceptionHandler
 {
@@ -37,7 +37,7 @@ final class ExceptionHandler
         register_shutdown_function($this->handleShutdown(...));
     }
 
-    /** Trasforma i warning/notice PHP in eccezioni, cosi non passano inosservati. */
+    /** Trasforma i warning/notice PHP in eccezioni, così non passano inosservati. */
     public function handleError(int $level, string $message, string $file = '', int $line = 0): bool
     {
         if ((error_reporting() & $level) === 0) {

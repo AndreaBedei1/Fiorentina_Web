@@ -109,7 +109,13 @@ final class AdminUserServiceTest extends IntegrationTestCase
         $result = $this->service->invite('Doppione', 'gia@example.test', User::ROLE_ADMIN, $inviter);
 
         $this->assertTrue($result->failed());
-        $this->assertStringContainsString('gia un amministratore', $result->message);
+
+        // Il messaggio deve dire *perche* l'invito non e passato: un generico
+        // "operazione non riuscita" lascerebbe il super amministratore a
+        // indovinare. Cerco la parola chiave, non la frase intera, cosi
+        // riformularla non fa cadere il test.
+        $this->assertStringContainsString('amministratore', $result->message);
+        $this->assertStringContainsString('indirizzo email', $result->message);
     }
 
     #[Test]

@@ -58,7 +58,7 @@
         {# --- Corpo --- #}
         <div class="mx-auto mt-10 max-w-3xl px-4 sm:px-6">
             {% if article.content %}
-                {# Contenuto gia sanificato in scrittura da HtmlSanitizer. #}
+                {# Contenuto già sanificato in scrittura da HtmlSanitizer. #}
                 <div class="contenuto">{{ article.content|raw }}</div>
             {% endif %}
 

@@ -11,7 +11,7 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  * Sanitizzazione dell'HTML prodotto dall'editor delle notizie.
  *
  * Il testo passa dal sanitizzatore in scrittura, non in lettura: a database
- * finisce solo HTML gia sicuro, e le pagine pubbliche non pagano il costo della
+ * finisce solo HTML già sicuro, e le pagine pubbliche non pagano il costo della
  * ripulitura a ogni visualizzazione.
  *
  * La lista dei tag ammessi e volutamente corta. Un redattore di notizie ha
@@ -78,7 +78,7 @@ final class HtmlSanitizer
             ->allowElement('blockquote')
             ->allowElement('hr')
             ->allowElement('a', ['href', 'title'])
-            // Il testo alternativo e ammesso proprio perche l'accessibilita
+            // Il testo alternativo e ammesso proprio perché l'accessibilita
             // non deve dipendere da cio che il sanitizzatore lascia passare.
             ->allowElement('figure')
             ->allowElement('figcaption')

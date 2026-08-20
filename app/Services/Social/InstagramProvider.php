@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
  *
  * Nota per chi manterra il sito: il token va rinnovato periodicamente. La
  * sincronizzazione registra un avviso quando la chiamata fallisce, e il sito
- * continua comunque a mostrare gli ultimi contenuti gia salvati.
+ * continua comunque a mostrare gli ultimi contenuti già salvati.
  */
 final class InstagramProvider implements SocialProviderInterface
 {

@@ -4,7 +4,7 @@
     {{ include('components/page-hero.twig', {
         eyebrow: 'Ultimo passaggio',
         title: 'Conferma il tuo ordine',
-        subtitle: 'Compila i tuoi dati: non ti verra chiesto nessun dato di pagamento.'
+        subtitle: 'Compila i tuoi dati: non ti verrà chiesto nessun dato di pagamento.'
     }) }}
 
     <section class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
@@ -15,7 +15,7 @@
             <div>
                 <p class="font-semibold">Nessun pagamento online</p>
                 <p class="mt-1 leading-relaxed">
-                    Questo modulo invia una richiesta d ordine. Riceverai una email di riepilogo con
+                    Questo modulo invia una richiesta d'ordine. Riceverai una email di riepilogo con
                     le istruzioni per pagare in sede o con bonifico. Non inserire mai dati di carte di credito.
                 </p>
             </div>
@@ -79,7 +79,7 @@
                                         {% if value == 'pickup' %}
                                             Ritiri il pacco in sede negli orari di apertura. Nessun costo aggiuntivo.
                                         {% else %}
-                                            Spedizione tramite corriere all indirizzo che indichi qui sotto.
+                                            Spedizione tramite corriere all'indirizzo che indichi qui sotto.
                                         {% endif %}
                                     </span>
                                 </span>
@@ -123,7 +123,7 @@
                         {{ include('components/field.twig', {
                             name: 'notes', label: 'Vuoi aggiungere qualcosa?', type: 'textarea', rows: 4,
                             maxlength: 1000,
-                            placeholder: 'Per esempio: sono socio, preferisco ritirare il giovedi sera...',
+                            placeholder: 'Per esempio: sono socio, preferisco ritirare il giovedì sera...',
                             help: 'Facoltativo.'
                         }) }}
                     </div>
@@ -178,7 +178,7 @@
                     </p>
 
                     <button type="submit" class="btn-accento mt-5 w-full text-base">
-                        Invia la richiesta d ordine
+                        Invia la richiesta d'ordine
                     </button>
 
                     <p class="mt-3 text-center text-xs text-sabbia-600">

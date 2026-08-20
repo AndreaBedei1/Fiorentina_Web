@@ -49,7 +49,7 @@ final class DemoImageFactory
      * Crea un file JPEG dimostrativo e lo restituisce come upload simulato.
      *
      * @param int $seed Determina colori e disposizione: lo stesso seme produce
-     *                  sempre la stessa immagine, cosi il seed e riproducibile.
+     *                  sempre la stessa immagine, così il seed e riproducibile.
      */
     public function create(string $label, int $seed, int $width = 1600, int $height = 1067): UploadedFile
     {

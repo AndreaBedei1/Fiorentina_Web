@@ -8,7 +8,7 @@ namespace App\Core\Session;
  * Wrapper sulle sessioni native PHP.
  *
  * Su hosting condiviso (Aruba Easy) le sessioni native su file sono la scelta
- * piu robusta: nessun demone aggiuntivo, nessun Redis. Qui centralizziamo i
+ * più robusta: nessun demone aggiuntivo, nessun Redis. Qui centralizziamo i
  * parametri di sicurezza del cookie, la rigenerazione dell'ID e i flash message.
  */
 final class Session

@@ -12,11 +12,11 @@ use Closure;
 /**
  * Intestazioni di sicurezza applicate a ogni risposta.
  *
- * Sono impostate qui, e non solo nel file .htaccess, perche restino valide
+ * Sono impostate qui, e non solo nel file .htaccess, perché restino valide
  * anche se il sito venisse spostato su un server configurato diversamente.
  *
  * La Content-Security-Policy e volutamente stretta ma non tanto da rompere le
- * integrazioni: nessuna risorsa esterna e ammessa, perche il progetto non ne
+ * integrazioni: nessuna risorsa esterna e ammessa, perché il progetto non ne
  * carica nessuna (font di sistema, nessun CDN, miniature social archiviate in
  * locale). L'unica concessione riguarda gli stili inline, necessari per le
  * immagini che dichiarano il proprio rapporto d'aspetto.

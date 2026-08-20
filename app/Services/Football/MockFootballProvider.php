@@ -11,7 +11,7 @@ use DateTimeImmutable;
  * Fornitore fittizio con dati verosimili.
  *
  * Grazie a questo il sito e completamente navigabile senza alcuna chiave API:
- * si puo valutare la grafica del calendario e della homepage prima ancora di
+ * si può valutare la grafica del calendario e della homepage prima ancora di
  * scegliere un fornitore a pagamento. E anche il fornitore usato dai test, che
  * non devono dipendere dalla rete.
  */
@@ -39,6 +39,21 @@ final class MockFootballProvider implements FootballApiInterface
     ) {
     }
 
+    /**
+     * Fasce orarie del campionato: scostamento dalla domenica, ora, minuti.
+     * Sabato = -1, domenica = 0, lunedi = +1.
+     *
+     * @var list<array{0: int, 1: int, 2: int}>
+     */
+    private const SLOTS = [
+        [0, 20, 45],   // domenica sera
+        [-1, 18, 0],   // sabato pomeriggio
+        [0, 15, 0],    // domenica pomeriggio
+        [1, 20, 45],   // lunedi sera (posticipo)
+        [0, 12, 30],   // domenica, lunch match
+        [-1, 20, 45],  // sabato sera
+    ];
+
     public function name(): string
     {
         return 'mock';
@@ -53,13 +68,21 @@ final class MockFootballProvider implements FootballApiInterface
     public function fetchUpcomingMatches(int $limit = 10): array
     {
         $matches = [];
-        // Le partite cadono di domenica alle 15:00, come da abitudine.
         $base = (new DateTimeImmutable('next sunday'))->setTime(15, 0);
 
         for ($i = 0; $i < min($limit, count(self::OPPONENTS)); $i++) {
             [$opponent, $awayVenue] = self::OPPONENTS[$i];
             $isHome = $i % 2 === 0;
-            $kickoff = $base->modify(sprintf('+%d weeks', $i));
+
+            // Giorno e orario ruotano fra le fasce reali del campionato. Con
+            // tutte le partite di domenica alle 15 i dati dimostrativi
+            // sembravano plausibili solo a chi il calcio non lo segue, e
+            // nessuno si accorgeva che erano inventati.
+            [$giorni, $ora, $minuti] = self::SLOTS[$i % count(self::SLOTS)];
+
+            $kickoff = $base->modify(sprintf('+%d weeks', $i))
+                ->modify(sprintf('+%d days', $giorni))
+                ->setTime($ora, $minuti);
 
             $matches[] = new FootballMatchData(
                 externalId: sprintf('mock-up-%d-%s', $this->season, strtolower(str_replace(' ', '-', $opponent))),

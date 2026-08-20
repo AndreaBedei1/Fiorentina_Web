@@ -8,7 +8,7 @@ declare(strict_types=1);
  *     php scripts/build-deploy.php
  *
  * Raccoglie in build/deploy/ solo cio che serve in produzione: codice, vendor,
- * asset gia compilati, template. Restano fuori sorgenti dei fogli di stile,
+ * asset già compilati, template. Restano fuori sorgenti dei fogli di stile,
  * node_modules, test, script di sviluppo e soprattutto il file .env, che
  * contiene i segreti e va configurato direttamente sul server.
  *
@@ -51,10 +51,10 @@ const EXCLUDE_PATTERNS = [
     // Router del server integrato di PHP: serve solo in sviluppo, in produzione
     // se ne occupa Apache.
     'public/router.php',
-    // Contenuti caricati dagli amministratori: sul server esistono gia e non
+    // Contenuti caricati dagli amministratori: sul server esistono già e non
     // vanno sovrascritti. In locale sono fotografie dimostrative, che sul sito
     // vero non hanno alcun motivo di finire. La cartella viene ricreata vuota
-    // piu avanti.
+    // più avanti.
     'public/uploads',
     'storage/logs',
     'storage/cache',

@@ -20,8 +20,8 @@ use Psr\Log\LoggerInterface;
  *   originale -> orientamento EXIF -> archiviazione privata
  *             -> ridimensionamento -> filigrana -> WebP + JPEG pubblici
  *
- * Il driver e Imagick quando disponibile (e cosi su Aruba), GD altrimenti: il
- * codice chiamante non cambia. WebP e il formato principale perche pesa il
+ * Il driver e Imagick quando disponibile (e così su Aruba), GD altrimenti: il
+ * codice chiamante non cambia. WebP e il formato principale perché pesa il
  * 25-35% in meno a parita di resa; il JPEG resta come rete di sicurezza per i
  * pochi browser che non lo supportano.
  */
@@ -69,7 +69,7 @@ final class ImageProcessor
 
         if (! $useImagick && ! extension_loaded('gd')) {
             throw new \RuntimeException(
-                'Nessun driver immagini disponibile: serve l estensione PHP imagick oppure gd.'
+                'Nessun driver immagini disponibile: serve l\'estensione PHP imagick oppure gd.'
             );
         }
 
@@ -109,7 +109,7 @@ final class ImageProcessor
         $originalWidth = $image->width();
         $originalHeight = $image->height();
 
-        // Archiviazione dell'originale (gia orientato, eventualmente contenuto
+        // Archiviazione dell'originale (già orientato, eventualmente contenuto
         // entro un limite ragionevole per non saturare lo spazio dell'hosting).
         $maxOriginal = $this->config->int('image.max_original_dimension', 4000);
         $originalPath = $this->paths->originalPath($collection, $key, $extension);
@@ -192,7 +192,7 @@ final class ImageProcessor
     }
 
     /**
-     * Elabora un'immagine gia presente su disco (per esempio una miniatura
+     * Elabora un'immagine già presente su disco (per esempio una miniatura
      * social scaricata) senza conservarne l'originale.
      */
     public function processSimple(string $sourcePath, string $collection, string $key, int $maxWidth = 800): bool

@@ -15,7 +15,7 @@ use Closure;
  *
  * Su Aruba il certificato viene gestito dal pannello e il TLS termina prima di
  * PHP: il redirect a livello applicativo integra quello del file .htaccess,
- * cosi la protezione resta anche se la configurazione del server cambia.
+ * così la protezione resta anche se la configurazione del server cambia.
  */
 final class ForceHttpsMiddleware implements MiddlewareInterface
 {

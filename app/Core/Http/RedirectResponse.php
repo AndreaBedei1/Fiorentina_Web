@@ -11,7 +11,7 @@ use App\Core\Session\Session;
  *
  * `to()` accetta solo path interni: gli URL assoluti passano da `away()`, che e
  * usata soltanto per destinazioni note e statiche. In questo modo un parametro
- * controllato dall'utente non puo trasformarsi in open redirect.
+ * controllato dall'utente non può trasformarsi in open redirect.
  */
 final class RedirectResponse extends Response
 {

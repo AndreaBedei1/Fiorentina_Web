@@ -10,7 +10,7 @@ use App\Models\Concerns\CastsRowValues;
  * Categoria di evento (trasferta, riunione, cena, raduno, festa...).
  *
  * Icona e colore sono chiavi simboliche, non classi CSS o emoji grezze: il
- * template le traduce in SVG accessibili, e cosi l'informazione non passa mai
+ * template le traduce in SVG accessibili, e così l'informazione non passa mai
  * dal solo colore.
  */
 final class EventCategory

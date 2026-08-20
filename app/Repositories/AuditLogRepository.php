@@ -74,7 +74,7 @@ final class AuditLogRepository extends BaseRepository
         ));
     }
 
-    /** Elimina le voci piu vecchie del periodo indicato: usata dal cron di pulizia. */
+    /** Elimina le voci più vecchie del periodo indicato: usata dal cron di pulizia. */
     public function purgeOlderThan(int $days): int
     {
         return $this->db->statement(

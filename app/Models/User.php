@@ -10,7 +10,7 @@ use DateTimeImmutable;
 /**
  * Amministratore del sito.
  *
- * Non esistono utenti pubblici: chi visita il sito non ha e non puo avere un
+ * Non esistono utenti pubblici: chi visita il sito non ha e non può avere un
  * account. Questa entita rappresenta esclusivamente lo staff del gruppo.
  */
 final class User

@@ -103,7 +103,7 @@ final class UploadedFile
             UPLOAD_ERR_NO_FILE => 'Nessun file selezionato.',
             UPLOAD_ERR_NO_TMP_DIR => 'Cartella temporanea del server non disponibile.',
             UPLOAD_ERR_CANT_WRITE => 'Il server non e riuscito a scrivere il file su disco.',
-            UPLOAD_ERR_EXTENSION => 'Il caricamento e stato bloccato da un modulo del server.',
+            UPLOAD_ERR_EXTENSION => 'Il caricamento è stato bloccato da un modulo del server.',
             default => 'Errore sconosciuto durante il caricamento del file.',
         };
     }

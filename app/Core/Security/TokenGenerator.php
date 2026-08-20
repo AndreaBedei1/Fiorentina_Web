@@ -8,7 +8,7 @@ namespace App\Core\Security;
  * Genera i token monouso (invito amministratore, reset password).
  *
  * Sul database salviamo solo l'hash SHA-256: un dump del DB non permette di
- * usare gli inviti pendenti. SHA-256 e adeguato perche il token ha gia 256 bit
+ * usare gli inviti pendenti. SHA-256 e adeguato perché il token ha già 256 bit
  * di entropia, quindi non e attaccabile per forza bruta come una password.
  */
 final class TokenGenerator

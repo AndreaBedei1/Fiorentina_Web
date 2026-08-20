@@ -5,8 +5,8 @@ declare(strict_types=1);
 /**
  * Bootstrap condiviso dagli script da riga di comando (migrazioni, seed, cron).
  *
- * Restituisce l'applicazione gia avviata. Tenuto separato dal front controller
- * HTTP perche gli script di cron su Aruba vengono lanciati direttamente dalla
+ * Restituisce l'applicazione già avviata. Tenuto separato dal front controller
+ * HTTP perché gli script di cron su Aruba vengono lanciati direttamente dalla
  * CLI, senza passare da public/index.php.
  */
 

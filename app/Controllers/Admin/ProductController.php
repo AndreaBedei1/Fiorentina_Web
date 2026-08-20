@@ -174,7 +174,7 @@ final class ProductController extends Controller
             $this->notFound('Prodotto non trovato.');
         }
 
-        // Soft delete: gli ordini gia registrati continuano a puntare al
+        // Soft delete: gli ordini già registrati continuano a puntare al
         // prodotto, e il loro storico resta consultabile.
         $this->products->delete($id);
 
@@ -185,7 +185,7 @@ final class ProductController extends Controller
             sprintf('Prodotto eliminato: %s', $product->name),
         );
 
-        $this->success('Prodotto eliminato. Gli ordini gia ricevuti restano invariati.');
+        $this->success('Prodotto eliminato. Gli ordini già ricevuti restano invariati.');
 
         return $this->redirectToRoute('admin.products.index');
     }
@@ -238,7 +238,7 @@ final class ProductController extends Controller
             ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO');
 
         if ($request->filled('price') === false) {
-            $validator->addError('price', 'Il prezzo e obbligatorio.');
+            $validator->addError('price', 'Il prezzo è obbligatorio.');
         }
 
         $categoryIds = array_map('strval', array_keys($this->categories->options()));
@@ -376,7 +376,7 @@ final class ProductController extends Controller
             Product::AVAILABILITY_IN_STOCK => 'Disponibile',
             Product::AVAILABILITY_OUT_OF_STOCK => 'Esaurito',
             Product::AVAILABILITY_PREORDER => 'Su prenotazione',
-            Product::AVAILABILITY_DISCONTINUED => 'Non piu disponibile',
+            Product::AVAILABILITY_DISCONTINUED => 'Non più disponibile',
         ];
     }
 }

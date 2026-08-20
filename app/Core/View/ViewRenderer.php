@@ -15,7 +15,7 @@ use Twig\Loader\FilesystemLoader;
  *
  * Twig e configurato con autoescape HTML attivo: ogni variabile stampata in un
  * template viene sfuggita per default, ed e il motivo per cui l'XSS non e un
- * rischio diffuso in questo progetto. I pochi punti che stampano HTML gia
+ * rischio diffuso in questo progetto. I pochi punti che stampano HTML già
  * sanificato usano `|raw` in modo esplicito e localizzato.
  */
 final class ViewRenderer
