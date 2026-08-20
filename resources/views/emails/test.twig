@@ -1,0 +1,50 @@
+{#
+  Messaggio di prova, inviato da scripts/test-mail.php.
+
+  Non e un semplice "funziona": riporta la configurazione con cui e partito,
+  cosi chi lo riceve capisce da quale installazione arriva e con quale server.
+  Con tre ambienti in giro (locale, prova, Aruba) e la differenza fra una
+  verifica e un dubbio.
+#}
+{% extends 'emails/layout.twig' %}
+
+{% set preheader = 'Se leggi questo messaggio, la posta del sito funziona.' %}
+{% set headerNote = 'Messaggio di prova' %}
+
+{% block content %}
+    <p style="margin:0 0 18px; font-size:20px; font-weight:700; color:#221547;">La posta funziona</p>
+
+    <p style="margin:0 0 22px; font-size:15px; line-height:1.7; color:#3d3833;">
+        Questo messaggio e stato inviato dal sito per verificare la
+        configurazione. Se e arrivato, gli avvisi degli ordini e i messaggi dal
+        modulo contatti raggiungeranno questo indirizzo.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="background-color:#f5f3fc; border:1px solid #d4c8f5; border-radius:10px; margin-bottom:22px;">
+        <tr>
+            <td style="padding:16px 18px; font-size:14px; line-height:1.8; color:#3d3833;">
+                <strong style="color:#221547;">Destinatario</strong><br>
+                {{ destinatario }}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:0 18px 16px; font-size:14px; line-height:1.8; color:#3d3833;">
+                <strong style="color:#221547;">Inviato il</strong><br>
+                {{ inviato_il }}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:0 18px 16px; font-size:14px; line-height:1.8; color:#3d3833;">
+                <strong style="color:#221547;">Modalita di invio</strong><br>
+                {{ mailer }}
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:0; font-size:13px; line-height:1.6; color:#7a6f63;">
+        Nessuno ha compilato un modulo: il messaggio nasce dal comando
+        <code style="font-family:monospace;">php scripts/test-mail.php</code>.
+        Puoi cancellarlo.
+    </p>
+{% endblock %}

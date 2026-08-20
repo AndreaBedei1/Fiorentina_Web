@@ -4,7 +4,7 @@
 {% set headerNote = 'Invito alla gestione del sito' %}
 
 {% block content %}
-    <p style="margin:0 0 16px; font-size:20px; font-weight:700; color:#2c1640;">Ciao {{ name }},</p>
+    <p style="margin:0 0 16px; font-size:20px; font-weight:700; color:#221547;">Ciao {{ name }},</p>
 
     <p style="margin:0 0 20px; font-size:15px; line-height:1.65;">
         {{ inviter }} ti ha invitato a gestire il sito di {{ setting('site_group_name', 'Baraonda Fiorentina') }}
@@ -31,12 +31,12 @@
             <td style="padding:14px 16px; font-size:13px; line-height:1.7; color:#57504a;">
                 Il collegamento è valido per <strong>{{ expires_hours }} ore</strong> e può essere usato una sola volta.<br>
                 Se non funziona, copialo e incollalo nella barra degli indirizzi:<br>
-                <span style="word-break:break-all; color:#582d84;">{{ link }}</span>
+                <span style="word-break:break-all; color:#3b247d;">{{ link }}</span>
             </td>
         </tr>
     </table>
 
-    <p style="margin:0; font-size:13px; line-height:1.6; color:#82766a;">
+    <p style="margin:0; font-size:13px; line-height:1.6; color:#7a6f63;">
         Se non ti aspettavi questo invito puoi ignorare il messaggio: senza aprire il collegamento
         l'account resta inattivo.
     </p>
