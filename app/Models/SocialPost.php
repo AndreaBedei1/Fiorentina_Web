@@ -37,6 +37,8 @@ final class SocialPost
         public readonly ?DateTimeImmutable $publishedAt,
         public readonly bool $isVisible,
         public readonly ?DateTimeImmutable $syncedAt,
+        /** Vero se la voce e stata inserita a mano dal pannello. */
+        public readonly bool $isManual = false,
     ) {
     }
 
@@ -57,6 +59,7 @@ final class SocialPost
             publishedAt: self::castDate($row, 'published_at'),
             isVisible: self::castBool($row, 'is_visible', true),
             syncedAt: self::castDate($row, 'synced_at'),
+            isManual: self::castBool($row, 'is_manual'),
         );
     }
 

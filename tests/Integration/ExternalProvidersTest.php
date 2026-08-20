@@ -245,4 +245,60 @@ final class ExternalProvidersTest extends IntegrationTestCase
         $this->assertNotNull($repository->find($id));
         $this->assertSame('Scritta A Mano', $repository->find($id)?->awayTeam);
     }
+
+    #[Test]
+    public function un_contenuto_social_inserito_a_mano_sopravvive_alla_sincronizzazione(): void
+    {
+        $repository = self::app()->get(SocialPostRepository::class);
+
+        $id = $repository->createManual([
+            'provider' => SocialPost::PROVIDER_INSTAGRAM,
+            'permalink' => 'https://www.instagram.com/p/SCELTO-A-MANO/',
+            'media_type' => 'image',
+            'caption' => 'Scelto dal pannello',
+            'local_thumb_key' => '2026/08/aaaabbbbccccdddd',
+            'published_at' => date('Y-m-d H:i:s'),
+            'is_visible' => 1,
+        ]);
+
+        // La sincronizzazione pota i contenuti vecchi per non far crescere la
+        // tabella all'infinito. Quella potatura non deve mai arrivare a cio
+        // che una persona ha scelto di mettere in vetrina.
+        self::app()->get(SocialService::class)->sync();
+        self::app()->get(SocialService::class)->sync();
+
+        $dopo = $repository->find($id);
+
+        $this->assertNotNull($dopo);
+        $this->assertTrue($dopo->isManual);
+        $this->assertSame('https://www.instagram.com/p/SCELTO-A-MANO/', $dopo->permalink);
+        $this->assertSame('2026/08/aaaabbbbccccdddd', $dopo->localThumbKey);
+    }
+
+    #[Test]
+    public function i_contenuti_manuali_compaiono_insieme_a_quelli_scaricati(): void
+    {
+        $repository = self::app()->get(SocialPostRepository::class);
+        $service = self::app()->get(SocialService::class);
+
+        $service->sync();
+
+        $repository->createManual([
+            'provider' => SocialPost::PROVIDER_FACEBOOK,
+            'permalink' => 'https://www.facebook.com/post-scelto',
+            'media_type' => 'image',
+            'caption' => 'In vetrina',
+            'local_thumb_key' => '2026/08/1111222233334444',
+            // Data recente: l'ordinamento e per data, quindi deve arrivare in cima.
+            'published_at' => date('Y-m-d H:i:s'),
+            'is_visible' => 1,
+        ]);
+
+        $permalink = array_map(
+            static fn ($post): string => $post->permalink,
+            $service->latest(12),
+        );
+
+        $this->assertContains('https://www.facebook.com/post-scelto', $permalink);
+    }
 }

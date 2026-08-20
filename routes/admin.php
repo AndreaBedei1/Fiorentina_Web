@@ -27,6 +27,7 @@ use App\Controllers\Admin\OrganizationController;
 use App\Controllers\Admin\PageController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SettingsController;
+use App\Controllers\Admin\SocialController;
 use App\Controllers\Admin\TaxonomyController;
 use App\Core\Routing\Router;
 
@@ -107,6 +108,16 @@ return static function (Router $router): void {
         $router->post('/galleria/foto/{photoId:\d+}', [GalleryController::class, 'updatePhoto'])->name('gallery.photo.update');
         $router->post('/galleria/foto/{photoId:\d+}/elimina', [GalleryController::class, 'destroyPhoto'])->name('gallery.photo.destroy');
         $router->post('/galleria/foto/{photoId:\d+}/copertina', [GalleryController::class, 'setCover'])->name('gallery.photo.cover');
+
+        // --- Contenuti social ----------------------------------------------
+        $router->get('/social', [SocialController::class, 'index'])->name('social.index');
+        $router->get('/social/nuovo', [SocialController::class, 'create'])->name('social.create');
+        $router->post('/social', [SocialController::class, 'store'])->name('social.store');
+        $router->get('/social/{id:\d+}', [SocialController::class, 'edit'])->name('social.edit');
+        $router->post('/social/{id:\d+}', [SocialController::class, 'update'])->name('social.update');
+        $router->post('/social/{id:\d+}/elimina', [SocialController::class, 'destroy'])->name('social.destroy');
+        $router->post('/social/{id:\d+}/visibilita', [SocialController::class, 'toggle'])->name('social.toggle');
+        $router->post('/social/sincronizza', [SocialController::class, 'sync'])->name('social.sync');
 
         // --- Prodotti ------------------------------------------------------
         $router->get('/prodotti', [ProductController::class, 'index'])->name('products.index');

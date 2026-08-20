@@ -1,0 +1,83 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = post is null %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Aggiungi contenuto social' : 'Modifica contenuto social',
+        description: 'In homepage si vede l\'immagine; chi la tocca finisce sul post originale.',
+        back: { url: route('admin.social.index'), label: 'Torna ai contenuti' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.social.store') : route('admin.social.update', { id: post.id }) }}"
+          method="post" enctype="multipart/form-data" class="max-w-2xl">
+        {{ csrf_field()|raw }}
+
+        <section class="pannello">
+            <div class="pannello-corpo space-y-4">
+
+                {{ include('components/field.twig', {
+                    name: 'provider', label: 'Piattaforma', type: 'select', required: true,
+                    options: providers,
+                    value: old('provider', isNew ? 'instagram' : post.provider)
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'permalink', label: 'Link al post', type: 'url', required: true, maxlength: 500,
+                    value: old('permalink', isNew ? '' : post.permalink),
+                    placeholder: 'https://www.instagram.com/p/...',
+                    help: 'Apri il post sul social, copia l\'indirizzo dalla barra del browser e incollalo qui.'
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'image',
+                    label: isNew ? 'Immagine' : 'Sostituisci immagine',
+                    type: 'file',
+                    required: isNew,
+                    accept: 'image/jpeg,image/png,image/webp',
+                    help: isNew
+                        ? 'È quello che si vede in homepage. Va bene lo screenshot del post o la fotografia che hai pubblicato. Formato quadrato consigliato.'
+                        : 'Lascia vuoto per tenere quella che c\'è.'
+                }) }}
+
+                {% if not isNew and post.localThumbKey %}
+                    <div class="flex items-center gap-3 rounded-panel border border-sabbia-200 bg-sabbia-50 p-3">
+                        <div class="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-sabbia-100">
+                            {{ include('components/responsive-image.twig', {
+                                key: post.localThumbKey,
+                                collection: 'social',
+                                alt: 'Immagine attuale del contenuto',
+                                class: 'h-full w-full object-cover',
+                                sizes: '80px'
+                            }) }}
+                        </div>
+                        <p class="text-xs text-sabbia-700">Immagine attuale.</p>
+                    </div>
+                {% endif %}
+
+                {{ include('components/field.twig', {
+                    name: 'caption', label: 'Didascalia', type: 'textarea', rows: 3, maxlength: 500,
+                    value: old('caption', isNew ? '' : post.caption),
+                    help: 'Una riga o due. Compare sotto l\'immagine e viene letta da chi usa uno screen reader.'
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'published_date', label: 'Data del post', type: 'date',
+                    value: old('published_date', isNew ? 'now'|date('Y-m-d') : post.publishedAt|iso_data),
+                    help: 'Serve solo a ordinare i contenuti: i più recenti compaiono per primi.'
+                }) }}
+
+                {{ include('components/field.twig', {
+                    name: 'is_visible', label: 'Visibile in homepage', type: 'checkbox',
+                    value: old('is_visible', isNew ? '1' : (post.isVisible ? '1' : ''))
+                }) }}
+                <div class="flex flex-wrap items-center gap-3 border-t border-sabbia-200 pt-4">
+                    <button type="submit" class="btn-primario">
+                        {{ isNew ? 'Aggiungi contenuto' : 'Salva modifiche' }}
+                    </button>
+                    <a href="{{ route('admin.social.index') }}" class="btn-fantasma">Annulla</a>
+                </div>
+            </div>
+        </section>
+    </form>
+{% endblock %}

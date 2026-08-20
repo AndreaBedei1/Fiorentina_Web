@@ -1,0 +1,118 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {{ include('components/admin-page-header.twig', {
+        title: 'Contenuti social',
+        description: 'Quello che compare in homepage sotto "Sui social". Incolla il link di un post, carica l\'immagine e sei a posto.',
+        action: { url: route('admin.social.create'), label: 'Aggiungi contenuto' }
+    }) }}
+
+    <div class="mb-5 rounded-panel border border-sabbia-200 bg-white px-5 py-4">
+        <p class="text-sm font-semibold text-viola-900">Due modi per riempire questa sezione</p>
+        <ul class="mt-2 space-y-1 text-xs leading-relaxed text-sabbia-700">
+            <li>
+                <strong class="text-viola-900">A mano</strong> - quello che stai usando. Nessun token, niente che
+                scade: l'immagine sta sul sito e il clic porta al post.
+            </li>
+            <li>
+                <strong class="text-viola-900">Automatico</strong> - richiede un'app Meta, un account professionale
+                e un token da rinnovare ogni sessanta giorni.
+                {% if isMock %}
+                    Non è configurato: i contenuti che vedi marcati "dimostrativo" sono di esempio.
+                {% else %}
+                    È attivo{{ lastSync ? ', ultimo aggiornamento ' ~ lastSync|relativa : '' }}.
+                {% endif %}
+            </li>
+        </ul>
+
+        {% if not isMock %}
+            <form action="{{ route('admin.social.sync') }}" method="post" class="mt-3">
+                {{ csrf_field()|raw }}
+                <button type="submit" class="btn-secondario">
+                    {{ include('components/icon.twig', { name: 'instagram', class: 'h-4 w-4' }) }}
+                    Sincronizza adesso
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if posts is empty %}
+        <div class="pannello overflow-hidden">
+            {{ include('components/admin-empty.twig', {
+                icon: 'instagram', title: 'Nessun contenuto social',
+                message: 'Aggiungine uno: bastano il link al post e una fotografia.',
+                action: { url: route('admin.social.create'), label: 'Aggiungi contenuto' }
+            }) }}
+        </div>
+    {% else %}
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+            {% for post in posts %}
+                <li class="pannello flex flex-col overflow-hidden {{ post.isVisible ? '' : 'opacity-60' }}">
+                    <div class="relative aspect-square overflow-hidden bg-sabbia-100">
+                        {{ include('components/responsive-image.twig', {
+                            key: post.localThumbKey,
+                            collection: 'social',
+                            alt: post.alt,
+                            class: 'h-full w-full object-cover',
+                            sizes: '(min-width: 1024px) 20vw, 45vw'
+                        }) }}
+
+                        <span class="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-viola-950/80 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-white">
+                            {{ include('components/icon.twig', { name: post.provider, class: 'h-3.5 w-3.5' }) }}
+                            {{ post.providerLabel }}
+                        </span>
+
+                        {% if not post.isManual %}
+                            <span class="absolute right-2 top-2 rounded-md bg-sabbia-900/80 px-2 py-1 text-2xs font-semibold text-white">
+                                automatico
+                            </span>
+                        {% endif %}
+
+                        {% if not post.isVisible %}
+                            <span class="absolute bottom-2 left-2 rounded-md bg-rosso-700 px-2 py-1 text-2xs font-bold uppercase text-white">
+                                nascosto
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex flex-1 flex-col gap-2 p-4">
+                        <p class="text-sm leading-snug text-sabbia-800">{{ post.shortCaption(90) }}</p>
+
+                        <p class="text-2xs text-sabbia-600">
+                            {{ post.publishedAt ? post.publishedAt|data_breve : 'senza data' }}
+                        </p>
+
+                        <a href="{{ post.permalink }}" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-1 text-2xs font-semibold text-viola-800 underline underline-offset-2 focus-ring rounded">
+                            {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
+                            Apri il post
+                            <span class="sr-only">(si apre in una nuova scheda)</span>
+                        </a>
+
+                        <div class="mt-auto flex flex-wrap items-center gap-2 pt-2">
+                            {% if post.isManual %}
+                                <a href="{{ route('admin.social.edit', { id: post.id }) }}" class="btn-secondario btn-piccolo">
+                                    {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
+                                    Modifica
+                                </a>
+                            {% endif %}
+
+                            <form action="{{ route('admin.social.toggle', { id: post.id }) }}" method="post">
+                                {{ csrf_field()|raw }}
+                                <button type="submit" class="btn-secondario btn-piccolo">
+                                    {{ post.isVisible ? 'Nascondi' : 'Mostra' }}
+                                </button>
+                            </form>
+
+                            {{ include('components/admin-delete-button.twig', {
+                                action: route('admin.social.destroy', { id: post.id }),
+                                question: 'Rimuovere questo contenuto dalla homepage?',
+                                buttonClass: 'btn-pericolo btn-piccolo'
+                            }) }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

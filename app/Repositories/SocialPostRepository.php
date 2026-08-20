@@ -50,6 +50,36 @@ final class SocialPostRepository extends BaseRepository
         );
     }
 
+    /**
+     * Crea una voce scritta a mano dal pannello.
+     *
+     * L'identificativo esterno se lo inventa il sito: serve solo a rendere la
+     * riga distinguibile, e non deve mai coincidere con quello di un contenuto
+     * scaricato, altrimenti la sincronizzazione lo tratterebbe come suo.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function createManual(array $data): int
+    {
+        $now = $this->now();
+
+        $data['external_id'] = 'manuale-' . bin2hex(random_bytes(8));
+        $data['is_manual'] = 1;
+        $data['synced_at'] = $now;
+        $data['created_at'] = $now;
+        $data['updated_at'] = $now;
+
+        return $this->db->insertInto('social_posts', $data);
+    }
+
+    /** @param array<string, mixed> $data */
+    public function updateManual(int $id, array $data): bool
+    {
+        $data['updated_at'] = $this->now();
+
+        return $this->db->updateWhereId('social_posts', $id, $data);
+    }
+
     public function find(int $id): ?SocialPost
     {
         $row = $this->db->selectOne('SELECT * FROM social_posts WHERE id = :id', ['id' => $id]);
@@ -70,10 +100,16 @@ final class SocialPostRepository extends BaseRepository
     {
         $now = $this->now();
 
-        $existingId = $this->db->scalar(
-            'SELECT id FROM social_posts WHERE provider = :provider AND external_id = :external',
+        $existing = $this->db->selectOne(
+            'SELECT id, is_manual FROM social_posts WHERE provider = :provider AND external_id = :external',
             ['provider' => $data['provider'], 'external' => $data['external_id']],
         );
+
+        if ($existing !== null && (int) $existing['is_manual'] === 1) {
+            return;
+        }
+
+        $existingId = $existing['id'] ?? null;
 
         if ($existingId !== null) {
             $update = $data;
@@ -136,7 +172,9 @@ final class SocialPostRepository extends BaseRepository
     public function trimToLatest(string $provider, int $keep = 24): array
     {
         $ids = $this->db->column(
-            'SELECT id FROM social_posts WHERE provider = :provider
+            // is_manual = 0: la potatura riguarda cio che e stato scaricato,
+            // non cio che qualcuno ha scelto di mettere in vetrina.
+            'SELECT id FROM social_posts WHERE provider = :provider AND is_manual = 0
              ORDER BY published_at DESC, id DESC LIMIT 500 OFFSET ' . max(1, $keep),
             ['provider' => $provider],
         );

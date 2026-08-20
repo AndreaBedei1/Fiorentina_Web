@@ -56,7 +56,9 @@ final class HomeController extends Controller
 
         return $this->render('site/home.twig', [
             'seo' => $seo,
-            'upcomingEvents' => $this->events->upcoming(3),
+            // Solo il prossimo: la homepage deve dire cosa succede adesso, non
+            // sostituire la pagina degli eventi.
+            'upcomingEvents' => $this->events->upcoming(1),
             'nextMatch' => $this->settings->bool('home_show_next_match', true)
                 ? $this->football->nextMatch()
                 : null,
