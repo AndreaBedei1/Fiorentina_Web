@@ -49,11 +49,11 @@ Console::bullet(sprintf('Modalita:    %s', $modalita));
 if ($modalita === 'smtp') {
     Console::bullet(sprintf(
         'Server:      %s:%d (%s)',
-        $config->string('mail.host'),
-        $config->int('mail.port'),
-        $config->string('mail.encryption') ?: 'nessuna cifratura',
+        $config->string('mail.smtp.host'),
+        $config->int('mail.smtp.port'),
+        $config->string('mail.smtp.encryption') ?: 'nessuna cifratura',
     ));
-    Console::bullet(sprintf('Utente:      %s', $config->string('mail.username') ?: '(non impostato)'));
+    Console::bullet(sprintf('Utente:      %s', $config->string('mail.smtp.username') ?: '(non impostato)'));
 }
 
 Console::bullet(sprintf(
@@ -69,7 +69,7 @@ if ($destinatari === []) {
     exit(1);
 }
 
-if ($modalita === 'smtp' && $config->string('mail.username') === '') {
+if ($modalita === 'smtp' && $config->string('mail.smtp.username') === '') {
     Console::warn('MAIL_USERNAME e vuoto: con la maggior parte dei server SMTP l\'invio verra rifiutato.');
     Console::line();
 }
