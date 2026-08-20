@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use App\Core\Config;
 use App\Models\SocialPost;
 use App\Repositories\FootballMatchRepository;
 use App\Repositories\SocialPostRepository;
 use App\Services\Football\FootballService;
 use App\Services\Football\MockFootballProvider;
+use App\Services\Social\BeholdProvider;
 use App\Services\Social\MockSocialProvider;
 use App\Services\Social\SocialService;
+use App\Services\SettingsService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
 
@@ -364,5 +367,35 @@ final class ExternalProvidersTest extends IntegrationTestCase
         $this->assertNotEmpty($servizio->providers());
         $this->assertCount(count($servizio->providers()), $fornitori);
         $this->assertTrue($servizio->isMockMode());
+    }
+
+    #[Test]
+    public function con_il_feed_behold_configurato_instagram_passa_da_li(): void
+    {
+        $config = self::app()->get(Config::class);
+        $modalitaPrecedente = $config->string('services.social.provider');
+
+        // La suite gira in modalita dimostrativa: qui serve la scelta vera dei
+        // fornitori, che e proprio cio che si vuole verificare.
+        $config->set('services.social.provider', 'live');
+
+        $impostazioni = self::app()->get(SettingsService::class);
+
+        // Il database dei test nasce dalle sole migrazioni: le impostazioni
+        // non esistono ancora, e scriverne una senza la riga non farebbe nulla.
+        $impostazioni->ensureDefaults();
+        $impostazioni->updateMany(['social_behold_feed_id' => 'FeedDiProva123']);
+
+        $classi = array_map(
+            static fn ($fornitore): string => $fornitore::class,
+            self::app()->get(SocialService::class)->providers(),
+        );
+
+        // Behold ha la precedenza su un token Meta scritto a mano: e la strada
+        // che non chiede di rinnovare niente ogni due mesi.
+        $this->assertContains(BeholdProvider::class, $classi);
+
+        $impostazioni->updateMany(['social_behold_feed_id' => '']);
+        $config->set('services.social.provider', $modalitaPrecedente);
     }
 }

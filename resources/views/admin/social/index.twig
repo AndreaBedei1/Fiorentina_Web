@@ -8,22 +8,36 @@
     }) }}
 
     <div class="mb-5 rounded-panel border border-sabbia-200 bg-white px-5 py-4">
-        <p class="text-sm font-semibold text-viola-900">Due modi per riempire questa sezione</p>
-        <ul class="mt-2 space-y-1 text-xs leading-relaxed text-sabbia-700">
+        <p class="text-sm font-semibold text-viola-900">Da dove arrivano questi contenuti</p>
+        <ul class="mt-2 space-y-1.5 text-xs leading-relaxed text-sabbia-700">
             <li>
-                <strong class="text-viola-900">A mano</strong> - quello che stai usando. Nessun token, niente che
-                scade: l'immagine sta sul sito e il clic porta al post.
+                <strong class="text-viola-900">YouTube</strong> - automatico, senza chiavi. Basta l'indirizzo del
+                canale in <em>Impostazioni &rsaquo; Social</em>: il sito legge il feed pubblico e si aggiorna da solo.
             </li>
             <li>
-                <strong class="text-viola-900">Automatico</strong> - richiede un'app Meta, un account professionale
-                e un token da rinnovare ogni sessanta giorni.
-                {% if isMock %}
-                    Non è configurato: i contenuti che vedi marcati "dimostrativo" sono di esempio.
-                {% else %}
-                    È attivo{{ lastSync ? ', ultimo aggiornamento ' ~ lastSync|relativa : '' }}.
-                {% endif %}
+                <strong class="text-viola-900">Instagram</strong> - automatico tramite Behold, che tiene vivo il
+                collegamento con Meta al posto nostro. Serve l'identificativo del feed in
+                <em>Impostazioni &rsaquo; Social</em>.
+            </li>
+            <li>
+                <strong class="text-viola-900">Facebook</strong> - non e leggibile da nessuna parte senza un token
+                Meta da rinnovare ogni due mesi. Si aggiunge a mano, come qualsiasi altro contenuto.
+            </li>
+            <li>
+                <strong class="text-viola-900">A mano</strong> - vale per tutte le piattaforme: link del post,
+                immagine, una riga di didascalia. Non scade e non dipende da nessuno.
             </li>
         </ul>
+
+        <p class="mt-3 text-xs text-sabbia-600">
+            {% if isMock %}
+                Le sincronizzazioni automatiche sono spente (modalita dimostrativa).
+            {% elseif lastSync %}
+                Ultimo aggiornamento automatico {{ lastSync|relativa }}.
+            {% else %}
+                Nessun aggiornamento automatico finora.
+            {% endif %}
+        </p>
 
         {% if not isMock %}
             <form action="{{ route('admin.social.sync') }}" method="post" class="mt-3">

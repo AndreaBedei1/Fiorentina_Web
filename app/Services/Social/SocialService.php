@@ -233,9 +233,20 @@ final class SocialService
 
         $providers = [];
 
+        /*
+         * Instagram: due strade, e si prende la prima disponibile.
+         *
+         * Behold viene prima perche e quella che non chiede manutenzione: e
+         * loro a tenere vivo il token. Un token Meta scritto nel .env, quando
+         * c'e, e una scelta deliberata di chi installa e ha la precedenza solo
+         * se Behold non e configurato.
+         */
+        $beholdFeed = trim($this->settings->string('social_behold_feed_id'));
         $instagramToken = $this->config->string('services.social.instagram.token');
 
-        if (trim($instagramToken) !== '') {
+        if ($beholdFeed !== '') {
+            $providers[] = new BeholdProvider($this->http, $this->logger, $beholdFeed);
+        } elseif (trim($instagramToken) !== '') {
             $providers[] = new InstagramProvider(
                 $this->http,
                 $this->logger,
