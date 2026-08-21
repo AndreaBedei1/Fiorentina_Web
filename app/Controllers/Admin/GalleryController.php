@@ -222,10 +222,7 @@ final class GalleryController extends Controller
         }
 
         $this->photos->update($photoId, [
-            'title' => $request->nullableString('title'),
-            'caption' => $request->nullableString('caption'),
             'alt_text' => $request->nullableString('alt_text'),
-            'status' => $request->string('status') === 'hidden' ? 'hidden' : 'published',
         ]);
 
         $this->albums->refreshCounters($photo->albumId);

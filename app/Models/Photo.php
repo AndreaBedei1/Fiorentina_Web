@@ -27,8 +27,6 @@ final class Photo
         public readonly string $storageKey,
         public readonly string $extension,
         public readonly ?string $originalName,
-        public readonly ?string $title,
-        public readonly ?string $caption,
         public readonly ?string $altText,
         public readonly ?int $width,
         public readonly ?int $height,
@@ -50,8 +48,6 @@ final class Photo
             storageKey: self::castString($row, 'storage_key'),
             extension: self::castString($row, 'extension', 'jpg'),
             originalName: self::castNullableString($row, 'original_name'),
-            title: self::castNullableString($row, 'title'),
-            caption: self::castNullableString($row, 'caption'),
             altText: self::castNullableString($row, 'alt_text'),
             width: self::castNullableInt($row, 'width'),
             height: self::castNullableInt($row, 'height'),
@@ -73,14 +69,12 @@ final class Photo
      * Testo alternativo effettivo.
      *
      * Nessuna immagine resta senza alt: se l'amministratore non lo compila
-     * ricadiamo su didascalia, titolo e infine sul nome dell'album.
+     * ricadiamo sul nome dell'album, che almeno dice dove siamo.
      */
     public function alt(): string
     {
-        foreach ([$this->altText, $this->caption, $this->title] as $candidate) {
-            if ($candidate !== null && trim($candidate) !== '') {
-                return $candidate;
-            }
+        if ($this->altText !== null && trim($this->altText) !== '') {
+            return $this->altText;
         }
 
         return $this->albumTitle !== null

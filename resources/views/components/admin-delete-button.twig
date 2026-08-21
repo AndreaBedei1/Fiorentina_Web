@@ -20,6 +20,8 @@
     action        obbligatorio  indirizzo a cui inviare
     question                    la domanda, per esempio "Eliminare questa notizia?"
     label                       testo del pulsante (default "Elimina")
+    iconOnly                    mostra solo l'icona: l'etichetta resta per chi
+                                usa uno screen reader
     icon, buttonClass
 #}
 {% set titolo = 'conferma-' ~ random(100000, 999999) %}
@@ -29,8 +31,8 @@
 
     <button type="submit" @click.prevent="apri"
             class="{{ buttonClass|default('btn-pericolo btn-piccolo') }}">
-        {{ include('components/icon.twig', { name: icon|default('trash'), class: 'h-4 w-4' }) }}
-        {{ label|default('Elimina') }}
+        {{ include('components/icon.twig', { name: icon|default('trash'), class: iconOnly|default(false) ? 'h-3.5 w-3.5' : 'h-4 w-4' }) }}
+        <span class="{{ iconOnly|default(false) ? 'sr-only' : '' }}">{{ label|default('Elimina') }}</span>
     </button>
 
     <dialog x-ref="finestra" @close="chiusa" aria-labelledby="{{ titolo }}"

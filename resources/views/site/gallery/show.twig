@@ -49,7 +49,7 @@
                         <a href="{{ media_url(photo.storageKey, 'gallery', 'large', 'jpg') }}"
                            data-lightbox
                            data-alt="{{ photo.alt }}"
-                           data-caption="{{ photo.caption ?? photo.title ?? album.title }}"
+                           data-caption="{{ album.title }}"
                            class="group block overflow-hidden rounded-card bg-sabbia-100 focus-ring">
                             <span class="sr-only">Ingrandisci: {{ photo.alt }}</span>
                             <span class="block {{ photo.isPortrait ? 'aspect-poster' : 'aspect-card' }}">
