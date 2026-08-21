@@ -17,8 +17,6 @@ final class Album
     public const STATUS_ARCHIVED = 'archived';
 
     /** @var list<string> */
-    public const CATEGORIES = ['stadio', 'trasferte', 'eventi', 'raduni', 'storico', 'altro'];
-
     public function __construct(
         public readonly int $id,
         public readonly string $title,
@@ -26,7 +24,6 @@ final class Album
         public readonly ?string $description,
         public readonly ?DateTimeImmutable $eventDate,
         public readonly ?int $year,
-        public readonly string $category,
         public readonly ?int $coverPhotoId,
         public readonly ?Photo $coverPhoto,
         public readonly string $status,
@@ -60,7 +57,6 @@ final class Album
             description: self::castNullableString($row, 'description'),
             eventDate: self::castDate($row, 'event_date'),
             year: self::castNullableInt($row, 'year'),
-            category: self::castString($row, 'category', 'altro'),
             coverPhotoId: self::castNullableInt($row, 'cover_photo_id'),
             coverPhoto: $coverPhoto,
             status: self::castString($row, 'status', self::STATUS_DRAFT),
@@ -83,18 +79,6 @@ final class Album
             self::STATUS_PUBLISHED => 'Pubblicato',
             self::STATUS_ARCHIVED => 'Archiviato',
             default => 'Bozza',
-        };
-    }
-
-    public function categoryLabel(): string
-    {
-        return match ($this->category) {
-            'stadio' => 'Stadio',
-            'trasferte' => 'Trasferte',
-            'eventi' => 'Eventi',
-            'raduni' => 'Raduni',
-            'storico' => 'Archivio storico',
-            default => 'Altro',
         };
     }
 

@@ -22,10 +22,10 @@ use App\Services\Media\PhotoService;
 final class GallerySeeder extends Seeder
 {
     private const ALBUMS = [
-        ['Stadio Franchi, stagione in corso', 'stadio', -14, 'Le immagini dalla curva nelle partite casalinghe.', 4],
-        ['Trasferta di Milano', 'trasferte', -40, 'Il viaggio, il settore ospiti e il rientro.', 3],
-        ['Cena sociale', 'eventi', -85, 'Oltre cento soci a tavola per la cena annuale.', 3],
-        ['Raduno estivo', 'raduni', -160, 'Il ritrovo di inizio stagione.', 2],
+        ['Stadio Franchi, stagione in corso', -14, 'Le immagini dalla curva nelle partite casalinghe.', 4],
+        ['Trasferta di Milano', -40, 'Il viaggio, il settore ospiti e il rientro.', 3],
+        ['Cena sociale', -85, 'Oltre cento soci a tavola per la cena annuale.', 3],
+        ['Raduno estivo', -160, 'Il ritrovo di inizio stagione.', 2],
     ];
 
     public function name(): string
@@ -58,7 +58,7 @@ final class GallerySeeder extends Seeder
         $photoService = $canGenerateImages ? $this->app->get(PhotoService::class) : null;
         $seed = 1;
 
-        foreach (self::ALBUMS as [$title, $category, $daysAgo, $description, $photoCount]) {
+        foreach (self::ALBUMS as [$title, $daysAgo, $description, $photoCount]) {
             $date = date('Y-m-d', strtotime(sprintf('%+d days', $daysAgo)));
 
             $albumId = $albums->create([
@@ -67,7 +67,6 @@ final class GallerySeeder extends Seeder
                 'description' => $description . ' [album dimostrativo]',
                 'event_date' => $date,
                 'year' => (int) substr($date, 0, 4),
-                'category' => $category,
                 'status' => Album::STATUS_PUBLISHED,
                 'sort_order' => $created,
                 'meta_description' => $description,

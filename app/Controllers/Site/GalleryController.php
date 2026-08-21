@@ -45,14 +45,11 @@ final class GalleryController extends Controller
     {
         $page = $this->page($request);
         $year = $request->nullableInt('anno');
-        $category = $request->string('categoria');
-        $category = $category !== '' ? $category : null;
 
         $paginator = $this->albums->paginatePublished(
             page: $page,
             perPage: 12,
             year: $year,
-            category: $category,
             basePath: $this->url->route('gallery.index'),
         );
 
@@ -66,7 +63,7 @@ final class GalleryController extends Controller
                 ['name' => 'Galleria', 'url' => $this->url->route('gallery.index')],
             ]);
 
-        if ($page > 1 || $year !== null || $category !== null) {
+        if ($page > 1 || $year !== null) {
             $seo->withNoindex();
         }
 
@@ -74,9 +71,7 @@ final class GalleryController extends Controller
             'seo' => $seo,
             'paginator' => $paginator,
             'years' => $this->albums->availableYears(),
-            'categories' => $this->albums->categoriesWithCounts(),
             'activeYear' => $year,
-            'activeCategory' => $category,
         ]);
     }
 

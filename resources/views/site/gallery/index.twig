@@ -9,50 +9,28 @@
 
     <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
 
-        {# --- Filtri --- #}
-        {% if years is not empty or categories is not empty %}
-            <div class="mb-8 space-y-4 border-b border-sabbia-200 pb-6">
-                {% if categories is not empty %}
-                    <nav aria-label="Filtra per tipo di album">
-                        <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Tipo</p>
-                        <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('gallery.index') }}{{ activeYear ? '?anno=' ~ activeYear : '' }}"
-                               class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
-                                      {{ activeCategory is null ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-                               {{ activeCategory is null ? 'aria-current="true"' : '' }}>Tutti</a>
+        {# --- Filtro per anno ---
+           Il tipo di album (raduni, trasferte, stadio...) e sparito: con
+           qualche decina di album non aiutava a trovare niente, e obbligava
+           chi carica le foto a scegliere una casella. L'anno invece serve
+           davvero: e cosi che si cerca una fotografia vecchia. #}
+        {% if years is not empty %}
+            <nav class="mb-8 border-b border-sabbia-200 pb-6" aria-label="Filtra per anno">
+                <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Anno</p>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('gallery.index') }}"
+                       class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                              {{ activeYear is null ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                       {{ activeYear is null ? 'aria-current="true"' : '' }}>Tutti</a>
 
-                            {% for category, count in categories %}
-                                <a href="{{ route('gallery.index') }}?categoria={{ category }}{{ activeYear ? '&anno=' ~ activeYear : '' }}"
-                                   class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
-                                          {{ activeCategory == category ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-                                   {{ activeCategory == category ? 'aria-current="true"' : '' }}>
-                                    {{ category|capitalize }}
-                                    <span class="ml-1 text-2xs opacity-70">{{ count }}</span>
-                                </a>
-                            {% endfor %}
-                        </div>
-                    </nav>
-                {% endif %}
-
-                {% if years is not empty %}
-                    <nav aria-label="Filtra per anno">
-                        <p class="mb-2 text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Anno</p>
-                        <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('gallery.index') }}{{ activeCategory ? '?categoria=' ~ activeCategory : '' }}"
-                               class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
-                                      {{ activeYear is null ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-                               {{ activeYear is null ? 'aria-current="true"' : '' }}>Tutti</a>
-
-                            {% for year in years %}
-                                <a href="{{ route('gallery.index') }}?anno={{ year }}{{ activeCategory ? '&categoria=' ~ activeCategory : '' }}"
-                                   class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
-                                          {{ activeYear == year ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-                                   {{ activeYear == year ? 'aria-current="true"' : '' }}>{{ year }}</a>
-                            {% endfor %}
-                        </div>
-                    </nav>
-                {% endif %}
-            </div>
+                    {% for year in years %}
+                        <a href="{{ route('gallery.index') }}?anno={{ year }}"
+                           class="rounded-lg px-3.5 py-2 text-sm font-semibold transition focus-ring
+                                  {{ activeYear == year ? 'bg-rosso-600 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                           {{ activeYear == year ? 'aria-current="true"' : '' }}>{{ year }}</a>
+                    {% endfor %}
+                </div>
+            </nav>
         {% endif %}
 
         {% if paginator.isEmpty %}

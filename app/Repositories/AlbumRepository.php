@@ -65,7 +65,6 @@ final class AlbumRepository extends BaseRepository
         int $page,
         int $perPage = 12,
         ?int $year = null,
-        ?string $category = null,
         string $basePath = '',
     ): Paginator {
         $conditions = [self::PUBLISHED_CONDITION];
@@ -74,11 +73,6 @@ final class AlbumRepository extends BaseRepository
         if ($year !== null) {
             $conditions[] = 'a.year = :year';
             $bindings['year'] = $year;
-        }
-
-        if ($category !== null && in_array($category, Album::CATEGORIES, true)) {
-            $conditions[] = 'a.category = :category';
-            $bindings['category'] = $category;
         }
 
         $where = implode(' AND ', $conditions);
@@ -93,7 +87,7 @@ final class AlbumRepository extends BaseRepository
             $perPage,
             Album::fromRow(...),
             $basePath,
-            array_filter(['anno' => $year, 'categoria' => $category]),
+            array_filter(['anno' => $year]),
         );
     }
 
@@ -133,24 +127,6 @@ final class AlbumRepository extends BaseRepository
         );
 
         return array_map('intval', $years);
-    }
-
-    /** @return array<string, int> Categorie con almeno un album pubblicato. */
-    public function categoriesWithCounts(): array
-    {
-        $rows = $this->db->select(
-            'SELECT a.category, COUNT(*) AS total FROM albums a
-             WHERE ' . self::PUBLISHED_CONDITION . '
-             GROUP BY a.category ORDER BY total DESC'
-        );
-
-        $result = [];
-
-        foreach ($rows as $row) {
-            $result[(string) $row['category']] = (int) $row['total'];
-        }
-
-        return $result;
     }
 
     /** @return list<Album> Album pubblicati, per i menu a tendina dell'admin. */

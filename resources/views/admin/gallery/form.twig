@@ -62,11 +62,6 @@
                     }) }}
 
                     {{ include('components/field.twig', {
-                        name: 'category', label: 'Tipo', type: 'select', options: categories,
-                        value: old('category', isNew ? 'altro' : album.category)
-                    }) }}
-
-                    {{ include('components/field.twig', {
                         name: 'status', label: 'Stato', type: 'select', options: statuses,
                         value: old('status', isNew ? 'draft' : album.status)
                     }) }}

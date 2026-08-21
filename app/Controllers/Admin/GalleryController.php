@@ -339,7 +339,6 @@ final class GalleryController extends Controller
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
             ->optional('description')->max('description', 2000, 'La descrizione')
             ->date('event_date', 'La data')
-            ->in('category', Album::CATEGORIES, 'La categoria')
             ->in('status', array_keys($this->statusOptions()), 'Lo stato')
             ->integer('sort_order', 'L ordinamento', 0, 9999)
             ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO');
@@ -371,7 +370,6 @@ final class GalleryController extends Controller
             // L'anno duplicato consente di filtrare la galleria con un confronto
             // indicizzato invece che con una funzione sulla colonna data.
             'year' => $eventDate !== null ? (int) substr((string) $eventDate, 0, 4) : null,
-            'category' => (string) ($validated['category'] ?? 'altro'),
             'status' => (string) ($validated['status'] ?? Album::STATUS_DRAFT),
             'sort_order' => (int) ($validated['sort_order'] ?? 0),
             'meta_description' => $validated['meta_description'] ?? null,
