@@ -1,22 +1,54 @@
 {#
-  Pulsante per un operazione distruttiva, con conferma in linea.
+  Pulsante per un'operazione distruttiva, con conferma in una finestra.
 
   Il pannello e usato da persone non tecniche: un clic distratto non deve poter
-  eliminare un album di trecento fotografie. La conferma spiega cosa succede,
-  cosa che un window.confirm del browser non permette di fare.
+  eliminare un album di trecento fotografie. La domanda arriva in una finestra
+  che si apre in alto sopra la pagina, non spiegata in una riga di tabella dove
+  non ci sta e passa inosservata, e non con un window.confirm del browser, che
+  non lascia scrivere cosa sta per succedere.
+
+  Il pulsante e di tipo submit: senza JavaScript elimina direttamente, invece
+  di non fare nulla. Con JavaScript, Alpine intercetta il clic e apre la
+  finestra, che e il comportamento normale.
+
+  Parametri:
+    action        obbligatorio  indirizzo a cui inviare
+    question                    la domanda, per esempio "Eliminare questa notizia?"
+    detail                      una riga in piu su cosa comporta
+    label                       testo del pulsante (default "Elimina")
+    icon, buttonClass
 #}
+{% set titolo = 'conferma-' ~ random(100000, 999999) %}
+
 <form action="{{ action }}" method="post" x-data="confirmAction" class="inline-flex">
     {{ csrf_field()|raw }}
 
-    <button type="button" @click="ask" x-show="isIdle"
+    <button type="submit" @click.prevent="apri"
             class="{{ buttonClass|default('btn-pericolo btn-piccolo') }}">
         {{ include('components/icon.twig', { name: icon|default('trash'), class: 'h-4 w-4' }) }}
         {{ label|default('Elimina') }}
     </button>
 
-    <span x-show="isConfirming" x-cloak class="inline-flex items-center gap-2">
-        <span class="text-sm font-semibold text-rosso-800">{{ question|default('Confermi?') }}</span>
-        <button type="submit" class="btn-pericolo btn-piccolo">Sì, {{ (label|default('elimina'))|lower }}</button>
-        <button type="button" @click="cancel" class="btn-fantasma btn-piccolo">Annulla</button>
-    </span>
+    <dialog x-ref="finestra" @close="chiusa" aria-labelledby="{{ titolo }}"
+            class="finestra-conferma">
+        <div class="flex items-start gap-3.5">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rosso-100 text-rosso-700">
+                {{ include('components/icon.twig', { name: 'alert', class: 'h-5 w-5' }) }}
+            </span>
+
+            <div class="min-w-0">
+                <h2 id="{{ titolo }}" class="font-display text-base font-bold text-viola-900">
+                    {{ question|default('Confermi?') }}
+                </h2>
+                <p class="mt-1 text-sm leading-relaxed text-sabbia-600">
+                    {{ detail|default("Non potrai annullare da qui: se sbagli, serve rimetterci le mani a mano.") }}
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-5 flex flex-wrap justify-end gap-2">
+            <button type="button" @click="annulla" class="btn-fantasma">Annulla</button>
+            <button type="submit" class="btn-pericolo">Sì, {{ (label|default('elimina'))|lower }}</button>
+        </div>
+    </dialog>
 </form>

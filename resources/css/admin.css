@@ -38,6 +38,18 @@
 
 @layer components {
     /*
+     * La finestra che chiede conferma prima di eliminare qualcosa.
+     *
+     * Si apre in alto e non al centro: quando si preme "Elimina" in una riga
+     * di tabella lo sguardo e gia nella meta alta della pagina, e da li la
+     * finestra non copre la riga su cui si sta decidendo.
+     */
+    .finestra-conferma {
+        @apply mx-auto mt-16 w-[min(28rem,calc(100vw-2rem))] rounded-panel border-0
+               bg-white p-5 text-left shadow-panel sm:p-6;
+    }
+
+    /*
      * Il foglio dell'editor delle notizie.
      *
      * Deve mostrare il testo come si vedra sul sito, altrimenti premere
@@ -230,4 +242,9 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+}
+
+/* Il velo scuro dietro la finestra di conferma. */
+.finestra-conferma::backdrop {
+    background-color: rgb(21 13 45 / 0.6);
 }

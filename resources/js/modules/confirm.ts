@@ -2,43 +2,54 @@
  * Conferma per le operazioni distruttive.
  *
  * Il pannello e usato da persone non tecniche: eliminare un album di trecento
- * fotografie non deve poter succedere con un clic distratto. La conferma e in
- * linea, non un window.confirm del browser, cosi puo spiegare esattamente cosa
- * sta per accadere.
+ * fotografie non deve poter succedere con un clic distratto.
+ *
+ * La domanda si apre in un <dialog> nativo, non in linea dentro la riga della
+ * tabella. Nella riga non c'era spazio - la domanda e i due pulsanti finivano
+ * schiacciati in fondo a una colonna - e soprattutto poteva passare
+ * inosservata proprio nel momento in cui va letta. Il dialogo del browser
+ * porta con se quello che servirebbe riscrivere a mano: sfondo oscurato, fuoco
+ * trattenuto dentro la finestra, chiusura con Esc, ritorno del fuoco al
+ * pulsante di partenza.
+ *
+ * Il pulsante che apre resta di tipo submit, cosi senza JavaScript elimina
+ * direttamente invece di non fare niente: qui si intercetta il clic.
  */
 
 import { component } from './alpine';
+
 export function confirmAction() {
     return component({
-        confirming: false,
-        timeout: 0 as unknown as ReturnType<typeof setTimeout>,
-
-        get isConfirming(): boolean {
-            return this.confirming;
+        finestra(): HTMLDialogElement | null {
+            return (this.$refs.finestra as HTMLDialogElement | undefined) ?? null;
         },
 
-        get isIdle(): boolean {
-            return !this.confirming;
+        apri(): void {
+            const finestra = this.finestra();
+
+            if (finestra === null) {
+                return;
+            }
+
+            // showModal manca nei browser molto vecchi: meglio eliminare senza
+            // conferma che avere un pulsante che non fa niente.
+            if (typeof finestra.showModal !== 'function') {
+                (this.$el as HTMLElement).closest('form')?.submit();
+
+                return;
+            }
+
+            finestra.showModal();
         },
 
-        ask(): void {
-            this.confirming = true;
-
-            // Dopo qualche secondo torna allo stato iniziale: un pulsante
-            // lasciato "armato" e un incidente in attesa di accadere.
-            clearTimeout(this.timeout);
-            this.timeout = setTimeout(() => {
-                this.confirming = false;
-            }, 6000);
+        annulla(): void {
+            this.finestra()?.close();
         },
 
-        cancel(): void {
-            clearTimeout(this.timeout);
-            this.confirming = false;
-        },
-
-        destroy(): void {
-            clearTimeout(this.timeout);
+        chiusa(): void {
+            // Il browser riporta da solo il fuoco al pulsante che ha aperto la
+            // finestra: non c'e altro da fare, ma l'evento resta agganciato
+            // perche in futuro potrebbe servire.
         },
     });
 }
