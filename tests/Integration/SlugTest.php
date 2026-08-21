@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Repositories\ProductRepository;
+use App\Repositories\ProductCategoryRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
 
@@ -17,14 +17,14 @@ use Tests\Support\IntegrationTestCase;
  */
 final class SlugTest extends IntegrationTestCase
 {
-    private ProductRepository $prodotti;
+    private ProductCategoryRepository $categorie;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->fakeRequest();
-        $this->prodotti = self::app()->get(ProductRepository::class);
+        $this->categorie = self::app()->get(ProductCategoryRepository::class);
     }
 
     #[Test]
@@ -33,44 +33,44 @@ final class SlugTest extends IntegrationTestCase
         $slugs = [];
 
         for ($i = 0; $i < 3; $i++) {
-            $id = $this->prodotti->create([
-                'name' => 'Sciarpa storica',
-                'slug' => 'sciarpa-storica',
+            $id = $this->categorie->create([
+                'name' => 'Sciarpe storiche',
+                'slug' => 'sciarpe-storiche',
             ]);
 
-            $slugs[] = $this->prodotti->find($id)?->slug;
+            $slugs[] = $this->categorie->find($id)?->slug;
         }
 
-        $this->assertSame('sciarpa-storica', $slugs[0]);
-        $this->assertSame('sciarpa-storica-2', $slugs[1]);
-        $this->assertSame('sciarpa-storica-3', $slugs[2]);
+        $this->assertSame('sciarpe-storiche', $slugs[0]);
+        $this->assertSame('sciarpe-storiche-2', $slugs[1]);
+        $this->assertSame('sciarpe-storiche-3', $slugs[2]);
         $this->assertSame(3, count(array_unique($slugs)));
     }
 
     #[Test]
     public function aggiornare_un_contenuto_non_cambia_il_suo_slug(): void
     {
-        $id = $this->prodotti->create([
+        $id = $this->categorie->create([
             'name' => 'Nome originale',
             'slug' => 'nome-originale',
         ]);
 
         // Aggiornando lo stesso record, lo slug non deve prendere il suffisso
         // per collisione con se stesso.
-        $this->prodotti->update($id, ['slug' => 'nome-originale', 'name' => 'Nome aggiornato']);
+        $this->categorie->update($id, ['slug' => 'nome-originale', 'name' => 'Nome aggiornato']);
 
-        $this->assertSame('nome-originale', $this->prodotti->find($id)?->slug);
+        $this->assertSame('nome-originale', $this->categorie->find($id)?->slug);
     }
 
     #[Test]
     public function il_vincolo_unico_e_attivo_a_database(): void
     {
-        $this->prodotti->create(['name' => 'Uno', 'slug' => 'slug-unico']);
+        $this->categorie->create(['name' => 'Uno', 'slug' => 'slug-unico']);
 
         $this->expectException(\PDOException::class);
 
         // Inserimento diretto, aggirando la generazione dello slug.
-        $this->db->insertInto('products', [
+        $this->db->insertInto('product_categories', [
             'name' => 'Due',
             'slug' => 'slug-unico',
             'created_at' => date('Y-m-d H:i:s'),

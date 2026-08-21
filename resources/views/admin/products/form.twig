@@ -20,34 +20,19 @@
                     <h2 class="font-display text-base font-bold text-viola-900">Dati del prodotto</h2>
                 </div>
 
-                <div class="pannello-corpo space-y-4" x-data="slugField"
-                     data-slug="{{ isNew ? '' : product.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+                <div class="pannello-corpo space-y-4">
 
                     <div>
                         <label for="campo-name" class="campo-label" data-required>Nome</label>
                         <input type="text" id="campo-name" name="name" required maxlength="200"
                                value="{{ old('name', isNew ? '' : product.name) }}"
-                               @input="fromTitle" class="campo-input text-base"
+                               class="campo-input text-base"
                                {{ has_error('name') ? 'aria-invalid="true"' : '' }}>
                         {% if has_error('name') %}
                             <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('name') }}</p>
                         {% endif %}
                     </div>
 
-                    <div>
-                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
-                        <div class="flex items-center gap-2">
-                            <span class="shrink-0 text-sm text-sabbia-500">/merchandising/</span>
-                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
-                                   maxlength="200" class="campo-input font-mono text-sm">
-                        </div>
-                        {% if not isNew %}
-                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
-                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l'indirizzo pubblico</span>
-                            </label>
-                        {% endif %}
-                    </div>
 
                     {{ include('components/field.twig', {
                         name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 300,
@@ -64,82 +49,40 @@
                 </div>
             </section>
 
-            {# --- Varianti --- #}
+            {# --- Taglie ---
+               Un elenco chiuso invece di righe da comporre: le taglie di una
+               maglietta sono sempre le stesse sei, e scriverle a mano vuol
+               dire solo poterle sbagliare. Nessuna casella spuntata significa
+               che l'articolo non ha taglie - un portachiavi, una bandiera. #}
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Taglie e altre scelte</h2>
-                    <span class="text-xs text-sabbia-500">Facoltative</span>
+                    <h2 class="font-display text-base font-bold text-viola-900">Taglie</h2>
                 </div>
 
                 <div class="pannello-corpo">
-                    <p class="mb-4 text-sm leading-relaxed text-sabbia-600">
-                        Se il prodotto si sceglie fra piu opzioni, aggiungi una riga per ciascuna.
-                        Lasciando l'elenco vuoto il prodotto viene venduto in versione unica.
-                        Il prezzo resta lo stesso per ogni riga: non e possibile far costare
-                        una taglia piu di un'altra.
-                    </p>
+                    {% set taglieAttuali = isNew ? [] : product.variants|map(v => v.label) %}
 
-                    <div class="mb-4 max-w-xs">
-                        {{ include('components/field.twig', {
-                            name: 'option_name', label: 'Come si chiama la scelta', maxlength: 30,
-                            value: old('option_name', isNew ? 'Taglia' : product.optionName),
-                            placeholder: 'Taglia',
-                            help: 'Compare nel carrello e nell ordine: Taglia, Colore, Misura.'
-                        }) }}
-                    </div>
+                    <fieldset>
+                        <legend class="sr-only">Taglie disponibili</legend>
 
-                    {% set variantData = [] %}
-                    {% if not isNew %}
-                        {% for variant in product.variants %}
-                            {% set variantData = variantData|merge([{ label: variant.label }]) %}
-                        {% endfor %}
-                    {% endif %}
-
-                    <div x-data="variantEditor" data-variants="{{ variantData|json_encode|e('html_attr') }}">
-                        <div x-ref="rows" class="space-y-2">
-                            <template x-for="(row, index) in rows" :key="index">
-                                <div data-variant-row class="grid gap-2 rounded-card border border-sabbia-200 p-3 sm:grid-cols-12">
-                                    <div class="sm:col-span-11">
-                                        <label class="campo-label text-xs">Etichetta</label>
-                                        <input type="text" name="variant_label[]" x-model="row.label"
-                                               maxlength="80" placeholder="M" class="campo-input text-sm">
-                                    </div>
-                                    <div class="flex items-end justify-end sm:col-span-1">
-                                        <button type="button" @click="remove"
-                                                class="mb-1 flex h-8 w-8 items-center justify-center rounded text-sabbia-500 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
-                                            <span class="sr-only">Rimuovi la riga</span>
-                                            {{ include('components/icon.twig', { name: 'trash', class: 'h-4 w-4' }) }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </template>
+                        <div class="flex flex-wrap gap-2">
+                            {% for taglia in taglieDisponibili %}
+                                <label class="relative">
+                                    <input type="checkbox" name="taglie[]" value="{{ taglia }}"
+                                           class="peer sr-only"
+                                           {{ taglia in taglieAttuali ? 'checked' : '' }}>
+                                    <span class="flex min-w-14 cursor-pointer items-center justify-center rounded-lg border-2 border-sabbia-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-viola-900 transition
+                                                 peer-checked:border-viola-700 peer-checked:bg-viola-50
+                                                 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-viola-600">
+                                        {{ taglia }}
+                                    </span>
+                                </label>
+                            {% endfor %}
                         </div>
-
-                        <button type="button" @click="add" class="btn-secondario btn-piccolo mt-3">
-                            {{ include('components/icon.twig', { name: 'plus', class: 'h-3.5 w-3.5' }) }}
-                            Aggiungi una riga
-                        </button>
-                    </div>
+                    </fieldset>
                 </div>
             </section>
 
-            {# --- SEO --- #}
-            <section class="pannello">
-                <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Motori di ricerca</h2>
-                </div>
-
-                <div class="pannello-corpo space-y-4">
-                    {{ include('components/field.twig', {
-                        name: 'meta_title', label: 'Titolo per Google', maxlength: 200,
-                        value: old('meta_title', isNew ? '' : product.metaTitle)
-                    }) }}
-                    {{ include('components/field.twig', {
-                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
-                        value: old('meta_description', isNew ? '' : product.metaDescription)
-                    }) }}
-                </div>
-            </section>
         </div>
 
         {# --- Colonna laterale --- #}
@@ -147,7 +90,7 @@
 
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Prezzo e stato</h2>
+                    <h2 class="font-display text-base font-bold text-viola-900">Prezzo</h2>
                 </div>
 
                 <div class="pannello-corpo space-y-4">
@@ -173,19 +116,6 @@
                         value: old('category_id', isNew ? '' : product.categoryId)
                     }) }}
 
-                    {{ include('components/field.twig', {
-                        name: 'is_featured', label: 'In evidenza in homepage', type: 'checkbox',
-                        value: old('is_featured', isNew ? false : product.isFeatured)
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'sort_order', label: 'Ordinamento', type: 'number', min: 0, max: 9999,
-                        value: old('sort_order', isNew ? 0 : product.sortOrder)
-                    }) }}
-
-                    <div class="border-t border-sabbia-200 pt-4">
-                        <button type="submit" class="btn-primario w-full">Salva prodotto</button>
-                    </div>
                 </div>
             </section>
 
@@ -249,6 +179,16 @@
                     }) }}
                 </div>
             </section>
+
+            {# Il pulsante si preme quando si e finito, e finire vuol dire
+               anche aver deciso quali fotografie mostrare. #}
+            <div class="pannello">
+                <div class="pannello-corpo">
+                    <button type="submit" class="btn-primario w-full text-base">
+                        {{ isNew ? 'Pubblica prodotto' : 'Salva le modifiche' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 {% endblock %}

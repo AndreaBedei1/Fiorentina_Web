@@ -45,7 +45,7 @@
                                     <span class="mt-0.5 block text-xs text-sabbia-500">
                                         {{ product.categoryName ?? 'Senza categoria' }}
                                         {% if product.hasVariants %}
-                                            - {{ product.optionName }}: {{ product.variants|map(v => v.label)|join(', ') }}
+                                            - taglie: {{ product.variants|map(v => v.label)|join(', ') }}
                                         {% endif %}
                                     </span>
                                 </td>

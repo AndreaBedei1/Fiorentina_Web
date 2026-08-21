@@ -7,11 +7,10 @@ namespace App\Models;
 use App\Models\Concerns\CastsRowValues;
 
 /**
- * Una delle scelte disponibili per un prodotto: una taglia, un colore.
+ * Una taglia disponibile per un prodotto.
  *
- * Come si chiama la scelta lo dice il prodotto (Product::optionName), non la
- * singola riga: un articolo offre una scala sola, e ripeterla qui vorrebbe
- * dire poterla contraddire.
+ * L'etichetta e una delle taglie ammesse (Product::TAGLIE): l'elenco e
+ * chiuso, quindi qui non arriva mai una scritta inventata.
  */
 final class ProductVariant
 {

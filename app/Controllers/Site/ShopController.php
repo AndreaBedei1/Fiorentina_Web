@@ -6,6 +6,7 @@ namespace App\Controllers\Site;
 
 use App\Controllers\Controller;
 use App\Core\Config;
+use App\Core\Http\RedirectResponse;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
@@ -85,11 +86,17 @@ final class ShopController extends Controller
 
     public function show(Request $request): Response
     {
-        $slug = (string) $request->route('slug');
-        $product = $this->products->findPublishedBySlug($slug);
+        // Conta il numero davanti; il nome che segue rende leggibile il
+        // collegamento e puo cambiare senza spezzare niente.
+        $riferimento = (string) $request->route('riferimento');
+        $product = $this->products->findPublished((int) $riferimento);
 
         if ($product === null) {
             $this->notFound('Il prodotto che cerchi non e disponibile.');
+        }
+
+        if ($riferimento !== $product->urlKey()) {
+            return RedirectResponse::to($this->url->route('shop.show', ['riferimento' => $product->urlKey()]), 301);
         }
 
         $imageUrl = $product->primaryImage() !== null
@@ -104,11 +111,11 @@ final class ShopController extends Controller
         $seo = $this->seo($product->seoTitle(), $product->seoDescription())
             ->withType('product')
             ->withImage($imageUrl)
-            ->withCanonical($this->url->absoluteRoute('shop.show', ['slug' => $product->slug]))
+            ->withCanonical($this->url->absoluteRoute('shop.show', ['riferimento' => $product->urlKey()]))
             ->withBreadcrumbs([
                 ['name' => 'Home', 'url' => '/'],
                 ['name' => 'Merchandising', 'url' => $this->url->route('shop.index')],
-                ['name' => $product->name, 'url' => $this->url->route('shop.show', ['slug' => $product->slug])],
+                ['name' => $product->name, 'url' => $this->url->route('shop.show', ['riferimento' => $product->urlKey()])],
             ])
             ->withStructuredData($this->productSchema($product, $imageUrl));
 
@@ -136,7 +143,7 @@ final class ShopController extends Controller
                 'price' => number_format($product->price, 2, '.', ''),
                 'priceCurrency' => 'EUR',
                 'availability' => 'https://schema.org/InStock',
-                'url' => $this->url->absoluteRoute('shop.show', ['slug' => $product->slug]),
+                'url' => $this->url->absoluteRoute('shop.show', ['riferimento' => $product->urlKey()]),
             ],
         ];
 

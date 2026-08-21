@@ -95,7 +95,12 @@ final class SitemapController extends Controller
         }
 
         foreach ($this->products->publishedForSitemap() as $item) {
-            $entries[] = $this->entry('shop.show', $item, '0.6', 'monthly');
+            $entries[] = [
+                'loc' => $this->url->absoluteRoute('shop.show', ['riferimento' => $item['key']]),
+                'lastmod' => substr($item['updated_at'], 0, 10),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ];
         }
 
         $xml = $this->view->render('site/sitemap.xml.twig', ['entries' => $entries]);
@@ -122,17 +127,4 @@ final class SitemapController extends Controller
             ->header('Cache-Control', 'public, max-age=86400');
     }
 
-    /**
-     * @param array{slug: string, updated_at: string} $item
-     * @return array{loc: string, lastmod: string, changefreq: string, priority: string}
-     */
-    private function entry(string $routeName, array $item, string $priority, string $changefreq): array
-    {
-        return [
-            'loc' => $this->url->absoluteRoute($routeName, ['slug' => $item['slug']]),
-            'lastmod' => substr($item['updated_at'], 0, 10),
-            'changefreq' => $changefreq,
-            'priority' => $priority,
-        ];
-    }
 }

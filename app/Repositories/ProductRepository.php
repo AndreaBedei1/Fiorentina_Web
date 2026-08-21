@@ -43,12 +43,12 @@ final class ProductRepository extends BaseRepository
         return Product::fromRow($row, $this->imagesFor([$id])[$id] ?? [], $this->variantsFor([$id])[$id] ?? []);
     }
 
-    public function findPublishedBySlug(string $slug): ?Product
+    public function findPublished(int $id): ?Product
     {
         $row = $this->db->selectOne(
             'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
-             WHERE p.slug = :slug AND ' . self::PUBLISHED_CONDITION,
-            ['slug' => $slug],
+             WHERE p.id = :id AND ' . self::PUBLISHED_CONDITION,
+            ['id' => $id],
         );
 
         if ($row === null) {
@@ -58,30 +58,6 @@ final class ProductRepository extends BaseRepository
         $id = (int) $row['id'];
 
         return Product::fromRow($row, $this->imagesFor([$id])[$id] ?? [], $this->variantsFor([$id])[$id] ?? []);
-    }
-
-    /** @return list<Product> */
-    public function featured(int $limit = 4): array
-    {
-        $rows = $this->db->select(
-            'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
-             WHERE ' . self::PUBLISHED_CONDITION . ' AND p.is_featured = 1
-             ORDER BY p.sort_order ASC, p.created_at DESC
-             LIMIT ' . max(1, min(12, $limit)),
-        );
-
-        // Se non ci sono articoli in evidenza mostriamo comunque i più recenti:
-        // una sezione vuota in homepage e peggio di una scelta automatica.
-        if ($rows === []) {
-            $rows = $this->db->select(
-                'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
-                 WHERE ' . self::PUBLISHED_CONDITION . '
-                 ORDER BY p.created_at DESC
-                 LIMIT ' . max(1, min(12, $limit)),
-            );
-        }
-
-        return $this->hydrateMany($rows);
     }
 
     /** @return Paginator<Product> */
@@ -113,7 +89,7 @@ final class ProductRepository extends BaseRepository
             'prezzo-asc' => 'p.price ASC',
             'prezzo-desc' => 'p.price DESC',
             'nome' => 'p.name ASC',
-            'default' => 'p.sort_order ASC, p.created_at DESC',
+            'default' => 'p.created_at DESC',
         ], 'default');
 
         $paginator = $this->paginateQuery(
@@ -142,7 +118,7 @@ final class ProductRepository extends BaseRepository
         $paginator = $this->paginateQuery(
             'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
              WHERE p.deleted_at IS NULL
-             ORDER BY p.sort_order ASC, p.created_at DESC',
+             ORDER BY p.created_at DESC',
             'SELECT COUNT(*) FROM products p WHERE p.deleted_at IS NULL',
             [],
             $page,
@@ -240,7 +216,6 @@ final class ProductRepository extends BaseRepository
     public function create(array $data): int
     {
         $now = $this->now();
-        $data['slug'] = $this->uniqueSlug($data['slug'] ?? Str::slug((string) ($data['name'] ?? '')));
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
 
@@ -250,10 +225,6 @@ final class ProductRepository extends BaseRepository
     /** @param array<string, mixed> $data */
     public function update(int $id, array $data): bool
     {
-        if (isset($data['slug'])) {
-            $data['slug'] = $this->uniqueSlug($data['slug'], $id);
-        }
-
         $data['updated_at'] = $this->now();
 
         return $this->db->updateWhereId('products', $id, $data) >= 0;
@@ -349,14 +320,18 @@ final class ProductRepository extends BaseRepository
         return $row === null ? null : ProductVariant::fromRow($row);
     }
 
-    /** @return list<array{slug: string, updated_at: string}> */
+    /** Prodotti a catalogo, per la sitemap. @return list<array{key: string, updated_at: string}> */
     public function publishedForSitemap(): array
     {
         return array_map(
-            static fn (array $r): array => ['slug' => (string) $r['slug'], 'updated_at' => (string) $r['updated_at']],
+            static fn (array $r): array => [
+                'key' => Product::fromRow($r)->urlKey(),
+                'updated_at' => (string) $r['updated_at'],
+            ],
             $this->db->select(
-                'SELECT p.slug, p.updated_at FROM products p
-                 WHERE ' . self::PUBLISHED_CONDITION . ' ORDER BY p.created_at DESC LIMIT 1000'
+                'SELECT p.id, p.name, p.updated_at FROM products p
+                 WHERE ' . self::PUBLISHED_CONDITION . '
+                 ORDER BY p.created_at DESC LIMIT 2000'
             ),
         );
     }

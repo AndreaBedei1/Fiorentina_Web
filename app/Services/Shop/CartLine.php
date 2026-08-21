@@ -23,7 +23,7 @@ final readonly class CartLine
     public function displayName(): string
     {
         return $this->variant !== null
-            ? sprintf('%s - %s %s', $this->product->name, $this->product->optionName, $this->variant->label)
+            ? sprintf('%s - taglia %s', $this->product->name, $this->variant->label)
             : $this->product->name;
     }
 

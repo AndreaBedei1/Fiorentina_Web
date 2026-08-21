@@ -56,7 +56,7 @@ return static function (Router $router): void {
 
     // --- Merchandising -----------------------------------------------------
     $router->get('/merchandising', [ShopController::class, 'index'])->name('shop.index');
-    $router->get('/merchandising/{slug}', [ShopController::class, 'show'])->name('shop.show');
+    $router->get('/merchandising/{riferimento}', [ShopController::class, 'show'])->name('shop.show');
 
     // --- Carrello ----------------------------------------------------------
     $router->get('/carrello', [CartController::class, 'show'])->name('cart.show');

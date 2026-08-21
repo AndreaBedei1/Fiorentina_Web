@@ -10,7 +10,6 @@ use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
-use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
 use App\Models\Product;
 use App\Repositories\ProductCategoryRepository;
@@ -62,6 +61,7 @@ final class ProductController extends Controller
             'seo' => $this->seo('Nuovo prodotto')->withNoindex(),
             'product' => null,
             'categoryOptions' => $this->categories->options(),
+            'taglieDisponibili' => Product::TAGLIE,
         ]);
     }
 
@@ -109,6 +109,7 @@ final class ProductController extends Controller
             'seo' => $this->seo('Modifica prodotto')->withNoindex(),
             'product' => $product,
             'categoryOptions' => $this->categories->options(),
+            'taglieDisponibili' => Product::TAGLIE,
         ]);
     }
 
@@ -131,9 +132,6 @@ final class ProductController extends Controller
 
         $data = $this->buildData($request, $validated);
 
-        if (! $request->bool('update_slug')) {
-            unset($data['slug']);
-        }
 
         $this->products->update($id, $data);
         $this->products->replaceVariants($id, $this->parseVariants($request));
@@ -217,11 +215,7 @@ final class ProductController extends Controller
         $validator = Validator::make($request->all())
             ->required('name', 'Il nome')->max('name', 200, 'Il nome')
             ->optional('short_description')->max('short_description', 300, 'La descrizione breve')
-            ->optional('option_name')->max('option_name', 30, 'Il nome della scelta')
-            ->decimal('price', 'Il prezzo', 0, 100000)
-            ->integer('sort_order', 'L ordinamento', 0, 9999)
-            ->optional('meta_title')->max('meta_title', 200, 'Il titolo SEO')
-            ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO');
+            ->decimal('price', 'Il prezzo', 0, 100000);
 
         if ($request->filled('price') === false) {
             $validator->addError('price', 'Il prezzo è obbligatorio.');
@@ -245,20 +239,6 @@ final class ProductController extends Controller
     }
 
     /**
-     * Come si chiama la scelta offerta dal prodotto: "Taglia", "Colore".
-     *
-     * Non puo restare vuoto: e la parola che il sito stampa accanto alla
-     * scelta, nel carrello e nell'ordine. Quando l'amministratore non scrive
-     * niente vale "Taglia", che copre quasi tutto il catalogo.
-     */
-    private function nomeScelta(array $validated): string
-    {
-        $nome = trim((string) ($validated['option_name'] ?? ''));
-
-        return $nome === '' ? 'Taglia' : $nome;
-    }
-
-    /**
      * @param array<string, mixed> $validated
      * @return array<string, mixed>
      */
@@ -267,41 +247,29 @@ final class ProductController extends Controller
         return [
             'category_id' => $request->nullableInt('category_id'),
             'name' => (string) $validated['name'],
-            'slug' => Str::slug($request->string('slug') !== '' ? $request->string('slug') : (string) $validated['name']),
             'short_description' => $validated['short_description'] ?? null,
             'description' => $this->sanitizer->clean((string) $request->post('description', '')),
             'price' => (float) ($validated['price'] ?? 0),
-            'option_name' => $this->nomeScelta($validated),
-            'is_featured' => $request->bool('is_featured') ? 1 : 0,
-            'sort_order' => (int) ($validated['sort_order'] ?? 0),
-            'meta_title' => $validated['meta_title'] ?? null,
-            'meta_description' => $validated['meta_description'] ?? null,
         ];
     }
 
     /**
-     * Legge le varianti dal form: righe parallele di campi con lo stesso indice.
+     * Le taglie spuntate, nell'ordine dell'elenco.
+     *
+     * Non si accetta quello che arriva: si parte dall'elenco chiuso e si
+     * tiene cio che e stato spuntato. Cosi l'ordine e sempre XS, S, M... e
+     * nessun valore inventato entra a database.
      *
      * @return list<array<string, mixed>>
      */
     private function parseVariants(Request $request): array
     {
-        $labels = $request->array('variant_label');
-        $variants = [];
+        $scelte = array_map('strval', $request->array('taglie'));
 
-        foreach ($labels as $index => $label) {
-            $label = trim((string) $label);
-
-            if ($label === '') {
-                continue;
-            }
-
-            $variants[] = [
-                'label' => mb_substr($label, 0, 80),
-            ];
-        }
-
-        return $variants;
+        return array_values(array_map(
+            static fn (string $taglia): array => ['label' => $taglia],
+            array_filter(Product::TAGLIE, static fn (string $t): bool => in_array($t, $scelte, true)),
+        ));
     }
 
     private function storeImages(Request $request, int $productId): void

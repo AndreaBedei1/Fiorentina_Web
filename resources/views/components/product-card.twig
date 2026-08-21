@@ -25,7 +25,7 @@
         {% endif %}
 
         <{{ livello }} class="mt-1 font-display text-base font-bold leading-snug text-viola-900">
-            <a href="{{ route('shop.show', { slug: product.slug }) }}"
+            <a href="{{ route('shop.show', { riferimento: product.urlKey }) }}"
                class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
                 {{ product.name }}
             </a>

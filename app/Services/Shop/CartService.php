@@ -75,16 +75,13 @@ final class CartService
 
         if ($product->hasVariants()) {
             if ($variantId === null) {
-                return CartActionResult::failure(sprintf(
-                    'Devi indicare "%s" prima di aggiungere al carrello.',
-                    $product->optionName,
-                ));
+                return CartActionResult::failure('Devi indicare la taglia prima di aggiungere al carrello.');
             }
 
             $variant = $this->products->findVariant($variantId, $productId);
 
             if ($variant === null) {
-                return CartActionResult::failure('La scelta indicata non esiste.');
+                return CartActionResult::failure('La taglia indicata non esiste.');
             }
         } else {
             // Ignoriamo una scelta indicata per un prodotto che non ne ha:
@@ -120,7 +117,7 @@ final class CartService
         return CartActionResult::success(sprintf(
             'Hai aggiunto al carrello: %s%s.',
             $product->name,
-            $variant !== null ? sprintf(' - %s %s', $product->optionName, $variant->label) : '',
+            $variant !== null ? ' - taglia ' . $variant->label : '',
         ));
     }
 

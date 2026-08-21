@@ -23,15 +23,9 @@ final class Product
         public readonly ?string $categoryName,
         public readonly ?string $categorySlug,
         public readonly string $name,
-        public readonly string $slug,
         public readonly ?string $shortDescription,
         public readonly ?string $description,
         public readonly float $price,
-        public readonly string $optionName,
-        public readonly bool $isFeatured,
-        public readonly int $sortOrder,
-        public readonly ?string $metaTitle,
-        public readonly ?string $metaDescription,
         public readonly array $images,
         public readonly array $variants,
         public readonly DateTimeImmutable $createdAt,
@@ -52,20 +46,38 @@ final class Product
             categoryName: self::castNullableString($row, 'category_name'),
             categorySlug: self::castNullableString($row, 'category_slug'),
             name: self::castString($row, 'name'),
-            slug: self::castString($row, 'slug'),
             shortDescription: self::castNullableString($row, 'short_description'),
             description: self::castNullableString($row, 'description'),
             price: self::castFloat($row, 'price'),
-            optionName: self::castString($row, 'option_name', 'Taglia'),
-            isFeatured: self::castBool($row, 'is_featured'),
-            sortOrder: self::castInt($row, 'sort_order'),
-            metaTitle: self::castNullableString($row, 'meta_title'),
-            metaDescription: self::castNullableString($row, 'meta_description'),
             images: $images,
             variants: $variants,
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
             updatedAt: self::castDate($row, 'updated_at'),
         );
+    }
+
+    /**
+     * Le taglie che il gruppo puo mettere a catalogo.
+     *
+     * Un elenco chiuso, non un campo libero: le taglie di una maglietta sono
+     * queste sei e scriverle a mano vuol dire solo poterle sbagliare - "M",
+     * "m", "Media" - e ritrovarsi tre etichette per la stessa cosa. Un
+     * articolo che di taglie non ne ha, un portachiavi, semplicemente non ne
+     * spunta nessuna.
+     */
+    public const TAGLIE = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+    /**
+     * Il pezzo di indirizzo che identifica il prodotto.
+     *
+     * Conta il numero; il nome lo segue per rendere leggibile il
+     * collegamento e puo cambiare senza spezzare niente.
+     */
+    public function urlKey(): string
+    {
+        $coda = Str::slug($this->name);
+
+        return $coda === '' ? (string) $this->id : $this->id . '-' . $coda;
     }
 
     public function hasVariants(): bool
@@ -95,11 +107,11 @@ final class Product
 
     public function seoTitle(): string
     {
-        return $this->metaTitle ?? $this->name;
+        return $this->name;
     }
 
     public function seoDescription(): string
     {
-        return $this->metaDescription ?? $this->summary(160);
+        return $this->summary(160);
     }
 }

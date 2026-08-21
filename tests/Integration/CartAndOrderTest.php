@@ -45,7 +45,6 @@ final class CartAndOrderTest extends IntegrationTestCase
     {
         return $this->products->create(array_merge([
             'name' => 'Sciarpa di prova',
-            'slug' => 'sciarpa-di-prova-' . bin2hex(random_bytes(3)),
             'short_description' => 'Descrizione breve',
             'price' => $price,
         ], $overrides));
@@ -114,7 +113,7 @@ final class CartAndOrderTest extends IntegrationTestCase
         $senzaScelta = $this->cart->add($id, null, 1);
 
         $this->assertTrue($senzaScelta->failed());
-        $this->assertStringContainsString('Taglia', $senzaScelta->message);
+        $this->assertStringContainsString('taglia', $senzaScelta->message);
     }
 
     #[Test]
@@ -142,12 +141,12 @@ final class CartAndOrderTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function l_ordine_conserva_il_nome_della_scelta(): void
+    public function l_ordine_conserva_la_taglia(): void
     {
-        $id = $this->createProduct(22.00, ['option_name' => 'Colore']);
+        $id = $this->createProduct(22.00);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'Viola'],
+            ['label' => 'M'],
         ]);
 
         $variant = $this->products->find($id)?->variants[0] ?? null;
@@ -164,9 +163,9 @@ final class CartAndOrderTest extends IntegrationTestCase
         $item = $result->order?->items[0] ?? null;
 
         $this->assertNotNull($item);
-        $this->assertSame('Colore', $item->variantOption);
-        $this->assertSame('Viola', $item->variantLabel);
-        $this->assertSame('Colore Viola', $item->choiceLabel());
+        $this->assertSame('Taglia', $item->variantOption);
+        $this->assertSame('M', $item->variantLabel);
+        $this->assertSame('Taglia M', $item->choiceLabel());
     }
 
     #[Test]
