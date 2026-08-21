@@ -10,8 +10,6 @@ use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
-use App\Core\Support\Dates;
-use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
 use App\Repositories\NewsRepository;
 use App\Services\AuditLogger;
@@ -137,12 +135,6 @@ final class NewsController extends Controller
 
         $data = $this->buildData($request, $validated);
 
-        // Lo slug si aggiorna solo su richiesta esplicita: cambiarlo rompe i
-        // link già condivisi sui social e azzera il posizionamento acquisito.
-        if (! $request->bool('update_slug')) {
-            unset($data['slug']);
-        }
-
         $imageResult = $this->handleImage($request, $article->imageKey, null);
 
         if ($imageResult['error'] !== null) {
@@ -210,11 +202,7 @@ final class NewsController extends Controller
     {
         $validator = Validator::make($request->all())
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
-            ->optional('excerpt')->max('excerpt', 400, 'L estratto')
-            ->optional('meta_title')->max('meta_title', 200, 'Il titolo SEO')
-            ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO')
-            ->date('published_date', 'La data di pubblicazione')
-            ->time('published_time', 'L\'orario di pubblicazione');
+            ->optional('excerpt')->max('excerpt', 400, 'L estratto');
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -233,26 +221,14 @@ final class NewsController extends Controller
      */
     private function buildData(Request $request, array $validated): array
     {
-        $publishedAt = Dates::combineToDatabase(
-            $validated['published_date'] ?? null,
-            $validated['published_time'] ?? null,
-        );
-
-        // Senza data indicata vale adesso: una notizia appena scritta e una
-        // notizia di oggi, e chiedere di ripeterlo sarebbe attrito inutile.
-        if ($publishedAt === null) {
-            $publishedAt = date('Y-m-d H:i:s');
-        }
-
+        // La data non si chiede: una notizia appena scritta e una notizia di
+        // oggi. In modifica resta quella originale, perche cambiare il testo
+        // di un articolo di marzo non lo sposta a giugno.
         return [
             'title' => (string) $validated['title'],
-            'slug' => Str::slug((string) ($request->string('slug') !== '' ? $request->string('slug') : $validated['title'])),
             'excerpt' => $validated['excerpt'] ?? null,
             'content' => $this->sanitizer->clean((string) $request->post('content', '')),
             'image_alt' => $request->nullableString('image_alt'),
-            'published_at' => $publishedAt,
-            'meta_title' => $validated['meta_title'] ?? null,
-            'meta_description' => $validated['meta_description'] ?? null,
         ];
     }
 

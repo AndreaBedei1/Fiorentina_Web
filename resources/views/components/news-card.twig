@@ -28,7 +28,7 @@
         </time>
 
         <{{ livello }} class="mt-2 font-display text-lg font-bold leading-snug text-viola-900">
-            <a href="{{ route('news.show', { slug: article.slug }) }}"
+            <a href="{{ route('news.show', { riferimento: article.urlKey }) }}"
                class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
                 {{ article.title }}
             </a>

@@ -42,14 +42,11 @@ final class ContentSeeder extends Seeder
         foreach ($this->newsFixtures() as $item) {
             $this->db->insertInto('news', [
                 'title' => $item['title'],
-                'slug' => Str::slug($item['title']),
                 'excerpt' => $item['excerpt'],
                 'content' => $item['content'],
                 'image_alt' => null,
                 'author_id' => $authorId === null ? null : (int) $authorId,
                 'published_at' => $this->daysFromNow(-$item['daysAgo'], '10:30'),
-                'meta_description' => $item['excerpt'],
-                'views' => $item['views'],
                 'created_at' => $this->daysFromNow(-$item['daysAgo'] - 1, '18:00'),
                 'updated_at' => $this->daysFromNow(-$item['daysAgo'], '10:30'),
             ]);
@@ -68,7 +65,7 @@ final class ContentSeeder extends Seeder
      * Le altre erano contenuti dimostrativi. Averne una vera e utile e meglio
      * che averne sei inventate: il gruppo aggiungera le proprie dal pannello.
      *
-     * @return list<array{title: string, excerpt: string, content: string, status: string, daysAgo: int, views: int}>
+     * @return list<array{title: string, excerpt: string, content: string, daysAgo: int}>
      */
     private function newsFixtures(): array
     {
@@ -100,7 +97,6 @@ final class ContentSeeder extends Seeder
                     . 'funziona, o se hai fotografie e materiale da aggiungere, scrivici dalla pagina '
                     . 'dei contatti.</p>',
                 'daysAgo' => 0,
-                'views' => 0,
             ],
         ];
     }

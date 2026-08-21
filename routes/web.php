@@ -35,7 +35,7 @@ return static function (Router $router): void {
 
     // --- Notizie -----------------------------------------------------------
     $router->get('/notizie', [NewsController::class, 'index'])->name('news.index');
-    $router->get('/notizie/{slug}', [NewsController::class, 'show'])->name('news.show');
+    $router->get('/notizie/{riferimento}', [NewsController::class, 'show'])->name('news.show');
 
     // --- Eventi ------------------------------------------------------------
     $router->get('/eventi', [EventController::class, 'index'])->name('events.index');

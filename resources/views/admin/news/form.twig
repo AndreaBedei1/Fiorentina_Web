@@ -20,16 +20,14 @@
                     <h2 class="font-display text-base font-bold text-viola-900">Contenuto</h2>
                 </div>
 
-                <div class="pannello-corpo space-y-4" x-data="slugField"
-                     data-slug="{{ isNew ? '' : article.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+                <div class="pannello-corpo space-y-4">
 
                     <div>
                         <label for="campo-title" class="campo-label" data-required>Titolo</label>
                         <input type="text" id="campo-title" name="title" required maxlength="200"
                                value="{{ old('title', isNew ? '' : article.title) }}"
-                               @input="fromTitle"
                                class="campo-input text-base"
-                               {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
+                               {% if has_error('title') %}aria-invalid="true"{% endif %}>
                         {% if has_error('title') %}
                             <p class="campo-errore">
                                 {{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }}
@@ -38,63 +36,65 @@
                         {% endif %}
                     </div>
 
-                    <div>
-                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
-                        <div class="flex items-center gap-2">
-                            <span class="shrink-0 text-sm text-sabbia-500">/notizie/</span>
-                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
-                                   maxlength="200" class="campo-input font-mono text-sm">
-                        </div>
-                        {% if not isNew %}
-                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
-                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>
-                                    Aggiorna anche l'indirizzo pubblico
-                                    <span class="block text-xs text-sabbia-500">
-                                        Cambiandolo, i link già condivisi smettono di funzionare.
-                                    </span>
-                                </span>
-                            </label>
-                        {% endif %}
-                    </div>
-
                     {{ include('components/field.twig', {
                         name: 'excerpt', label: 'Estratto', type: 'textarea', rows: 3, maxlength: 400,
                         value: old('excerpt', isNew ? '' : article.excerpt),
-                        help: 'Poche righe di anteprima usate nelle card e nei risultati di ricerca.'
+                        help: 'Poche righe di anteprima, mostrate nell elenco delle notizie.'
                     }) }}
 
-                    <div>
+                    {# --- Testo della notizia ---
+                       La casella di testo resta nel documento, nascosta: e quella
+                       che il modulo invia, ed e anche cio che si vede se il
+                       JavaScript non parte. #}
+                    <div x-data="editorTesto">
                         <label for="campo-content" class="campo-label">Testo della notizia</label>
-                        <textarea id="campo-content" name="content" rows="16" class="campo-textarea font-mono text-sm"
-                                  aria-describedby="campo-content-aiuto">{{ old('content', isNew ? '' : article.content) }}</textarea>
-                        <p id="campo-content-aiuto" class="campo-aiuto">
-                            Puoi usare HTML semplice: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;strong&gt;, &lt;em&gt;,
-                            &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;blockquote&gt;, &lt;a&gt;.
-                            Tutto il resto viene rimosso automaticamente per sicurezza.
+
+                        <div x-ref="barra" hidden
+                             class="mt-1 flex flex-wrap gap-1 rounded-t-lg border border-b-0 border-sabbia-300 bg-sabbia-50 p-1.5">
+                            {% set strumenti = [
+                                { comando: 'titolo',         etichetta: 'Titolo',   aiuto: 'Titolo di sezione' },
+                                { comando: 'sottotitolo',    etichetta: 'Sottotitolo', aiuto: 'Titolo piu piccolo' },
+                                { comando: 'paragrafo',      etichetta: 'Testo',    aiuto: 'Testo normale' },
+                                { comando: 'grassetto',      etichetta: 'G',        aiuto: 'Grassetto' },
+                                { comando: 'corsivo',        etichetta: 'C',        aiuto: 'Corsivo' },
+                                { comando: 'elencoPuntato',  etichetta: 'Elenco',   aiuto: 'Elenco puntato' },
+                                { comando: 'elencoNumerato', etichetta: 'Elenco numerato', aiuto: 'Elenco numerato' },
+                                { comando: 'citazione',      etichetta: 'Citazione', aiuto: 'Citazione' },
+                                { comando: 'collegamento',   etichetta: 'Collegamento', aiuto: 'Rendi cliccabile il testo selezionato' }
+                            ] %}
+
+                            {% for strumento in strumenti %}
+                                <button type="button"
+                                        data-comando="{{ strumento.comando }}"
+                                        @mousedown.prevent="trattieni"
+                                        @click="applica"
+                                        title="{{ strumento.aiuto }}"
+                                        class="rounded px-2.5 py-1.5 text-xs font-semibold text-viola-900 transition hover:bg-white hover:shadow-sm focus-ring
+                                               {{ strumento.comando == 'grassetto' ? 'font-extrabold' : '' }}
+                                               {{ strumento.comando == 'corsivo' ? 'italic' : '' }}">
+                                    {{ strumento.etichetta }}
+                                </button>
+                            {% endfor %}
+                        </div>
+
+                        <div x-ref="foglio"
+                             contenteditable="true"
+                             role="textbox"
+                             aria-multiline="true"
+                             aria-label="Testo della notizia"
+                             @input="aggiorna"
+                             @blur="aggiorna"
+                             @paste="incolla"
+                             class="foglio-editabile min-h-64 rounded-b-lg border border-sabbia-300 bg-white px-4 py-3
+                                    focus:border-viola-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-viola-500/25"></div>
+
+                        <textarea x-ref="sorgente" id="campo-content" name="content" rows="16"
+                                  class="campo-textarea font-mono text-sm">{{ old('content', isNew ? '' : article.content) }}</textarea>
+
+                        <p class="campo-aiuto">
+                            Seleziona il testo e premi un pulsante per dargli la forma che vuoi.
                         </p>
                     </div>
-                </div>
-            </section>
-
-            {# --- SEO --- #}
-            <section class="pannello">
-                <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Motori di ricerca</h2>
-                    <span class="text-xs text-sabbia-500">Facoltativo</span>
-                </div>
-
-                <div class="pannello-corpo space-y-4">
-                    {{ include('components/field.twig', {
-                        name: 'meta_title', label: 'Titolo per Google', maxlength: 200,
-                        value: old('meta_title', isNew ? '' : article.metaTitle),
-                        help: 'Se lasciato vuoto viene usato il titolo della notizia.'
-                    }) }}
-                    {{ include('components/field.twig', {
-                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
-                        value: old('meta_description', isNew ? '' : article.metaDescription),
-                        help: 'Massimo 160 caratteri circa: oltre, Google taglia il testo.'
-                    }) }}
                 </div>
             </section>
         </div>
@@ -104,35 +104,8 @@
 
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Pubblicazione</h2>
-                </div>
-
-                <div class="pannello-corpo space-y-4">
-
-                    <div class="grid grid-cols-2 gap-3">
-                        {{ include('components/field.twig', {
-                            name: 'published_date', label: 'Data', type: 'date',
-                            value: old('published_date', isNew or not article.publishedAt ? '' : article.publishedAt|iso_data)
-                        }) }}
-                        {{ include('components/field.twig', {
-                            name: 'published_time', label: 'Ora', type: 'time',
-                            value: old('published_time', isNew or not article.publishedAt ? '' : article.publishedAt|ora)
-                        }) }}
-                    </div>
-                    <p class="campo-aiuto -mt-2">
-                        è la data che compare accanto alla notizia sul sito.
-                        Lasciandola vuota vale il momento del salvataggio.
-                    </p>
-
-                    <div class="border-t border-sabbia-200 pt-4">
-                        <button type="submit" class="btn-primario w-full">Salva</button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="pannello">
-                <div class="pannello-testata">
                     <h2 class="font-display text-base font-bold text-viola-900">Immagine principale</h2>
+                    <span class="text-xs text-sabbia-500">Facoltativa</span>
                 </div>
 
                 <div class="pannello-corpo space-y-4">
@@ -160,10 +133,28 @@
                     {{ include('components/field.twig', {
                         name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
                         value: old('image_alt', isNew ? '' : article.imageAlt),
-                        help: 'Descrive la fotografia a chi non può vederla. Importante per l accessibilita.'
+                        help: 'Descrive la fotografia a chi non puo vederla. Importante per l accessibilita.'
                     }) }}
                 </div>
             </section>
+
+            {# Il pulsante sta in fondo alla colonna, dopo l'immagine: si preme
+               quando si e finito, e finire vuol dire anche aver deciso se una
+               fotografia ci va oppure no. #}
+            <div class="pannello">
+                <div class="pannello-corpo">
+                    <button type="submit" class="btn-primario w-full text-base">
+                        {{ isNew ? 'Pubblica' : 'Salva le modifiche' }}
+                    </button>
+                    <p class="mt-2 text-center text-xs text-sabbia-500">
+                        {% if isNew %}
+                            La notizia compare sul sito con la data di oggi.
+                        {% else %}
+                            Pubblicata il {{ article.publishedAt|data_ora }}.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
         </div>
     </form>
 {% endblock %}

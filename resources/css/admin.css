@@ -37,6 +37,22 @@
 }
 
 @layer components {
+    /*
+     * Il foglio dell'editor delle notizie.
+     *
+     * Deve mostrare il testo come si vedra sul sito, altrimenti premere
+     * "Titolo" non cambierebbe niente sotto gli occhi di chi scrive: il
+     * preflight di Tailwind azzera dimensione e peso delle intestazioni, e un
+     * <h2> resterebbe identico a un paragrafo.
+     */
+    .foglio-editabile {
+        @apply prose prose-baraonda max-w-none;
+    }
+
+    .foglio-editabile > :first-child {
+        @apply mt-0;
+    }
+
     .focus-ring {
         @apply outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-viola-600;
     }

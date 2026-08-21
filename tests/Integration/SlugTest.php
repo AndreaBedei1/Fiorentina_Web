@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Repositories\NewsRepository;
+use App\Repositories\AlbumRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
 
@@ -17,14 +17,14 @@ use Tests\Support\IntegrationTestCase;
  */
 final class SlugTest extends IntegrationTestCase
 {
-    private NewsRepository $news;
+    private AlbumRepository $albums;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->fakeRequest();
-        $this->news = self::app()->get(NewsRepository::class);
+        $this->albums = self::app()->get(AlbumRepository::class);
     }
 
     #[Test]
@@ -33,12 +33,12 @@ final class SlugTest extends IntegrationTestCase
         $slugs = [];
 
         for ($i = 0; $i < 3; $i++) {
-            $id = $this->news->create([
+            $id = $this->albums->create([
                 'title' => 'Cena sociale 2026',
                 'slug' => 'cena-sociale-2026',
             ]);
 
-            $slugs[] = $this->news->find($id)?->slug;
+            $slugs[] = $this->albums->find($id)?->slug;
         }
 
         $this->assertSame('cena-sociale-2026', $slugs[0]);
@@ -50,30 +50,29 @@ final class SlugTest extends IntegrationTestCase
     #[Test]
     public function aggiornare_un_contenuto_non_cambia_il_suo_slug(): void
     {
-        $id = $this->news->create([
+        $id = $this->albums->create([
             'title' => 'Titolo originale',
             'slug' => 'titolo-originale',
         ]);
 
         // Aggiornando lo stesso record, lo slug non deve prendere il suffisso
         // per collisione con se stesso.
-        $this->news->update($id, ['slug' => 'titolo-originale', 'title' => 'Titolo aggiornato']);
+        $this->albums->update($id, ['slug' => 'titolo-originale', 'title' => 'Titolo aggiornato']);
 
-        $this->assertSame('titolo-originale', $this->news->find($id)?->slug);
+        $this->assertSame('titolo-originale', $this->albums->find($id)?->slug);
     }
 
     #[Test]
     public function il_vincolo_unico_e_attivo_a_database(): void
     {
-        $this->news->create(['title' => 'Uno', 'slug' => 'slug-unico']);
+        $this->albums->create(['title' => 'Uno', 'slug' => 'slug-unico']);
 
         $this->expectException(\PDOException::class);
 
         // Inserimento diretto, aggirando la generazione dello slug.
-        $this->db->insertInto('news', [
+        $this->db->insertInto('albums', [
             'title' => 'Due',
             'slug' => 'slug-unico',
-            'published_at' => date('Y-m-d H:i:s'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);

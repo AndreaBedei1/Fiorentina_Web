@@ -18,8 +18,8 @@ final class NewsRepository extends BaseRepository
      * `content` e volutamente escluso: e una MEDIUMTEXT che non serve alle card
      * e che, moltiplicata per una pagina di risultati, pesa parecchio.
      */
-    private const LIST_COLUMNS = 'n.id, n.title, n.slug, n.excerpt, n.image_key, n.image_alt,
-        n.author_id, n.published_at, n.views,
+    private const LIST_COLUMNS = 'n.id, n.title, n.excerpt, n.image_key, n.image_alt,
+        n.author_id, n.published_at,
         n.created_at, n.updated_at, u.name AS author_name';
 
     private const FULL_COLUMNS = 'n.*, u.name AS author_name';
@@ -39,13 +39,13 @@ final class NewsRepository extends BaseRepository
         return $row === null ? null : News::fromRow($row);
     }
 
-    public function findPublishedBySlug(string $slug): ?News
+    public function findPublished(int $id): ?News
     {
         $row = $this->db->selectOne(
             'SELECT ' . self::FULL_COLUMNS . ' FROM news n
              LEFT JOIN users u ON u.id = n.author_id
-             WHERE n.slug = :slug AND ' . self::PUBLISHED_CONDITION,
-            ['slug' => $slug],
+             WHERE n.id = :id AND ' . self::PUBLISHED_CONDITION,
+            ['id' => $id],
         );
 
         return $row === null ? null : News::fromRow($row);
@@ -130,7 +130,6 @@ final class NewsRepository extends BaseRepository
     public function create(array $data): int
     {
         $now = $this->now();
-        $data['slug'] = $this->uniqueSlug($data['slug'] ?? Str::slug((string) ($data['title'] ?? '')));
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
 
@@ -144,10 +143,6 @@ final class NewsRepository extends BaseRepository
     /** @param array<string, mixed> $data */
     public function update(int $id, array $data): bool
     {
-        if (isset($data['slug'])) {
-            $data['slug'] = $this->uniqueSlug($data['slug'], $id);
-        }
-
         $data['updated_at'] = $this->now();
 
         return $this->db->updateWhereId('news', $id, $data) >= 0;
@@ -158,18 +153,16 @@ final class NewsRepository extends BaseRepository
         return $this->softDelete($id);
     }
 
-    public function incrementViews(int $id): void
-    {
-        $this->db->statement('UPDATE news SET views = views + 1 WHERE id = :id', ['id' => $id]);
-    }
-
-    /** Slug delle notizie pubblicate, per la sitemap. @return list<array{slug: string, updated_at: string}> */
+    /** Notizie pubblicate, per la sitemap. @return list<array{key: string, updated_at: string}> */
     public function publishedForSitemap(): array
     {
         return array_map(
-            static fn (array $r): array => ['slug' => (string) $r['slug'], 'updated_at' => (string) $r['updated_at']],
+            static fn (array $r): array => [
+                'key' => News::fromRow($r)->urlKey(),
+                'updated_at' => (string) $r['updated_at'],
+            ],
             $this->db->select(
-                'SELECT n.slug, n.updated_at FROM news n
+                'SELECT n.id, n.title, n.updated_at FROM news n
                  WHERE ' . self::PUBLISHED_CONDITION . '
                  ORDER BY n.published_at DESC LIMIT 2000'
             ),

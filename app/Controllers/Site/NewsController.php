@@ -6,6 +6,7 @@ namespace App\Controllers\Site;
 
 use App\Controllers\Controller;
 use App\Core\Config;
+use App\Core\Http\RedirectResponse;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
@@ -62,14 +63,22 @@ final class NewsController extends Controller
 
     public function show(Request $request): Response
     {
-        $slug = (string) $request->route('slug');
-        $article = $this->news->findPublishedBySlug($slug);
+        // L'indirizzo e "12-trasferta-a-bologna": conta il numero davanti, la
+        // coda serve solo a rendere leggibile il collegamento. Cosi il titolo
+        // puo cambiare quante volte si vuole senza spezzare quello che e gia
+        // stato condiviso.
+        $riferimento = (string) $request->route('riferimento');
+        $article = $this->news->findPublished((int) $riferimento);
 
         if ($article === null) {
             $this->notFound('La notizia che cerchi non esiste o non è più pubblicata.');
         }
 
-        $this->news->incrementViews($article->id);
+        // Se si arriva da un vecchio indirizzo o da uno storpiato, si prosegue
+        // su quello giusto: una pagina sola, un indirizzo solo.
+        if ($riferimento !== $article->urlKey()) {
+            return RedirectResponse::to($this->url->route('news.show', ['riferimento' => $article->urlKey()]), 301);
+        }
 
         $imageUrl = $article->imageKey !== null
             ? $this->url->absolute($this->media->url(MediaPaths::COLLECTION_NEWS, $article->imageKey, MediaPaths::SIZE_LARGE, 'jpg'))
@@ -78,11 +87,11 @@ final class NewsController extends Controller
         $seo = $this->seo($article->seoTitle(), $article->seoDescription())
             ->withType('article')
             ->withImage($imageUrl)
-            ->withCanonical($this->url->absoluteRoute('news.show', ['slug' => $article->slug]))
+            ->withCanonical($this->url->absoluteRoute('news.show', ['riferimento' => $article->urlKey()]))
             ->withBreadcrumbs([
                 ['name' => 'Home', 'url' => '/'],
                 ['name' => 'Notizie', 'url' => $this->url->route('news.index')],
-                ['name' => $article->title, 'url' => $this->url->route('news.show', ['slug' => $article->slug])],
+                ['name' => $article->title, 'url' => $this->url->route('news.show', ['riferimento' => $article->urlKey()])],
             ])
             ->withStructuredData([
                 '@context' => 'https://schema.org',
@@ -100,7 +109,7 @@ final class NewsController extends Controller
                     'name' => $this->settings->string('site_group_name'),
                 ],
                 'image' => $imageUrl === null ? [] : [$imageUrl],
-                'mainEntityOfPage' => $this->url->absoluteRoute('news.show', ['slug' => $article->slug]),
+                'mainEntityOfPage' => $this->url->absoluteRoute('news.show', ['riferimento' => $article->urlKey()]),
             ]);
 
         return $this->render('site/news/show.twig', [

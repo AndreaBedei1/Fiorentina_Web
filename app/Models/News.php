@@ -17,7 +17,6 @@ final class News
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-        public readonly string $slug,
         public readonly ?string $excerpt,
         /** HTML già sanificato in scrittura: nei template va stampato con |raw. */
         public readonly ?string $content,
@@ -26,9 +25,6 @@ final class News
         public readonly ?int $authorId,
         public readonly ?string $authorName,
         public readonly DateTimeImmutable $publishedAt,
-        public readonly ?string $metaTitle,
-        public readonly ?string $metaDescription,
-        public readonly int $views,
         public readonly DateTimeImmutable $createdAt,
         public readonly ?DateTimeImmutable $updatedAt,
     ) {
@@ -40,7 +36,6 @@ final class News
         return new self(
             id: self::castInt($row, 'id'),
             title: self::castString($row, 'title'),
-            slug: self::castString($row, 'slug'),
             excerpt: self::castNullableString($row, 'excerpt'),
             content: self::castNullableString($row, 'content'),
             imageKey: self::castNullableString($row, 'image_key'),
@@ -48,9 +43,6 @@ final class News
             authorId: self::castNullableInt($row, 'author_id'),
             authorName: self::castNullableString($row, 'author_name'),
             publishedAt: self::castDate($row, 'published_at') ?? new DateTimeImmutable(),
-            metaTitle: self::castNullableString($row, 'meta_title'),
-            metaDescription: self::castNullableString($row, 'meta_description'),
-            views: self::castInt($row, 'views'),
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
             updatedAt: self::castDate($row, 'updated_at'),
         );
@@ -66,13 +58,28 @@ final class News
         return Str::excerpt($this->content ?? '', $limit);
     }
 
+    /**
+     * Il pezzo di indirizzo che identifica la notizia.
+     *
+     * Il numero e cio che conta: il titolo lo segue soltanto per rendere il
+     * collegamento leggibile quando finisce in una chat o su un social. Se il
+     * titolo cambia, cambia anche la coda, ma il numero resta e il vecchio
+     * indirizzo continua a portare qui.
+     */
+    public function urlKey(): string
+    {
+        $coda = Str::slug($this->title);
+
+        return $coda === '' ? (string) $this->id : $this->id . '-' . $coda;
+    }
+
     public function seoTitle(): string
     {
-        return $this->metaTitle ?? $this->title;
+        return $this->title;
     }
 
     public function seoDescription(): string
     {
-        return $this->metaDescription ?? $this->summary(160);
+        return $this->summary(160);
     }
 }
