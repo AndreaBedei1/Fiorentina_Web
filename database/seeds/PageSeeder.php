@@ -96,13 +96,14 @@ final class PageSeeder extends Seeder
                     . '',
                 'blocks' => [
                     [
-                        'type' => PageBlock::TYPE_STATS,
-                        'title' => 'Il gruppo in numeri',
+                        'type' => PageBlock::TYPE_TIMELINE,
+                        'title' => 'Le tappe principali',
                                                 'items' => [
-                            ['title' => 'Anno di fondazione', 'text' => '2015'],
-                            ['title' => 'Soci tesserati', 'text' => 'oltre 400'],
-                            ['title' => "Trasferte all'anno", 'text' => 'circa 20'],
-                            ['title' => 'Coreografie realizzate', 'text' => 'più di 60'],
+                            ['title' => '2015', 'text' => 'Nasce il gruppo, prime trasferte con mezzi propri.'],
+                            ['title' => '2018', 'text' => 'Apre la prima sede.'],
+                            ['title' => '2021', 'text' => 'Prima grande coreografia della curva.'],
+                            ['title' => '2023', 'text' => "Nasce l'attività solidale sul territorio."],
+                            ['title' => 'Oggi', 'text' => 'Oltre quattrocento soci e una trasferta quasi ogni settimana.'],
                         ],
                     ],
                     [
@@ -116,14 +117,13 @@ final class PageSeeder extends Seeder
                         ],
                     ],
                     [
-                        'type' => PageBlock::TYPE_TIMELINE,
-                        'title' => 'Le tappe principali',
+                        'type' => PageBlock::TYPE_STATS,
+                        'title' => 'Il gruppo in numeri',
                                                 'items' => [
-                            ['title' => '2015', 'text' => 'Nasce il gruppo, prime trasferte con mezzi propri.'],
-                            ['title' => '2018', 'text' => 'Apre la prima sede.'],
-                            ['title' => '2021', 'text' => 'Prima grande coreografia della curva.'],
-                            ['title' => '2023', 'text' => "Nasce l'attività solidale sul territorio."],
-                            ['title' => 'Oggi', 'text' => 'Oltre quattrocento soci e una trasferta quasi ogni settimana.'],
+                            ['title' => 'Anno di fondazione', 'text' => '2015'],
+                            ['title' => 'Soci tesserati', 'text' => 'oltre 400'],
+                            ['title' => "Trasferte all'anno", 'text' => 'circa 20'],
+                            ['title' => 'Coreografie realizzate', 'text' => 'più di 60'],
                         ],
                     ],
                     // Nessun invito all'iscrizione qui: la pagina si chiude
