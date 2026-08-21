@@ -12,7 +12,6 @@ use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Models\Page;
-use App\Repositories\ContactMessageRepository;
 use App\Repositories\PageRepository;
 use App\Services\AuthService;
 use App\Services\Mail\MailService;
@@ -22,6 +21,12 @@ use App\Validation\Validator;
 
 /**
  * Pagina contatti e relativo modulo.
+ *
+ * Quello che viene scritto qui esce dal sito e basta: arriva per email
+ * all'indirizzo del gruppo e non viene conservato da nessuna parte. Il
+ * pannello non ha una casella di posta, e non deve averla: una copia in piu
+ * di dati personali va custodita, cancellata quando serve e protetta, e per
+ * leggere un messaggio l'email basta e avanza.
  *
  * Difese antispam a strati, nessuna delle quali chiede nulla al visitatore:
  * token CSRF, campo trappola invisibile, controllo del tempo di compilazione e
@@ -40,7 +45,6 @@ final class ContactController extends Controller
         UrlGenerator $url,
         AuthService $auth,
         Config $config,
-        private readonly ContactMessageRepository $messages,
         private readonly PageRepository $pages,
         private readonly MailService $mail,
         private readonly SettingsService $settings,
@@ -107,21 +111,15 @@ final class ContactController extends Controller
         }
 
         $data = $validator->validatedData();
+        $destinatario = $this->settings->string('contact_email', $this->config->string('mail.to.contact'));
 
-        $this->messages->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'subject' => $data['subject'],
-            'message' => $data['message'],
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'status' => 'new',
-        ]);
-
-        // Il messaggio e comunque salvato: se l'email non parte, resta
-        // consultabile nel pannello e nulla va perduto.
-        $this->mail->send(
-            $this->settings->string('contact_email', $this->config->string('mail.to.contact')),
+        // Il sito non tiene copia di quello che gli viene scritto: l'email e
+        // l'unico posto in cui il messaggio esiste. Per questo il suo esito
+        // conta, e va detto: annunciare "inviato" quando la posta non e
+        // partita lascerebbe qualcuno ad aspettare una risposta che nessuno
+        // ha mai letto.
+        $inviato = $this->mail->send(
+            $destinatario,
             'Nuovo messaggio dal sito: ' . $data['subject'],
             'emails/contact-message.twig',
             [
@@ -133,6 +131,23 @@ final class ContactController extends Controller
             ],
             replyTo: $data['email'],
         );
+
+        if (! $inviato) {
+            // L'indirizzo si suggerisce solo se e davvero un indirizzo: se la
+            // posta non parte proprio perche quel campo e configurato male,
+            // ripeterlo a chi legge non lo aiuterebbe.
+            $this->error(filter_var($destinatario, FILTER_VALIDATE_EMAIL) !== false
+                ? sprintf(
+                    'Non siamo riusciti a inoltrare il messaggio. Riprova fra qualche minuto oppure scrivici direttamente a %s.',
+                    $destinatario,
+                )
+                : 'Non siamo riusciti a inoltrare il messaggio. Riprova fra qualche minuto o contattaci dai profili social.');
+
+            // Il testo resta nel modulo: nessuno deve riscrivere tutto.
+            $this->session->flashInput($request->all());
+
+            return $this->redirectToRoute('contact.show');
+        }
 
         $this->success('Messaggio inviato. Ti risponderemo appena possibile.');
 

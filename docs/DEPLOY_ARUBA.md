@@ -365,7 +365,10 @@ browser rifiuterebbero di aprire il sito e non ci sarebbe modo di aggirarli.
 
 **Verifica**: dal sito pubblico invia un messaggio dal modulo contatti e
 controlla che arrivi. Se non arriva, guarda `storage/logs/app-*.log`: l'errore
-SMTP viene registrato per esteso.
+SMTP viene registrato per esteso. Questa prova conta piu delle altre: il sito
+non conserva copia dei messaggi ricevuti, quindi con la posta guasta quello
+che le persone scrivono va perduto. Il modulo se ne accorge e lo dice a chi
+ha scritto, ma il messaggio resta comunque non recapitato.
 
 > Aruba impone un limite di invii orari. Il sito ne fa pochissimi (un paio per
 > ordine, uno per messaggio di contatto), quindi il limite non e un problema.
@@ -465,7 +468,7 @@ Da spuntare prima di considerare il sito pubblicato:
 - [ ] l'accesso al pannello funziona
 - [ ] il caricamento di una fotografia va a buon fine e la filigrana compare
 - [ ] un ordine di prova arriva a destinazione e le due email vengono ricevute
-- [ ] il modulo contatti invia e il messaggio compare nel pannello
+- [ ] il modulo contatti invia e il messaggio arriva all'indirizzo del gruppo
 - [ ] `https://tuodominio.it/sitemap.xml` risponde correttamente
 
 **Contenuti da completare** (cerca i testi marcati `DA COMPLETARE`)

@@ -151,8 +151,8 @@ Cambiare un percorso significa toccare un solo file, e i link restano coerenti.
 
 ## 4. Database
 
-27 tabelle applicative piu `migrations` (la tracciatura di cosa e gia stato
-applicato), 26 chiavi esterne, 105 indici. Schema in `database/migrations/`,
+26 tabelle applicative piu `migrations` (la tracciatura di cosa e gia stato
+applicato), 25 chiavi esterne, 101 indici. Schema in `database/migrations/`,
 in SQL leggibile.
 
 ### Perche migrazioni in SQL e non in PHP
@@ -181,7 +181,7 @@ MERCHANDISING
 
 ORGANIZZAZIONE E SISTEMA
   organization_roles, organization_members, site_settings,
-  football_matches, social_posts, contact_messages
+  football_matches, social_posts
 ```
 
 ### Scelte ricorrenti

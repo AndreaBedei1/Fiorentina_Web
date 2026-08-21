@@ -13,7 +13,6 @@ use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Repositories\AlbumRepository;
 use App\Repositories\AuditLogRepository;
-use App\Repositories\ContactMessageRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\OrderRepository;
@@ -47,7 +46,6 @@ final class DashboardController extends Controller
         private readonly AlbumRepository $albums,
         private readonly ProductRepository $products,
         private readonly OrderRepository $orders,
-        private readonly ContactMessageRepository $messages,
         private readonly UserRepository $users,
         private readonly AuditLogRepository $auditLogs,
         private readonly FootballService $football,
@@ -78,7 +76,6 @@ final class DashboardController extends Controller
                 'events' => $eventStats,
                 'gallery' => $galleryStats,
                 'products' => $productStats,
-                'messages' => $this->messages->countNew(),
                 'users' => $this->auth->isSuperAdmin() ? $this->users->statistics() : null,
             ],
             'recentOrders' => $this->orders->recent(5),
@@ -109,19 +106,6 @@ final class DashboardController extends Controller
     private function collectWarnings(): array
     {
         $warnings = [];
-
-        if ($this->messages->countNew() > 0) {
-            $warnings[] = [
-                'level' => 'info',
-                'message' => sprintf(
-                    '%d %s da leggere nel modulo contatti.',
-                    $this->messages->countNew(),
-                    $this->messages->countNew() === 1 ? 'messaggio' : 'messaggi',
-                ),
-                'action' => 'Vai ai messaggi',
-                'url' => $this->url->route('admin.messages.index'),
-            ];
-        }
 
         $newOrders = $this->orders->statistics()['new'];
 

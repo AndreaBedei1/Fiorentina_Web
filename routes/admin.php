@@ -20,7 +20,6 @@ use App\Controllers\Admin\CalendarController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\EventController;
 use App\Controllers\Admin\GalleryController;
-use App\Controllers\Admin\MessageController;
 use App\Controllers\Admin\NewsController;
 use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\OrganizationController;
@@ -154,12 +153,6 @@ return static function (Router $router): void {
         $router->post('/pagine/{id:\d+}/blocchi/{blockId:\d+}', [PageController::class, 'updateBlock'])->name('pages.blocks.update');
         $router->post('/pagine/{id:\d+}/blocchi/{blockId:\d+}/elimina', [PageController::class, 'destroyBlock'])->name('pages.blocks.destroy');
         $router->post('/pagine/{id:\d+}/blocchi/ordina', [PageController::class, 'reorderBlocks'])->name('pages.blocks.reorder');
-
-        // --- Messaggi -------------------------------------------------------
-        $router->get('/messaggi', [MessageController::class, 'index'])->name('messages.index');
-        $router->get('/messaggi/{id:\d+}', [MessageController::class, 'show'])->name('messages.show');
-        $router->post('/messaggi/{id:\d+}/stato', [MessageController::class, 'updateStatus'])->name('messages.status');
-        $router->post('/messaggi/{id:\d+}/elimina', [MessageController::class, 'destroy'])->name('messages.destroy');
     });
 
     // -----------------------------------------------------------------------

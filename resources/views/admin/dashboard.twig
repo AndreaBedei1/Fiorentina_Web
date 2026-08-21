@@ -48,8 +48,7 @@
         { label: 'Notizie pubblicate',value: stats.news.published,   note: stats.news.draft ~ ' bozze',              url: route('admin.news.index'),     icon: 'news',  permission: 'news.manage' },
         { label: 'Eventi in programma',value: stats.events.upcoming, note: stats.events.total ~ ' totali',           url: route('admin.events.index'),   icon: 'calendar', permission: 'events.manage' },
         { label: 'Fotografie',        value: stats.gallery.photos,   note: stats.gallery.albums ~ ' album',          url: route('admin.gallery.index'),  icon: 'image', permission: 'gallery.manage' },
-        { label: 'Prodotti a catalogo',value: stats.products.published, note: stats.products.out_of_stock ~ ' esauriti', url: route('admin.products.index'), icon: 'shirt', permission: 'products.manage' },
-        { label: 'Messaggi da leggere',value: stats.messages,        note: 'dal modulo contatti',                    url: route('admin.messages.index'), icon: 'mail',  permission: 'contacts.manage' }
+        { label: 'Prodotti a catalogo',value: stats.products.published, note: stats.products.out_of_stock ~ ' esauriti', url: route('admin.products.index'), icon: 'shirt', permission: 'products.manage' }
     ] %}
 
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="list">
