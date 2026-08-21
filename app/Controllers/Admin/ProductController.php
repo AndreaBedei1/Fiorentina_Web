@@ -68,7 +68,7 @@ final class ProductController extends Controller
         return $this->render('admin/products/form.twig', [
             'seo' => $this->seo('Nuovo prodotto')->withNoindex(),
             'product' => null,
-            'categories' => $this->categories->all(),
+            'categoryOptions' => $this->categories->options(),
             'statuses' => $this->statusOptions(),
             'availabilities' => $this->availabilityOptions(),
         ]);
@@ -117,7 +117,7 @@ final class ProductController extends Controller
         return $this->render('admin/products/form.twig', [
             'seo' => $this->seo('Modifica prodotto')->withNoindex(),
             'product' => $product,
-            'categories' => $this->categories->all(),
+            'categoryOptions' => $this->categories->options(),
             'statuses' => $this->statusOptions(),
             'availabilities' => $this->availabilityOptions(),
         ]);

@@ -27,7 +27,6 @@ use App\Controllers\Admin\PageController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\SocialController;
-use App\Controllers\Admin\TaxonomyController;
 use App\Core\Routing\Router;
 
 return static function (Router $router): void {
@@ -74,15 +73,6 @@ return static function (Router $router): void {
         $router->get('/eventi/{id:\d+}', [EventController::class, 'edit'])->name('events.edit');
         $router->post('/eventi/{id:\d+}', [EventController::class, 'update'])->name('events.update');
         $router->post('/eventi/{id:\d+}/elimina', [EventController::class, 'destroy'])->name('events.destroy');
-
-        // --- Categorie (eventi e prodotti) ---------------------------------
-        $router->get('/categorie', [TaxonomyController::class, 'index'])->name('taxonomy.index');
-        $router->post('/categorie/eventi', [TaxonomyController::class, 'storeEventCategory'])->name('taxonomy.events.store');
-        $router->post('/categorie/eventi/{id:\d+}', [TaxonomyController::class, 'updateEventCategory'])->name('taxonomy.events.update');
-        $router->post('/categorie/eventi/{id:\d+}/elimina', [TaxonomyController::class, 'destroyEventCategory'])->name('taxonomy.events.destroy');
-        $router->post('/categorie/prodotti', [TaxonomyController::class, 'storeProductCategory'])->name('taxonomy.products.store');
-        $router->post('/categorie/prodotti/{id:\d+}', [TaxonomyController::class, 'updateProductCategory'])->name('taxonomy.products.update');
-        $router->post('/categorie/prodotti/{id:\d+}/elimina', [TaxonomyController::class, 'destroyProductCategory'])->name('taxonomy.products.destroy');
 
         // --- Calendario partite --------------------------------------------
         $router->get('/calendario', [CalendarController::class, 'index'])->name('calendar.index');

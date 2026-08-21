@@ -60,7 +60,7 @@ final class EventController extends Controller
         return $this->render('admin/events/form.twig', [
             'seo' => $this->seo('Nuovo evento')->withNoindex(),
             'event' => null,
-            'categories' => $this->categories->all(),
+            'categoryOptions' => $this->categories->options(),
         ]);
     }
 
@@ -118,7 +118,7 @@ final class EventController extends Controller
         return $this->render('admin/events/form.twig', [
             'seo' => $this->seo('Modifica evento')->withNoindex(),
             'event' => $event,
-            'categories' => $this->categories->all(),
+            'categoryOptions' => $this->categories->options(),
         ]);
     }
 

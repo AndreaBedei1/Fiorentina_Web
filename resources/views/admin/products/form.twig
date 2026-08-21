@@ -2,8 +2,6 @@
 
 {% block content %}
     {% set isNew = product is null %}
-    {% set categoryOptions = {} %}
-    {% for category in categories %}{% set categoryOptions = categoryOptions|merge({ (category.id): category.name }) %}{% endfor %}
 
     {{ include('components/admin-page-header.twig', {
         title: isNew ? 'Nuovo prodotto' : 'Modifica prodotto',
