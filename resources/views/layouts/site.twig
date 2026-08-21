@@ -13,6 +13,11 @@
             {{ include('components/breadcrumbs.twig', { crumbs: seo.breadcrumbs }) }}
         {% endif %}
 
+        {# La fascia viola di apertura sta sopra i messaggi, non sotto: una
+           conferma appesa in cima alla pagina, prima ancora del titolo,
+           sembra riguardare la pagina da cui si arriva. #}
+        {% block hero %}{% endblock %}
+
         {{ include('components/alerts.twig') }}
 
         {% block content %}{% endblock %}

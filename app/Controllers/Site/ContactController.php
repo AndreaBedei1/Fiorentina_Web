@@ -86,7 +86,7 @@ final class ContactController extends Controller
             ->required('name', 'Il nome')->max('name', 120, 'Il nome')
             ->required('email', 'L\'indirizzo email')->email('email', 'L\'indirizzo email')->max('email', 190, 'L\'indirizzo email')
             ->required('subject', 'L oggetto')->max('subject', 200, 'L oggetto')
-            ->required('message', 'Il messaggio')->min('message', 20, 'Il messaggio')->max('message', 5000, 'Il messaggio');
+            ->required('message', 'Il messaggio')->max('message', 5000, 'Il messaggio');
 
         // Controllo del tempo di compilazione: i bot inviano quasi istantaneamente.
         $startedAt = $request->int('form_started_at');

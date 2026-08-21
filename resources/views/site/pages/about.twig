@@ -1,12 +1,14 @@
 {% extends 'layouts/site.twig' %}
 
-{% block content %}
+{% block hero %}
     {{ include('components/page-hero.twig', {
         eyebrow: 'Il gruppo',
         title: page.title,
         subtitle: page.subtitle
     }) }}
+{% endblock %}
 
+{% block content %}
     <div class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
 
         {% if page.heroImageKey %}

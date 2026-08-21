@@ -187,7 +187,7 @@ final class PageSeeder extends Seeder
                 'slug' => Page::SLUG_CONTATTI,
                 'title' => 'Contatti',
                 'subtitle' => 'Scrivici per informazioni su iscrizioni, trasferte, materiale ed eventi.',
-                'intro' => 'Il modo più rapido per parlarci e passare in sede negli orari di apertura. Altrimenti usa il modulo qui sotto o scrivici via email.',
+                'intro' => 'Scrivici con il modulo qui sotto, per email o dai nostri profili social: rispondiamo appena possibile.',
                 'content' => null,
                 'blocks' => [],
             ],
