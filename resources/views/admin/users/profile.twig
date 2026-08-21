@@ -89,17 +89,7 @@
 
         <section class="pannello lg:col-span-2">
             <div class="pannello-corpo">
-                <dl class="grid gap-4 text-sm sm:grid-cols-3">
-                    <div>
-                        <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Ultimo accesso</dt>
-                        <dd class="mt-1 text-sabbia-800">
-                            {{ user.lastLoginAt ? user.lastLoginAt|data_ora : 'mai' }}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Da quale indirizzo</dt>
-                        <dd class="mt-1 font-mono text-xs text-sabbia-600">{{ user.lastLoginIp ?? '-' }}</dd>
-                    </div>
+                <dl class="grid gap-4 text-sm sm:grid-cols-2">
                     <div>
                         <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Password aggiornata</dt>
                         <dd class="mt-1 text-sabbia-800">

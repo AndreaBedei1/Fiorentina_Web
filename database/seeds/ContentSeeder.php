@@ -47,10 +47,7 @@ final class ContentSeeder extends Seeder
                 'content' => $item['content'],
                 'image_alt' => null,
                 'author_id' => $authorId === null ? null : (int) $authorId,
-                'status' => $item['status'],
-                'published_at' => $item['status'] === News::STATUS_PUBLISHED
-                    ? $this->daysFromNow(-$item['daysAgo'], '10:30')
-                    : null,
+                'published_at' => $this->daysFromNow(-$item['daysAgo'], '10:30'),
                 'meta_description' => $item['excerpt'],
                 'views' => $item['views'],
                 'created_at' => $this->daysFromNow(-$item['daysAgo'] - 1, '18:00'),
@@ -102,7 +99,6 @@ final class ContentSeeder extends Seeder
                     . '<p>Il sito è appena partito e continuerà a crescere. Se trovi qualcosa che non '
                     . 'funziona, o se hai fotografie e materiale da aggiungere, scrivici dalla pagina '
                     . 'dei contatti.</p>',
-                'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 0,
                 'views' => 0,
             ],

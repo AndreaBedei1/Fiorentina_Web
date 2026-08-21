@@ -13,7 +13,6 @@ use App\Core\Session\Session;
 use App\Core\Support\Dates;
 use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
-use App\Models\News;
 use App\Repositories\NewsRepository;
 use App\Services\AuditLogger;
 use App\Services\AuthService;
@@ -43,21 +42,13 @@ final class NewsController extends Controller
     {
         $this->authorize('news.manage');
 
-        $status = $request->string('stato');
-        $search = $request->string('q');
-
         return $this->render('admin/news/index.twig', [
             'seo' => $this->seo('Notizie')->withNoindex(),
             'paginator' => $this->news->paginateForAdmin(
                 page: $this->page($request),
                 perPage: 20,
-                status: $status !== '' ? $status : null,
-                search: $search,
                 basePath: $this->url->route('admin.news.index'),
             ),
-            'activeStatus' => $status,
-            'search' => $search,
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -68,7 +59,6 @@ final class NewsController extends Controller
         return $this->render('admin/news/form.twig', [
             'seo' => $this->seo('Nuova notizia')->withNoindex(),
             'article' => null,
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -105,7 +95,6 @@ final class NewsController extends Controller
             'news',
             $id,
             sprintf('Notizia creata: %s', $data['title']),
-            ['status' => $data['status']],
         );
 
         $this->success('Notizia creata.');
@@ -126,7 +115,6 @@ final class NewsController extends Controller
         return $this->render('admin/news/form.twig', [
             'seo' => $this->seo('Modifica notizia')->withNoindex(),
             'article' => $article,
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -174,18 +162,12 @@ final class NewsController extends Controller
 
         $this->news->update($id, $data);
 
-        $wasPublished = $article->status === News::STATUS_PUBLISHED;
-        $isPublished = $data['status'] === News::STATUS_PUBLISHED;
-
-        $action = match (true) {
-            ! $wasPublished && $isPublished => AuditLogger::CONTENT_PUBLISHED,
-            $wasPublished && ! $isPublished => AuditLogger::CONTENT_UNPUBLISHED,
-            default => AuditLogger::CONTENT_UPDATED,
-        };
-
-        $this->audit->log($action, 'news', $id, sprintf('Notizia aggiornata: %s', $data['title']), [
-            'status' => $data['status'],
-        ]);
+        $this->audit->log(
+            AuditLogger::CONTENT_UPDATED,
+            'news',
+            $id,
+            sprintf('Notizia aggiornata: %s', $data['title']),
+        );
 
         $this->success('Notizia aggiornata.');
 
@@ -231,7 +213,6 @@ final class NewsController extends Controller
             ->optional('excerpt')->max('excerpt', 400, 'L estratto')
             ->optional('meta_title')->max('meta_title', 200, 'Il titolo SEO')
             ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO')
-            ->in('status', [News::STATUS_DRAFT, News::STATUS_PUBLISHED, News::STATUS_ARCHIVED], 'Lo stato')
             ->date('published_date', 'La data di pubblicazione')
             ->time('published_time', 'L\'orario di pubblicazione');
 
@@ -252,16 +233,14 @@ final class NewsController extends Controller
      */
     private function buildData(Request $request, array $validated): array
     {
-        $status = (string) ($validated['status'] ?? News::STATUS_DRAFT);
-
         $publishedAt = Dates::combineToDatabase(
             $validated['published_date'] ?? null,
             $validated['published_time'] ?? null,
         );
 
-        // Pubblicare senza indicare una data significa "adesso": chiedere anche
-        // la data quando si preme "pubblica" sarebbe un attrito inutile.
-        if ($status === News::STATUS_PUBLISHED && $publishedAt === null) {
+        // Senza data indicata vale adesso: una notizia appena scritta e una
+        // notizia di oggi, e chiedere di ripeterlo sarebbe attrito inutile.
+        if ($publishedAt === null) {
             $publishedAt = date('Y-m-d H:i:s');
         }
 
@@ -271,7 +250,6 @@ final class NewsController extends Controller
             'excerpt' => $validated['excerpt'] ?? null,
             'content' => $this->sanitizer->clean((string) $request->post('content', '')),
             'image_alt' => $request->nullableString('image_alt'),
-            'status' => $status,
             'published_at' => $publishedAt,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
@@ -296,13 +274,4 @@ final class NewsController extends Controller
         return ['key' => $result['key'], 'error' => $result['error']];
     }
 
-    /** @return array<string, string> */
-    private function statusOptions(): array
-    {
-        return [
-            News::STATUS_DRAFT => 'Bozza',
-            News::STATUS_PUBLISHED => 'Pubblicata',
-            News::STATUS_ARCHIVED => 'Archiviata',
-        ];
-    }
 }

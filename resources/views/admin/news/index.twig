@@ -3,24 +3,16 @@
 {% block content %}
     {{ include('components/admin-page-header.twig', {
         title: 'Notizie',
-        description: 'Comunicazioni e racconti pubblicati sul sito. Le bozze non sono visibili al pubblico.',
+        description: 'Comunicazioni e racconti del gruppo. Quello che scrivi qui e subito visibile sul sito.',
         action: { url: route('admin.news.create'), label: 'Nuova notizia' }
-    }) }}
-
-    {{ include('components/admin-filters.twig', {
-        action: route('admin.news.index'),
-        statuses: statuses,
-        activeStatus: activeStatus,
-        search: search,
-        searchPlaceholder: 'Titolo o estratto'
     }) }}
 
     <div class="pannello overflow-hidden">
         {% if paginator.isEmpty %}
             {{ include('components/admin-empty.twig', {
                 icon: 'news',
-                title: 'Nessuna notizia trovata',
-                message: 'Prova a cambiare i filtri, oppure scrivi la prima notizia.',
+                title: 'Nessuna notizia',
+                message: 'Scrivi la prima notizia del gruppo.',
                 action: { url: route('admin.news.create'), label: 'Nuova notizia' }
             }) }}
         {% else %}
@@ -30,10 +22,9 @@
                     <thead>
                         <tr>
                             <th scope="col">Titolo</th>
-                            <th scope="col" class="w-32">Stato</th>
-                            <th scope="col" class="w-36">Pubblicazione</th>
+                            <th scope="col" class="w-36">Data</th>
                             <th scope="col" class="w-24">Viste</th>
-                            <th scope="col" class="w-40"><span class="sr-only">Azioni</span></th>
+                            <th scope="col" class="w-36"><span class="sr-only">Azioni</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,24 +37,10 @@
                                     </a>
                                     <span class="mt-0.5 block text-xs text-sabbia-500">/{{ article.slug }}</span>
                                 </td>
-                                <td>
-                                    <span class="badge {{ article.status == 'published' ? 'badge-successo' : (article.status == 'archived' ? 'badge-neutro' : 'badge-attenzione') }}">
-                                        {{ article.statusLabel }}
-                                    </span>
-                                </td>
-                                <td class="text-sm">
-                                    {{ article.publishedAt ? article.publishedAt|data_numerica : '-' }}
-                                </td>
+                                <td class="text-sm">{{ article.publishedAt|data_numerica }}</td>
                                 <td class="text-sm">{{ article.views }}</td>
                                 <td>
                                     <div class="flex flex-wrap items-center justify-end gap-1.5">
-                                        {% if article.isPublished %}
-                                            <a href="{{ route('news.show', { slug: article.slug }) }}" target="_blank" rel="noopener"
-                                               class="btn-fantasma btn-piccolo">
-                                                {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
-                                                <span class="sr-only">Vedi sul sito</span>
-                                            </a>
-                                        {% endif %}
                                         <a href="{{ route('admin.news.edit', { id: article.id }) }}" class="btn-secondario btn-piccolo">
                                             {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
                                             Modifica

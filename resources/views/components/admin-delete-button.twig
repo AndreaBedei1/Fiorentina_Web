@@ -16,7 +16,7 @@
 
     <span x-show="isConfirming" x-cloak class="inline-flex items-center gap-2">
         <span class="text-sm font-semibold text-rosso-800">{{ question|default('Confermi?') }}</span>
-        <button type="submit" class="btn-pericolo btn-piccolo">Si, {{ (label|default('elimina'))|lower }}</button>
+        <button type="submit" class="btn-pericolo btn-piccolo">Sì, {{ (label|default('elimina'))|lower }}</button>
         <button type="button" @click="cancel" class="btn-fantasma btn-piccolo">Annulla</button>
     </span>
 </form>

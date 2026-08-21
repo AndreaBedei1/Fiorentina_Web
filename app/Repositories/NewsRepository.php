@@ -19,12 +19,13 @@ final class NewsRepository extends BaseRepository
      * e che, moltiplicata per una pagina di risultati, pesa parecchio.
      */
     private const LIST_COLUMNS = 'n.id, n.title, n.slug, n.excerpt, n.image_key, n.image_alt,
-        n.author_id, n.status, n.published_at, n.views,
+        n.author_id, n.published_at, n.views,
         n.created_at, n.updated_at, u.name AS author_name';
 
     private const FULL_COLUMNS = 'n.*, u.name AS author_name';
 
-    private const PUBLISHED_CONDITION = "n.deleted_at IS NULL AND n.status = 'published' AND n.published_at <= NOW()";
+    // Una notizia esiste, quindi si vede: non c'e uno stato che la trattenga.
+    private const PUBLISHED_CONDITION = 'n.deleted_at IS NULL';
 
     public function find(int $id): ?News
     {
@@ -90,40 +91,19 @@ final class NewsRepository extends BaseRepository
      *
      * @return Paginator<News>
      */
-    public function paginateForAdmin(
-        int $page,
-        int $perPage = 20,
-        ?string $status = null,
-        string $search = '',
-        string $basePath = '',
-    ): Paginator {
-        $conditions = ['n.deleted_at IS NULL'];
-        $bindings = [];
-
-        if ($status !== null && in_array($status, [News::STATUS_DRAFT, News::STATUS_PUBLISHED, News::STATUS_ARCHIVED], true)) {
-            $conditions[] = 'n.status = :status';
-            $bindings['status'] = $status;
-        }
-
-        if (trim($search) !== '') {
-            $conditions[] = '(n.title LIKE :search OR n.excerpt LIKE :search)';
-            $bindings['search'] = '%' . trim($search) . '%';
-        }
-
-        $where = implode(' AND ', $conditions);
-
+    public function paginateForAdmin(int $page, int $perPage = 20, string $basePath = ''): Paginator
+    {
         return $this->paginateQuery(
             'SELECT ' . self::LIST_COLUMNS . ' FROM news n
              LEFT JOIN users u ON u.id = n.author_id
-             WHERE ' . $where . '
-             ORDER BY COALESCE(n.published_at, n.created_at) DESC',
-            'SELECT COUNT(*) FROM news n WHERE ' . $where,
-            $bindings,
+             WHERE n.deleted_at IS NULL
+             ORDER BY n.published_at DESC',
+            'SELECT COUNT(*) FROM news n WHERE n.deleted_at IS NULL',
+            [],
             $page,
             $perPage,
             News::fromRow(...),
             $basePath,
-            array_filter(['stato' => $status, 'q' => $search !== '' ? $search : null]),
         );
     }
 
@@ -154,6 +134,10 @@ final class NewsRepository extends BaseRepository
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
 
+        // Ogni notizia ha una data, e senza indicazioni e quella di adesso:
+        // e la colonna su cui l'elenco pubblico ordina, non puo restare vuota.
+        $data['published_at'] = $data['published_at'] ?? $now;
+
         return $this->db->insertInto('news', $data);
     }
 
@@ -177,23 +161,6 @@ final class NewsRepository extends BaseRepository
     public function incrementViews(int $id): void
     {
         $this->db->statement('UPDATE news SET views = views + 1 WHERE id = :id', ['id' => $id]);
-    }
-
-    /** @return array{total: int, published: int, draft: int} */
-    public function statistics(): array
-    {
-        $row = $this->db->selectOne(
-            "SELECT COUNT(*) AS total,
-                    SUM(status = 'published') AS published,
-                    SUM(status = 'draft') AS draft
-             FROM news WHERE deleted_at IS NULL"
-        ) ?? [];
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'published' => (int) ($row['published'] ?? 0),
-            'draft' => (int) ($row['draft'] ?? 0),
-        ];
     }
 
     /** Slug delle notizie pubblicate, per la sitemap. @return list<array{slug: string, updated_at: string}> */

@@ -30,7 +30,6 @@ final class AuthService
 
     /** Permessi del ruolo ADMIN. Il SUPER_ADMIN li possiede tutti, più i propri. */
     private const ADMIN_PERMISSIONS = [
-        'dashboard.view',
         'news.manage',
         'events.manage',
         'calendar.manage',
@@ -154,7 +153,6 @@ final class AuthService
         // Nuovo token CSRF a ogni cambio di privilegio.
         $this->csrf->regenerate();
 
-        $this->users->markLogin($user->id, $this->request->ip());
 
         $this->cachedUser = $user;
         $this->resolved = true;

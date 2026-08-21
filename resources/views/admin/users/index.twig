@@ -27,7 +27,6 @@
                                 <th scope="col">Persona</th>
                                 <th scope="col" class="w-40">Ruolo</th>
                                 <th scope="col" class="w-32">Stato</th>
-                                <th scope="col" class="w-36">Ultimo accesso</th>
                                 <th scope="col" class="w-52"><span class="sr-only">Azioni</span></th>
                             </tr>
                         </thead>
@@ -72,9 +71,6 @@
                                         <span class="badge {{ user.isActive ? 'badge-successo' : (user.isBlocked ? 'badge-errore' : 'badge-attenzione') }}">
                                             {{ user.statusLabel }}
                                         </span>
-                                    </td>
-                                    <td class="text-sm text-sabbia-600">
-                                        {{ user.lastLoginAt ? user.lastLoginAt|relativa : 'mai' }}
                                     </td>
                                     <td>
                                         {% if user.id != currentUserId %}

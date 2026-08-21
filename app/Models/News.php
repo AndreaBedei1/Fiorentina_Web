@@ -13,10 +13,6 @@ final class News
 {
     use CastsRowValues;
 
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_PUBLISHED = 'published';
-    public const STATUS_ARCHIVED = 'archived';
-
     /** @param array<string, mixed> $author */
     public function __construct(
         public readonly int $id,
@@ -29,8 +25,7 @@ final class News
         public readonly ?string $imageAlt,
         public readonly ?int $authorId,
         public readonly ?string $authorName,
-        public readonly string $status,
-        public readonly ?DateTimeImmutable $publishedAt,
+        public readonly DateTimeImmutable $publishedAt,
         public readonly ?string $metaTitle,
         public readonly ?string $metaDescription,
         public readonly int $views,
@@ -52,42 +47,13 @@ final class News
             imageAlt: self::castNullableString($row, 'image_alt'),
             authorId: self::castNullableInt($row, 'author_id'),
             authorName: self::castNullableString($row, 'author_name'),
-            status: self::castString($row, 'status', self::STATUS_DRAFT),
-            publishedAt: self::castDate($row, 'published_at'),
+            publishedAt: self::castDate($row, 'published_at') ?? new DateTimeImmutable(),
             metaTitle: self::castNullableString($row, 'meta_title'),
             metaDescription: self::castNullableString($row, 'meta_description'),
             views: self::castInt($row, 'views'),
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
             updatedAt: self::castDate($row, 'updated_at'),
         );
-    }
-
-    public function isPublished(): bool
-    {
-        return $this->status === self::STATUS_PUBLISHED
-            && $this->publishedAt !== null
-            && $this->publishedAt <= new DateTimeImmutable();
-    }
-
-    /** Notizia programmata: pubblicata ma con data futura. */
-    public function isScheduled(): bool
-    {
-        return $this->status === self::STATUS_PUBLISHED
-            && $this->publishedAt !== null
-            && $this->publishedAt > new DateTimeImmutable();
-    }
-
-    public function statusLabel(): string
-    {
-        if ($this->isScheduled()) {
-            return 'Programmata';
-        }
-
-        return match ($this->status) {
-            self::STATUS_PUBLISHED => 'Pubblicata',
-            self::STATUS_ARCHIVED => 'Archiviata',
-            default => 'Bozza',
-        };
     }
 
     /** Riassunto per card e meta description, con fallback sul contenuto. */

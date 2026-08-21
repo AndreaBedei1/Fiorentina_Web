@@ -1,0 +1,15 @@
+{#
+  L'ingresso del pannello: volutamente vuoto.
+
+  Il lavoro sta nelle sezioni del menu, e questa pagina non ha niente da
+  aggiungere. L'unica riga che resta serve a chi arriva da telefono, dove il
+  menu e chiuso dietro il pulsante in alto: senza, si troverebbe davanti uno
+  schermo bianco senza sapere dove andare.
+#}
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    <p class="text-sm text-sabbia-500 lg:hidden">
+        Apri il menu in alto a sinistra e scegli una sezione.
+    </p>
+{% endblock %}

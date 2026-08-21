@@ -17,7 +17,7 @@ use App\Controllers\Admin\AdminUserController;
 use App\Controllers\Admin\AuditController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CalendarController;
-use App\Controllers\Admin\DashboardController;
+use App\Controllers\Admin\PanelController;
 use App\Controllers\Admin\EventController;
 use App\Controllers\Admin\GalleryController;
 use App\Controllers\Admin\NewsController;
@@ -52,8 +52,7 @@ return static function (Router $router): void {
     //  Area riservata (autenticazione obbligatoria)
     // -----------------------------------------------------------------------
     $router->group(['prefix' => '/admin', 'name' => 'admin.', 'middleware' => 'admin'], static function (Router $router): void {
-        $router->get('', [DashboardController::class, 'index'])->name('dashboard');
-        $router->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.alias');
+        $router->get('', [PanelController::class, 'home'])->name('home');
 
         // --- Profilo personale ---------------------------------------------
         $router->get('/profilo', [AdminUserController::class, 'profile'])->name('profile');

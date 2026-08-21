@@ -108,10 +108,6 @@
                 </div>
 
                 <div class="pannello-corpo space-y-4">
-                    {{ include('components/field.twig', {
-                        name: 'status', label: 'Stato', type: 'select', options: statuses,
-                        value: old('status', isNew ? 'draft' : article.status)
-                    }) }}
 
                     <div class="grid grid-cols-2 gap-3">
                         {{ include('components/field.twig', {
@@ -124,19 +120,12 @@
                         }) }}
                     </div>
                     <p class="campo-aiuto -mt-2">
-                        Lasciando vuota la data, pubblicando la notizia viene usato il momento attuale.
-                        Con una data futura la notizia resta programmata.
+                        è la data che compare accanto alla notizia sul sito.
+                        Lasciandola vuota vale il momento del salvataggio.
                     </p>
 
-                    <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-4">
-                        <button type="submit" class="btn-primario flex-1">Salva</button>
-                        {% if not isNew and article.isPublished %}
-                            <a href="{{ route('news.show', { slug: article.slug }) }}" target="_blank" rel="noopener"
-                               class="btn-secondario">
-                                {{ include('components/icon.twig', { name: 'external', class: 'h-4 w-4' }) }}
-                                Vedi
-                            </a>
-                        {% endif %}
+                    <div class="border-t border-sabbia-200 pt-4">
+                        <button type="submit" class="btn-primario w-full">Salva</button>
                     </div>
                 </div>
             </section>

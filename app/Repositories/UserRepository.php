@@ -19,7 +19,7 @@ final class UserRepository extends BaseRepository
     protected string $table = 'users';
 
     private const COLUMNS = 'id, name, email, password_hash, role, status, phone,
-        last_login_at, last_login_ip, password_changed_at, sessions_valid_after,
+        password_changed_at, sessions_valid_after,
         created_by, created_at, updated_at, deleted_at';
 
     public function find(int $id): ?User
@@ -135,15 +135,6 @@ final class UserRepository extends BaseRepository
             'sessions_valid_after' => $now,
             'updated_at' => $now,
         ]) > 0;
-    }
-
-    public function markLogin(int $id, string $ip): void
-    {
-        $this->db->updateWhereId('users', $id, [
-            'last_login_at' => $this->now(),
-            'last_login_ip' => $ip,
-            'updated_at' => $this->now(),
-        ]);
     }
 
     public function activate(int $id): bool

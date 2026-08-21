@@ -46,7 +46,7 @@ final class AuthController extends Controller
     public function showLogin(Request $request): Response
     {
         if ($this->auth->check()) {
-            return $this->redirectToRoute('admin.dashboard');
+            return $this->redirectToRoute('admin.home');
         }
 
         return $this->render('admin/auth/login.twig', [
@@ -84,7 +84,6 @@ final class AuthController extends Controller
         }
 
         $this->audit->log(AuditLogger::LOGIN, 'user', $result->user?->id, 'Accesso effettuato');
-        $this->success('Bentornato, ' . ($result->user?->firstName() ?? '') . '.');
 
         return $this->redirect($this->intendedUrl());
     }

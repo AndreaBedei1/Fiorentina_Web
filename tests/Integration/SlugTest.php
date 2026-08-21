@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Models\News;
 use App\Repositories\NewsRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
@@ -37,7 +36,6 @@ final class SlugTest extends IntegrationTestCase
             $id = $this->news->create([
                 'title' => 'Cena sociale 2026',
                 'slug' => 'cena-sociale-2026',
-                'status' => News::STATUS_DRAFT,
             ]);
 
             $slugs[] = $this->news->find($id)?->slug;
@@ -55,7 +53,6 @@ final class SlugTest extends IntegrationTestCase
         $id = $this->news->create([
             'title' => 'Titolo originale',
             'slug' => 'titolo-originale',
-            'status' => News::STATUS_DRAFT,
         ]);
 
         // Aggiornando lo stesso record, lo slug non deve prendere il suffisso
@@ -68,7 +65,7 @@ final class SlugTest extends IntegrationTestCase
     #[Test]
     public function il_vincolo_unico_e_attivo_a_database(): void
     {
-        $this->news->create(['title' => 'Uno', 'slug' => 'slug-unico', 'status' => News::STATUS_DRAFT]);
+        $this->news->create(['title' => 'Uno', 'slug' => 'slug-unico']);
 
         $this->expectException(\PDOException::class);
 
@@ -76,7 +73,7 @@ final class SlugTest extends IntegrationTestCase
         $this->db->insertInto('news', [
             'title' => 'Due',
             'slug' => 'slug-unico',
-            'status' => News::STATUS_DRAFT,
+            'published_at' => date('Y-m-d H:i:s'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
