@@ -135,14 +135,14 @@ final class PageSeeder extends Seeder
                 'slug' => Page::SLUG_DIVENTA_SOCIO,
                 'title' => 'Diventa socio',
                 'subtitle' => 'Entrare nella Baraonda richiede pochi minuti. Ecco tutto quello che serve sapere.',
-                'intro' => 'La tessera non e un pezzo di plastica: e il modo con cui il gruppo si sostiene e si organizza. Chi si tessera ha priorita sulle trasferte, prezzi riservati sul materiale e voce in assemblea.',
+                'intro' => 'La tessera non è un pezzo di plastica: è il modo con cui il gruppo si sostiene e si organizza. Chi si tessera ha priorità sulle trasferte, prezzi riservati sul materiale e voce in assemblea.',
                 'content' => null,
                 'blocks' => [
                     [
                         'type' => PageBlock::TYPE_LIST,
-                        'title' => 'Perche iscriversi',
+                        'title' => 'Perché iscriversi',
                         'items' => [
-                            ['title' => 'Priorita sulle trasferte', 'text' => 'I posti sui pullman vengono assegnati prima ai tesserati.'],
+                            ['title' => 'Priorità sulle trasferte', 'text' => 'I posti sui pullman vengono assegnati prima ai tesserati.'],
                             ['title' => 'Prezzo riservato sul materiale', 'text' => 'Sconto dedicato su sciarpe, magliette e felpe.'],
                             ['title' => 'Iniziative riservate', 'text' => 'Cene, feste e incontri aperti ai soli soci.'],
                             ['title' => 'Voce in assemblea', 'text' => 'Ogni socio vota le scelte del gruppo.'],
@@ -168,9 +168,9 @@ final class PageSeeder extends Seeder
                         'type' => PageBlock::TYPE_FAQ,
                         'title' => 'Domande frequenti',
                         'items' => [
-                            ['title' => 'Devo essere maggiorenne?', 'text' => 'I minori possono iscriversi con l autorizzazione di un genitore.'],
+                            ['title' => 'Devo essere maggiorenne?', 'text' => "I minori possono iscriversi con l'autorizzazione di un genitore."],
                             ['title' => 'Posso iscrivermi se non vivo a Firenze?', 'text' => 'Certo. Molti soci arrivano da fuori città e raggiungono i pullman lungo il percorso.'],
-                            ['title' => 'La tessera dura un anno?', 'text' => 'Si, segue la stagione sportiva e si rinnova ogni anno.'],
+                            ['title' => 'La tessera dura un anno?', 'text' => 'Sì, segue la stagione sportiva e si rinnova ogni anno.'],
                             ['title' => 'Devo partecipare a tutte le attività?', 'text' => 'No. Ognuno partecipa a quello che può e che vuole.'],
                         ],
                     ],
@@ -196,7 +196,7 @@ final class PageSeeder extends Seeder
                 'title' => 'Informativa sulla privacy',
                 'subtitle' => 'Come trattiamo i dati personali di chi usa questo sito.',
                 'intro' => null,
-                'content' => '<p><strong>DA COMPLETARE.</strong> Questo testo e uno schema da far verificare a chi di competenza prima della pubblicazione: una informativa privacy inventata sarebbe inutile e potenzialmente dannosa.</p>'
+                'content' => '<p><strong>DA COMPLETARE.</strong> Questo testo è uno schema da far verificare a chi di competenza prima della pubblicazione: una informativa privacy inventata sarebbe inutile e potenzialmente dannosa.</p>'
                     . '<h2>Titolare del trattamento</h2>'
                     . '<p>DA COMPLETARE: denominazione completa dell associazione, sede legale, codice fiscale e indirizzo email di contatto.</p>'
                     . '<h2>Quali dati raccogliamo</h2>'
@@ -206,14 +206,14 @@ final class PageSeeder extends Seeder
                     . '<li><strong>Richiesta di ordine del materiale</strong>: nome, cognome, email, telefono e, se richiesta la spedizione, indirizzo completo.</li>'
                     . '</ul>'
                     . '<p>Il sito non raccoglie dati di pagamento di alcun tipo: il pagamento avviene sempre al di fuori del sito.</p>'
-                    . '<h2>Finalita e base giuridica</h2>'
+                    . '<h2>Finalità e base giuridica</h2>'
                     . '<p>I dati vengono usati esclusivamente per rispondere alle richieste e per gestire la consegna del materiale ordinato. DA COMPLETARE con la base giuridica applicabile.</p>'
                     . '<h2>Conservazione</h2>'
                     . '<p>DA COMPLETARE: indicare per quanto tempo vengono conservati messaggi e ordini.</p>'
                     . '<h2>Diritti dell interessato</h2>'
                     . '<p>Ogni persona può chiedere accesso, rettifica o cancellazione dei propri dati scrivendo all indirizzo email del titolare.</p>'
                     . '<h2>Servizi di terze parti</h2>'
-                    . '<p>Il sito non utilizza servizi di analisi statistica ne strumenti pubblicitari. Le anteprime dei contenuti social sono copiate sul nostro server: consultando il sito non vengono contattati i server di terze parti.</p>',
+                    . '<p>Il sito non utilizza servizi di analisi statistica né strumenti pubblicitari. Le anteprime dei contenuti social sono copiate sul nostro server: consultando il sito non vengono contattati i server di terze parti.</p>',
                 'blocks' => [],
             ],
             [
@@ -227,9 +227,9 @@ final class PageSeeder extends Seeder
                     . '<ul>'
                     . '<li><strong>Cookie di sessione</strong>: mantiene il contenuto del carrello e protegge i moduli dagli invii fraudolenti. Si cancella alla chiusura del browser.</li>'
                     . '</ul>'
-                    . '<p>Non vengono utilizzati cookie di profilazione, di analisi statistica o di terze parti. Per questo motivo non e presente alcun banner di consenso: i cookie tecnici non lo richiedono.</p>'
+                    . '<p>Non vengono utilizzati cookie di profilazione, di analisi statistica o di terze parti. Per questo motivo non è presente alcun banner di consenso: i cookie tecnici non lo richiedono.</p>'
                     . '<h2>Se in futuro cambiassero le cose</h2>'
-                    . '<p>Se venissero introdotti strumenti che richiedono il consenso (per esempio statistiche o mappe incorporate), questa pagina verrà aggiornata e comparira il relativo banner.</p>'
+                    . '<p>Se venissero introdotti strumenti che richiedono il consenso (per esempio statistiche o mappe incorporate), questa pagina verrà aggiornata e comparirà il relativo banner.</p>'
                     . '<h2>Come disattivare i cookie</h2>'
                     . '<p>Ogni browser permette di bloccare i cookie dalle proprie impostazioni. Disattivando i cookie tecnici, carrello e moduli del sito smettono di funzionare correttamente.</p>',
                 'blocks' => [],

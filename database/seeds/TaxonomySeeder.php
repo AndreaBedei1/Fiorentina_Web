@@ -29,7 +29,7 @@ final class TaxonomySeeder extends Seeder
     private const ROLES = [
         ['Presidente', 'Rappresenta il gruppo e coordina il direttivo.', 1],
         ['Vicepresidente', 'Affianca il presidente e ne fa le veci quando serve.', 2],
-        ['Responsabile contabile', 'Cura la contabilita, le quote associative e il bilancio.', 3],
+        ['Responsabile contabile', 'Cura la contabilità, le quote associative e il bilancio.', 3],
         ['Responsabile trasferte', 'Organizza pullman, biglietti e logistica delle trasferte.', 4],
         ['Responsabile merchandising', 'Segue produzione, magazzino e ordini del materiale.', 5],
         ['Responsabile comunicazione', 'Gestisce sito, social e rapporti con la stampa.', 6],

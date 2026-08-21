@@ -27,7 +27,7 @@ final class ShopSeeder extends Seeder
             'name' => 'Maglietta Curva Fiesole',
             'category' => 'magliette',
             'short' => 'T-shirt in cotone pesante con stampa serigrafica sul fronte.',
-            'description' => '<p>Cotone 100% da 190 grammi, stampa serigrafica resistente al lavaggio.</p><p>Vestibilita regolare: chi la preferisce più larga può prendere una taglia in più.</p><p><em>Descrizione dimostrativa.</em></p>',
+            'description' => '<p>Cotone 100% da 190 grammi, stampa serigrafica resistente al lavaggio.</p><p>Vestibilità regolare: chi la preferisce più larga può prendere una taglia in più.</p><p><em>Descrizione dimostrativa.</em></p>',
             'price' => 22.00,
             'featured' => true,
             'variants' => [
@@ -88,7 +88,7 @@ final class ShopSeeder extends Seeder
             'name' => 'Maglietta celebrativa anniversario',
             'category' => 'magliette',
             'short' => 'Edizione limitata per l\'anniversario del gruppo. Esaurita.',
-            'description' => '<p>Prodotta in tiratura limitata. Al momento non e disponibile.</p><p><em>Descrizione dimostrativa: mostra come appare un articolo esaurito.</em></p>',
+            'description' => '<p>Prodotta in tiratura limitata. Al momento non è disponibile.</p><p><em>Descrizione dimostrativa: mostra come appare un articolo esaurito.</em></p>',
             'price' => 25.00,
             'featured' => false,
             'availability' => Product::AVAILABILITY_OUT_OF_STOCK,
