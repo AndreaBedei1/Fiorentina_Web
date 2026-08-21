@@ -156,37 +156,10 @@ export function editorTesto() {
                 case 'elencoNumerato':
                     document.execCommand('insertOrderedList');
                     break;
-                case 'citazione':
-                    document.execCommand('formatBlock', false, 'blockquote');
-                    break;
-                case 'collegamento':
-                    this.collegamento();
-                    break;
             }
 
             this.ricorda();
             this.aggiorna();
-        },
-
-        /** Trasforma il testo selezionato in un collegamento. */
-        collegamento(): void {
-            const selezione = window.getSelection();
-
-            if (!selezione || selezione.isCollapsed) {
-                window.alert('Seleziona prima le parole da rendere cliccabili.');
-
-                return;
-            }
-
-            const indirizzo = window.prompt('Indirizzo del collegamento', 'https://');
-            const pulito = (indirizzo ?? '').trim();
-
-            if (pulito === '' || pulito === 'https://') {
-                return;
-            }
-
-            this.ripristina();
-            document.execCommand('createLink', false, pulito);
         },
 
         /** Incollare da Word o da una pagina web porta con se formattazione inutile. */

@@ -172,21 +172,6 @@ final class ProductRepository extends BaseRepository
         return $paginator->withItems($this->hydrateMany($paginator->items()));
     }
 
-    /** @return list<Product> */
-    public function relatedTo(Product $product, int $limit = 4): array
-    {
-        $rows = $this->db->select(
-            'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
-             WHERE ' . self::PUBLISHED_CONDITION . ' AND p.id <> :id
-               AND (:category IS NULL OR p.category_id = :category)
-             ORDER BY p.is_featured DESC, p.created_at DESC
-             LIMIT ' . max(1, min(8, $limit)),
-            ['id' => $product->id, 'category' => $product->categoryId],
-        );
-
-        return $this->hydrateMany($rows);
-    }
-
     /**
      * @param list<array<string, mixed>> $rows
      * @return list<Product>

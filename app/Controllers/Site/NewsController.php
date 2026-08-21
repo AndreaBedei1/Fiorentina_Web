@@ -115,7 +115,6 @@ final class NewsController extends Controller
         return $this->render('site/news/show.twig', [
             'seo' => $seo,
             'article' => $article,
-            'related' => $this->news->relatedTo($article->id, 3),
         ]);
     }
 }

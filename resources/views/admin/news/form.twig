@@ -58,9 +58,7 @@
                                 { comando: 'grassetto',      etichetta: 'G',        aiuto: 'Grassetto' },
                                 { comando: 'corsivo',        etichetta: 'C',        aiuto: 'Corsivo' },
                                 { comando: 'elencoPuntato',  etichetta: 'Elenco',   aiuto: 'Elenco puntato' },
-                                { comando: 'elencoNumerato', etichetta: 'Elenco numerato', aiuto: 'Elenco numerato' },
-                                { comando: 'citazione',      etichetta: 'Citazione', aiuto: 'Citazione' },
-                                { comando: 'collegamento',   etichetta: 'Collegamento', aiuto: 'Rendi cliccabile il testo selezionato' }
+                                { comando: 'elencoNumerato', etichetta: 'Elenco numerato', aiuto: 'Elenco numerato' }
                             ] %}
 
                             {% for strumento in strumenti %}
@@ -124,17 +122,21 @@
                         </label>
                     {% endif %}
 
-                    {{ include('components/field.twig', {
-                        name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
-                        accept: 'image/jpeg,image/png,image/webp',
-                        help: 'Formati accettati: JPG, PNG, WebP. Consigliato almeno 1200 pixel di larghezza.'
-                    }) }}
+                    <div x-data="immagineDescritta" @change="controlla" class="space-y-4"
+                         data-gia-presente="{{ (not isNew and article.imageKey) ? '1' : '0' }}">
+                        {{ include('components/field.twig', {
+                            name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
+                            accept: 'image/jpeg,image/png,image/webp',
+                            help: 'Formati accettati: JPG, PNG, WebP. Consigliato almeno 1200 pixel di larghezza.'
+                        }) }}
 
-                    {{ include('components/field.twig', {
-                        name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
-                        value: old('image_alt', isNew ? '' : article.imageAlt),
-                        help: 'Descrive la fotografia a chi non puo vederla. Importante per l accessibilita.'
-                    }) }}
+                        {{ include('components/field.twig', {
+                            name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
+                            required: not isNew and article.imageKey,
+                            value: old('image_alt', isNew ? '' : article.imageAlt),
+                            help: 'Come descriveresti la fotografia a chi non puo vederla. Compare al posto dell immagine quando questa non si carica.'
+                        }) }}
+                    </div>
                 </div>
             </section>
 

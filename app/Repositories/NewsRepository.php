@@ -20,9 +20,9 @@ final class NewsRepository extends BaseRepository
      */
     private const LIST_COLUMNS = 'n.id, n.title, n.excerpt, n.image_key, n.image_alt,
         n.author_id, n.published_at,
-        n.created_at, n.updated_at, u.name AS author_name';
+        n.created_at, n.updated_at';
 
-    private const FULL_COLUMNS = 'n.*, u.name AS author_name';
+    private const FULL_COLUMNS = 'n.*';
 
     // Una notizia esiste, quindi si vede: non c'e uno stato che la trattenga.
     private const PUBLISHED_CONDITION = 'n.deleted_at IS NULL';
@@ -31,7 +31,6 @@ final class NewsRepository extends BaseRepository
     {
         $row = $this->db->selectOne(
             'SELECT ' . self::FULL_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
              WHERE n.id = :id AND n.deleted_at IS NULL',
             ['id' => $id],
         );
@@ -43,7 +42,6 @@ final class NewsRepository extends BaseRepository
     {
         $row = $this->db->selectOne(
             'SELECT ' . self::FULL_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
              WHERE n.id = :id AND ' . self::PUBLISHED_CONDITION,
             ['id' => $id],
         );
@@ -60,7 +58,6 @@ final class NewsRepository extends BaseRepository
     {
         $rows = $this->db->select(
             'SELECT ' . self::LIST_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
              WHERE ' . self::PUBLISHED_CONDITION . '
              ORDER BY n.published_at DESC
              LIMIT ' . max(1, min(20, $limit)),
@@ -74,7 +71,6 @@ final class NewsRepository extends BaseRepository
     {
         return $this->paginateQuery(
             'SELECT ' . self::LIST_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
              WHERE ' . self::PUBLISHED_CONDITION . '
              ORDER BY n.published_at DESC',
             'SELECT COUNT(*) FROM news n WHERE ' . self::PUBLISHED_CONDITION,
@@ -95,7 +91,6 @@ final class NewsRepository extends BaseRepository
     {
         return $this->paginateQuery(
             'SELECT ' . self::LIST_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
              WHERE n.deleted_at IS NULL
              ORDER BY n.published_at DESC',
             'SELECT COUNT(*) FROM news n WHERE n.deleted_at IS NULL',
@@ -105,25 +100,6 @@ final class NewsRepository extends BaseRepository
             News::fromRow(...),
             $basePath,
         );
-    }
-
-    /**
-     * Altre notizie da suggerire in fondo a un articolo.
-     *
-     * @return list<News>
-     */
-    public function relatedTo(int $newsId, int $limit = 3): array
-    {
-        $rows = $this->db->select(
-            'SELECT ' . self::LIST_COLUMNS . ' FROM news n
-             LEFT JOIN users u ON u.id = n.author_id
-             WHERE ' . self::PUBLISHED_CONDITION . ' AND n.id <> :id
-             ORDER BY n.published_at DESC
-             LIMIT ' . max(1, min(6, $limit)),
-            ['id' => $newsId],
-        );
-
-        return array_map(News::fromRow(...), $rows);
     }
 
     /** @param array<string, mixed> $data */

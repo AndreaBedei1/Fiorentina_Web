@@ -11,6 +11,7 @@ use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
+use App\Models\News;
 use App\Repositories\NewsRepository;
 use App\Services\AuditLogger;
 use App\Services\AuthService;
@@ -127,7 +128,7 @@ final class NewsController extends Controller
             $this->notFound('Notizia non trovata.');
         }
 
-        $validated = $this->validateInput($request);
+        $validated = $this->validateInput($request, $article);
 
         if ($validated === null) {
             return $this->back($request, $this->url->route('admin.news.edit', ['id' => $id]));
@@ -198,11 +199,25 @@ final class NewsController extends Controller
     // -----------------------------------------------------------------------
 
     /** @return array<string, mixed>|null Dati validati, oppure null in caso di errori. */
-    private function validateInput(Request $request): ?array
+    private function validateInput(Request $request, ?News $article = null): ?array
     {
         $validator = Validator::make($request->all())
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
-            ->optional('excerpt')->max('excerpt', 400, 'L estratto');
+            ->optional('excerpt')->max('excerpt', 400, 'L estratto')
+            ->optional('image_alt')->max('image_alt', 200, 'Il testo alternativo');
+
+        // Una fotografia senza descrizione, per chi non la vede, non esiste.
+        // La descrizione si chiede quindi ogni volta che una fotografia c'è:
+        // appena caricata, oppure gia presente e non rimossa adesso.
+        $restaQuellaDiPrima = $article !== null
+            && $article->imageKey !== null
+            && ! $request->bool('remove_image');
+
+        if (($request->hasFile('image') || $restaQuellaDiPrima)
+            && trim((string) $request->post('image_alt', '')) === ''
+        ) {
+            $validator->addError('image_alt', 'Descrivi la fotografia: serve a chi non può vederla.');
+        }
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());

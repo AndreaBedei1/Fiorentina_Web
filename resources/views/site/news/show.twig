@@ -22,10 +22,6 @@
             <div class="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
                 <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs font-bold uppercase tracking-[0.16em] text-rosso-400">
                     <time datetime="{{ article.publishedAt|iso }}">{{ article.publishedAt|data }}</time>
-                    {% if article.authorName %}
-                        <span class="text-viola-400" aria-hidden="true">/</span>
-                        <span class="text-viola-200">di {{ article.authorName }}</span>
-                    {% endif %}
                 </p>
 
                 <h1 class="mt-4 font-display text-display-md font-extrabold leading-tight text-white">{{ article.title }}</h1>
@@ -39,7 +35,7 @@
         {# --- Immagine principale --- #}
         {% if article.imageKey %}
             <div class="mx-auto -mt-8 max-w-4xl px-4 sm:px-6">
-                <figure class="overflow-hidden rounded-panel shadow-panel">
+                <div class="overflow-hidden rounded-panel shadow-panel">
                     {{ include('components/responsive-image.twig', {
                         key: article.imageKey,
                         collection: 'news',
@@ -48,10 +44,7 @@
                         class: 'w-full object-cover',
                         sizes: '(min-width: 1024px) 56rem, 100vw'
                     }) }}
-                    {% if article.imageAlt %}
-                        <figcaption class="bg-white px-5 py-3 text-sm text-sabbia-600">{{ article.imageAlt }}</figcaption>
-                    {% endif %}
-                </figure>
+                </div>
             </div>
         {% endif %}
 
@@ -75,24 +68,5 @@
                 {% endif %}
             </div>
         </div>
-
-        {# --- Altre notizie --- #}
-        {% if related is not empty %}
-            <section class="mt-section bg-white py-section" aria-labelledby="altre-notizie">
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    {{ include('components/section-header.twig', {
-                        title: 'Continua a leggere',
-                        level: 'h2',
-                        link: { url: route('news.index'), label: 'Tutte le notizie' }
-                    }) }}
-
-                    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
-                        {% for item in related %}
-                            <li>{{ include('components/news-card.twig', { article: item }) }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </section>
-        {% endif %}
     </article>
 {% endblock %}
