@@ -364,10 +364,6 @@ final class ProductRepository extends BaseRepository
                 $this->db->insertInto('product_variants', [
                     'product_id' => $productId,
                     'label' => $label,
-                    'size' => $variant['size'] ?? null,
-                    'color' => $variant['color'] ?? null,
-                    'sku' => $variant['sku'] ?? null,
-                    'price_modifier' => (float) ($variant['price_modifier'] ?? 0),
                     'quantity' => $variant['quantity'] ?? null,
                     'is_available' => (int) (bool) ($variant['is_available'] ?? true),
                     'sort_order' => $position++,

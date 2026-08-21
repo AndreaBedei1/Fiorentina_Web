@@ -69,25 +69,32 @@
             {# --- Varianti --- #}
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Taglie e varianti</h2>
+                    <h2 class="font-display text-base font-bold text-viola-900">Taglie e altre scelte</h2>
                     <span class="text-xs text-sabbia-500">Facoltative</span>
                 </div>
 
                 <div class="pannello-corpo">
                     <p class="mb-4 text-sm leading-relaxed text-sabbia-600">
-                        Se il prodotto ha taglie o colori, aggiungi una riga per ciascuna combinazione.
+                        Se il prodotto si sceglie fra piu opzioni, aggiungi una riga per ciascuna.
                         Lasciando l'elenco vuoto il prodotto viene venduto in versione unica.
+                        Il prezzo resta lo stesso per ogni riga: non e possibile far costare
+                        una taglia piu di un'altra.
                     </p>
+
+                    <div class="mb-4 max-w-xs">
+                        {{ include('components/field.twig', {
+                            name: 'option_name', label: 'Come si chiama la scelta', maxlength: 30,
+                            value: old('option_name', isNew ? 'Taglia' : product.optionName),
+                            placeholder: 'Taglia',
+                            help: 'Compare nel carrello e nell ordine: Taglia, Colore, Misura.'
+                        }) }}
+                    </div>
 
                     {% set variantData = [] %}
                     {% if not isNew %}
                         {% for variant in product.variants %}
                             {% set variantData = variantData|merge([{
                                 label: variant.label,
-                                size: variant.size,
-                                color: variant.color,
-                                sku: variant.sku,
-                                priceModifier: variant.priceModifier|number_format(2, '.', ''),
                                 quantity: variant.quantity,
                                 available: variant.isAvailable
                             }]) %}
@@ -98,27 +105,12 @@
                         <div x-ref="rows" class="space-y-2">
                             <template x-for="(row, index) in rows" :key="index">
                                 <div data-variant-row class="grid gap-2 rounded-card border border-sabbia-200 p-3 sm:grid-cols-12">
-                                    <div class="sm:col-span-3">
+                                    <div class="sm:col-span-7">
                                         <label class="campo-label text-xs">Etichetta</label>
                                         <input type="text" name="variant_label[]" x-model="row.label"
                                                maxlength="80" placeholder="M" class="campo-input text-sm">
                                     </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="campo-label text-xs">Taglia</label>
-                                        <input type="text" name="variant_size[]" x-model="row.size"
-                                               maxlength="40" class="campo-input text-sm">
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="campo-label text-xs">Colore</label>
-                                        <input type="text" name="variant_color[]" x-model="row.color"
-                                               maxlength="40" class="campo-input text-sm">
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="campo-label text-xs">Diff. prezzo</label>
-                                        <input type="text" name="variant_price_modifier[]" x-model="row.priceModifier"
-                                               inputmode="decimal" placeholder="0" class="campo-input text-sm">
-                                    </div>
-                                    <div class="sm:col-span-2">
+                                    <div class="sm:col-span-4">
                                         <label class="campo-label text-xs">Giacenza</label>
                                         <input type="number" name="variant_quantity[]" x-model="row.quantity"
                                                min="0" class="campo-input text-sm">
@@ -131,7 +123,7 @@
                                         </label>
                                         <button type="button" @click="remove"
                                                 class="mb-1 flex h-8 w-8 items-center justify-center rounded text-sabbia-500 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
-                                            <span class="sr-only">Rimuovi variante</span>
+                                            <span class="sr-only">Rimuovi la riga</span>
                                             {{ include('components/icon.twig', { name: 'trash', class: 'h-4 w-4' }) }}
                                         </button>
                                     </div>
@@ -141,7 +133,7 @@
 
                         <button type="button" @click="add" class="btn-secondario btn-piccolo mt-3">
                             {{ include('components/icon.twig', { name: 'plus', class: 'h-3.5 w-3.5' }) }}
-                            Aggiungi variante
+                            Aggiungi una riga
                         </button>
                     </div>
                 </div>
@@ -186,11 +178,10 @@
                         {% endif %}
                     </div>
 
-                    {{ include('components/field.twig', {
-                        name: 'compare_at_price', label: 'Prezzo di listino', type: 'text', inputmode: 'decimal',
-                        value: old('compare_at_price', isNew or not product.compareAtPrice ? '' : product.compareAtPrice|number_format(2, ',', '')),
-                        help: 'Se superiore al prezzo, viene mostrato barrato con la percentuale di sconto.'
-                    }) }}
+                    <p class="text-xs leading-relaxed text-sabbia-500">
+                        Vale per tutte le taglie e non comprende la spedizione, che viene
+                        concordata con il cliente.
+                    </p>
 
                     {{ include('components/field.twig', {
                         name: 'status', label: 'Stato', type: 'select', options: statuses,

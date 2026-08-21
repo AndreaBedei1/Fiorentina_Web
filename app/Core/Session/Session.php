@@ -15,6 +15,7 @@ final class Session
 {
     private const FLASH_KEY = '_flash';
     private const FLASH_NEXT_KEY = '_flash_next';
+    private const FLASH_ACTIONS_KEY = '_flash_actions';
     private const OLD_INPUT_KEY = '_old_input';
     private const ERRORS_KEY = '_errors';
 
@@ -176,6 +177,32 @@ final class Session
     public function hasFlash(string $type): bool
     {
         return ! empty($_SESSION[self::FLASH_KEY][$type]);
+    }
+
+    /**
+     * Passi successivi da proporre insieme al messaggio.
+     *
+     * Un "fatto" senza un "e adesso?" lascia la persona ferma davanti a una
+     * conferma: dopo aver messo qualcosa nel carrello le strade sono due,
+     * continuare a guardare o andare a ordinare, e tanto vale dirle.
+     *
+     * Vivono nella stessa cassetta dei flash, quindi durano una richiesta
+     * sola. La chiave non e fra i tipi che il componente dei messaggi
+     * stampa, percio non finisce mai per errore in un riquadro.
+     *
+     * @param list<array{label: string, url: string}> $actions
+     */
+    public function flashActions(array $actions): void
+    {
+        $_SESSION[self::FLASH_NEXT_KEY][self::FLASH_ACTIONS_KEY] = $actions;
+    }
+
+    /** @return list<array{label: string, url: string}> */
+    public function flashedActions(): array
+    {
+        $actions = $_SESSION[self::FLASH_KEY][self::FLASH_ACTIONS_KEY] ?? [];
+
+        return is_array($actions) ? $actions : [];
     }
 
     /** @param array<string, mixed> $input */

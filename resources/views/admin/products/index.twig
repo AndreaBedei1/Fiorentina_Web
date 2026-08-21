@@ -53,7 +53,9 @@
                                     </a>
                                     <span class="mt-0.5 block text-xs text-sabbia-500">
                                         {{ product.categoryName ?? 'Senza categoria' }}
-                                        {% if product.hasVariants %} - {{ product.variants|length }} varianti{% endif %}
+                                        {% if product.hasVariants %}
+                                            - {{ product.optionName }}: {{ product.variants|map(v => v.label)|join(', ') }}
+                                        {% endif %}
                                     </span>
                                 </td>
                                 <td class="text-sm font-semibold text-viola-900">{{ product.price|euro }}</td>

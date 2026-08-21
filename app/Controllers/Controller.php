@@ -81,6 +81,16 @@ abstract class Controller
         $this->session->flash('error', $message);
     }
 
+    /**
+     * Propone i passi successivi accanto al messaggio appena scritto.
+     *
+     * @param list<array{label: string, url: string}> $actions
+     */
+    protected function nextSteps(array $actions): void
+    {
+        $this->session->flashActions($actions);
+    }
+
     protected function warning(string $message): void
     {
         $this->session->flash('warning', $message);

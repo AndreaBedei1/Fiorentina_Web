@@ -133,7 +133,7 @@ final class ShopController extends Controller
             ],
             'offers' => [
                 '@type' => 'Offer',
-                'price' => number_format($product->priceFrom(), 2, '.', ''),
+                'price' => number_format($product->price, 2, '.', ''),
                 'priceCurrency' => 'EUR',
                 'availability' => $product->isOrderable()
                     ? 'https://schema.org/InStock'

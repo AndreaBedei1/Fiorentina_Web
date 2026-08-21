@@ -182,7 +182,7 @@
                         name: 'cost', label: 'Costo (euro)', type: 'text', inputmode: 'decimal',
                         value: old('cost', isNew or not event.cost ? '' : event.cost|number_format(2, ',', '')),
                         placeholder: '0,00',
-                        help: 'Lascia vuoto se l'evento è gratuito.'
+                        help: "Lascia vuoto se l'evento è gratuito."
                     }) }}
 
                     {{ include('components/field.twig', {

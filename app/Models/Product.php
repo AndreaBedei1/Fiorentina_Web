@@ -36,7 +36,7 @@ final class Product
         public readonly ?string $shortDescription,
         public readonly ?string $description,
         public readonly float $price,
-        public readonly ?float $compareAtPrice,
+        public readonly string $optionName,
         public readonly string $availability,
         public readonly bool $trackQuantity,
         public readonly ?int $quantity,
@@ -69,7 +69,7 @@ final class Product
             shortDescription: self::castNullableString($row, 'short_description'),
             description: self::castNullableString($row, 'description'),
             price: self::castFloat($row, 'price'),
-            compareAtPrice: self::castNullableFloat($row, 'compare_at_price'),
+            optionName: self::castString($row, 'option_name', 'Taglia'),
             availability: self::castString($row, 'availability', self::AVAILABILITY_IN_STOCK),
             trackQuantity: self::castBool($row, 'track_quantity'),
             quantity: self::castNullableInt($row, 'quantity'),
@@ -152,35 +152,6 @@ final class Product
             self::STATUS_ARCHIVED => 'Archiviato',
             default => 'Bozza',
         };
-    }
-
-    public function hasDiscount(): bool
-    {
-        return $this->compareAtPrice !== null && $this->compareAtPrice > $this->price;
-    }
-
-    public function discountPercentage(): int
-    {
-        if (! $this->hasDiscount() || $this->compareAtPrice === null || $this->compareAtPrice <= 0.0) {
-            return 0;
-        }
-
-        return (int) round((1 - $this->price / $this->compareAtPrice) * 100);
-    }
-
-    /** Prezzo minimo fra le varianti: usato nelle card ("da 15,00 euro"). */
-    public function priceFrom(): float
-    {
-        $prices = array_map(fn (ProductVariant $v): float => $v->priceFor($this->price), $this->availableVariants());
-
-        return $prices === [] ? $this->price : min($prices);
-    }
-
-    public function hasPriceRange(): bool
-    {
-        $prices = array_map(fn (ProductVariant $v): float => $v->priceFor($this->price), $this->availableVariants());
-
-        return count(array_unique($prices)) > 1;
     }
 
     public function summary(int $limit = 140): string

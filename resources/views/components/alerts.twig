@@ -6,6 +6,7 @@
   primo attende una pausa naturale.
 #}
 {% set messages = flash() %}
+{% set actions = flash_actions() %}
 {% if messages is not empty %}
     <div class="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
         {% for type, list in messages %}
@@ -26,6 +27,20 @@
                         <div class="min-w-0 flex-1">
                             <span class="sr-only">{{ style.label }}:</span>
                             <p class="font-medium leading-relaxed">{{ message }}</p>
+
+                            {# I passi successivi accompagnano solo la conferma, e una
+                               volta sola: dopo un errore la strada e tornare indietro,
+                               non andare avanti. #}
+                            {% if type == 'success' and loop.first and actions is not empty %}
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    {% for action in actions %}
+                                        <a href="{{ action.url }}"
+                                           class="{{ loop.first ? 'btn-primario' : 'btn-secondario' }} btn-piccolo">
+                                            {{ action.label }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}

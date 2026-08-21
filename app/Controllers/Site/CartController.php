@@ -76,10 +76,22 @@ final class CartController extends Controller
             ], $result->successful ? 200 : 422);
         }
 
-        $result->successful ? $this->success($result->message) : $this->error($result->message);
+        if ($result->successful) {
+            $this->success($result->message);
 
-        // Restando sulla pagina del prodotto l'utente può aggiungere altre
-        // taglie senza rifare tutto il percorso.
+            // Una conferma da sola lascia fermi: le strade sono due, e le
+            // diciamo. Il carrello per primo, perche chi ha appena scelto
+            // qualcosa il piu delle volte vuole concludere.
+            $this->nextSteps([
+                ['label' => 'Vai al carrello e ordina', 'url' => $this->url->route('cart.show')],
+                ['label' => 'Aggiungi altri articoli', 'url' => $this->url->route('shop.index')],
+            ]);
+        } else {
+            $this->error($result->message);
+        }
+
+        // Restando sulla pagina del prodotto si puo aggiungere un'altra taglia
+        // senza rifare tutto il percorso.
         return $this->back($request, $this->url->route('cart.show'));
     }
 

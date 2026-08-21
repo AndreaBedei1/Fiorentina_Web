@@ -68,6 +68,7 @@ final class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('error', $this->error(...)),
             new TwigFunction('has_error', $this->hasError(...)),
             new TwigFunction('flash', $this->session->allFlash(...)),
+            new TwigFunction('flash_actions', $this->session->flashedActions(...)),
             new TwigFunction('setting', $this->setting(...)),
             new TwigFunction('current_user', $this->currentUser(...)),
             new TwigFunction('is_logged_in', $this->isLoggedIn(...)),

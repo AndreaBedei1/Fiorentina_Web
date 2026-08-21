@@ -45,12 +45,11 @@
 
                 <h1 class="mt-2 font-display text-display-sm font-extrabold leading-tight text-viola-900">{{ product.name }}</h1>
 
-                <div class="mt-4 flex flex-wrap items-baseline gap-3">
+                <div class="mt-4">
                     <span class="font-display text-3xl font-extrabold text-viola-900">{{ product.price|euro }}</span>
-                    {% if product.hasDiscount %}
-                        <span class="text-lg text-sabbia-500 line-through">{{ product.compareAtPrice|euro }}</span>
-                        <span class="rounded-md bg-rosso-600 px-2 py-0.5 text-2xs font-bold text-white">-{{ product.discountPercentage }}%</span>
-                    {% endif %}
+                    <p class="mt-1 text-sm text-sabbia-600">
+                        Prezzo unico per tutte le taglie. La spedizione non è compresa ed è a carico di chi ordina.
+                    </p>
                 </div>
 
                 <p class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold
@@ -71,7 +70,7 @@
 
                         {% if product.hasVariants %}
                             <fieldset>
-                                <legend class="campo-label" data-required>Taglia o variante</legend>
+                                <legend class="campo-label" data-required>{{ product.optionName }}</legend>
 
                                 <div class="flex flex-wrap gap-2">
                                     {% for variant in product.variants %}
@@ -85,7 +84,7 @@
                                                          peer-checked:border-viola-700 peer-checked:bg-viola-50
                                                          peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-rosso-600
                                                          peer-disabled:cursor-not-allowed peer-disabled:border-sabbia-200 peer-disabled:bg-sabbia-100 peer-disabled:text-sabbia-400 peer-disabled:line-through">
-                                                {{ variant.labelWithPrice(product.price) }}
+                                                {{ variant.label }}
                                             </span>
                                             {% if variant.isSoldOut %}<span class="sr-only">esaurita</span>{% endif %}
                                         </label>

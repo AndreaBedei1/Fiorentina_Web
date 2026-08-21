@@ -228,8 +228,8 @@ final class ProductController extends Controller
         $validator = Validator::make($request->all())
             ->required('name', 'Il nome')->max('name', 200, 'Il nome')
             ->optional('short_description')->max('short_description', 300, 'La descrizione breve')
+            ->optional('option_name')->max('option_name', 30, 'Il nome della scelta')
             ->decimal('price', 'Il prezzo', 0, 100000)
-            ->decimal('compare_at_price', 'Il prezzo di listino', 0, 100000)
             ->integer('quantity', 'La quantita', 0, 100000)
             ->integer('sort_order', 'L ordinamento', 0, 9999)
             ->in('status', array_keys($this->statusOptions()), 'Lo stato')
@@ -259,6 +259,20 @@ final class ProductController extends Controller
     }
 
     /**
+     * Come si chiama la scelta offerta dal prodotto: "Taglia", "Colore".
+     *
+     * Non puo restare vuoto: e la parola che il sito stampa accanto alla
+     * scelta, nel carrello e nell'ordine. Quando l'amministratore non scrive
+     * niente vale "Taglia", che copre quasi tutto il catalogo.
+     */
+    private function nomeScelta(array $validated): string
+    {
+        $nome = trim((string) ($validated['option_name'] ?? ''));
+
+        return $nome === '' ? 'Taglia' : $nome;
+    }
+
+    /**
      * @param array<string, mixed> $validated
      * @return array<string, mixed>
      */
@@ -273,7 +287,7 @@ final class ProductController extends Controller
             'short_description' => $validated['short_description'] ?? null,
             'description' => $this->sanitizer->clean((string) $request->post('description', '')),
             'price' => (float) ($validated['price'] ?? 0),
-            'compare_at_price' => $validated['compare_at_price'] ?? null,
+            'option_name' => $this->nomeScelta($validated),
             'availability' => (string) ($validated['availability'] ?? Product::AVAILABILITY_IN_STOCK),
             'track_quantity' => $trackQuantity ? 1 : 0,
             'quantity' => $trackQuantity ? ($validated['quantity'] ?? 0) : null,
@@ -304,10 +318,6 @@ final class ProductController extends Controller
 
             $variants[] = [
                 'label' => mb_substr($label, 0, 80),
-                'size' => $this->variantField($request, 'variant_size', $index),
-                'color' => $this->variantField($request, 'variant_color', $index),
-                'sku' => $this->variantField($request, 'variant_sku', $index),
-                'price_modifier' => (float) str_replace(',', '.', (string) ($request->array('variant_price_modifier')[$index] ?? '0')),
                 'quantity' => is_numeric($request->array('variant_quantity')[$index] ?? null)
                     ? (int) $request->array('variant_quantity')[$index]
                     : null,
@@ -316,13 +326,6 @@ final class ProductController extends Controller
         }
 
         return $variants;
-    }
-
-    private function variantField(Request $request, string $field, int|string $index): ?string
-    {
-        $value = trim((string) ($request->array($field)[$index] ?? ''));
-
-        return $value === '' ? null : mb_substr($value, 0, 60);
     }
 
     private function storeImages(Request $request, int $productId): void

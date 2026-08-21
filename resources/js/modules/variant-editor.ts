@@ -1,5 +1,5 @@
 /**
- * Editor delle varianti di prodotto (taglie, colori).
+ * Editor delle scelte di un prodotto: le taglie, oppure i colori.
  *
  * Righe aggiungibili e rimovibili senza ricaricare la pagina. I campi restano
  * input HTML normali con lo stesso nome: il modulo funziona anche senza
@@ -9,10 +9,6 @@
 import { component } from './alpine';
 interface VariantRow {
     label: string;
-    size: string;
-    color: string;
-    sku: string;
-    priceModifier: string;
     quantity: string;
     available: boolean;
 }
@@ -78,10 +74,6 @@ export function variantEditor() {
 function emptyRow(): VariantRow {
     return {
         label: '',
-        size: '',
-        color: '',
-        sku: '',
-        priceModifier: '0',
         quantity: '',
         available: true,
     };

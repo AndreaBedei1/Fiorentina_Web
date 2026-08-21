@@ -9,8 +9,10 @@ use App\Models\Concerns\CastsRowValues;
 /**
  * Riga d'ordine.
  *
- * Nome, variante e prezzo sono copiati al momento della conferma: se il
+ * Nome, scelta e prezzo sono copiati al momento della conferma: se il
  * prodotto viene poi modificato o rimosso, l'ordine storico resta fedele.
+ * Anche il nome della scelta viene copiato, perche "M" da solo non dice se
+ * era una taglia o una misura.
  */
 final class OrderItem
 {
@@ -23,6 +25,7 @@ final class OrderItem
         public readonly ?int $variantId,
         public readonly string $productName,
         public readonly ?string $productSlug,
+        public readonly ?string $variantOption,
         public readonly ?string $variantLabel,
         public readonly ?string $imageKey,
         public readonly float $unitPrice,
@@ -41,6 +44,7 @@ final class OrderItem
             variantId: self::castNullableInt($row, 'variant_id'),
             productName: self::castString($row, 'product_name'),
             productSlug: self::castNullableString($row, 'product_slug'),
+            variantOption: self::castNullableString($row, 'variant_option'),
             variantLabel: self::castNullableString($row, 'variant_label'),
             imageKey: self::castNullableString($row, 'image_key'),
             unitPrice: self::castFloat($row, 'unit_price'),
@@ -52,7 +56,22 @@ final class OrderItem
     public function displayName(): string
     {
         return $this->variantLabel !== null
-            ? $this->productName . ' - ' . $this->variantLabel
+            ? $this->productName . ' - ' . $this->choiceLabel()
             : $this->productName;
+    }
+
+    /**
+     * "Taglia M", oppure la sola etichetta per gli ordini registrati prima
+     * che il nome della scelta venisse conservato.
+     */
+    public function choiceLabel(): string
+    {
+        if ($this->variantLabel === null) {
+            return '';
+        }
+
+        return $this->variantOption !== null
+            ? $this->variantOption . ' ' . $this->variantLabel
+            : $this->variantLabel;
     }
 }

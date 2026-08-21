@@ -69,6 +69,7 @@ final class OrderService
                 'variant_id' => $line->variant?->id,
                 'product_name' => $line->product->name,
                 'product_slug' => $line->product->slug,
+                'variant_option' => $line->variant !== null ? $line->product->optionName : null,
                 'variant_label' => $line->variant?->label,
                 'image_key' => $line->imageKey(),
                 'unit_price' => $line->unitPrice,

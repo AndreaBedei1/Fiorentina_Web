@@ -35,7 +35,7 @@
                                     <td>
                                         <span class="font-semibold text-viola-900">{{ item.productName }}</span>
                                         {% if item.variantLabel %}
-                                            <span class="mt-0.5 block text-xs text-sabbia-500">Variante: {{ item.variantLabel }}</span>
+                                            <span class="mt-0.5 block text-xs text-sabbia-500">{{ item.choiceLabel }}</span>
                                         {% endif %}
                                     </td>
                                     <td class="text-sm">{{ item.unitPrice|euro }}</td>

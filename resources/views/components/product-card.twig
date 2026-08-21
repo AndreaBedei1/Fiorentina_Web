@@ -17,12 +17,6 @@
             sizes: '(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw'
         }) }}
 
-        {% if product.hasDiscount %}
-            <span class="absolute left-3 top-3 rounded-md bg-rosso-600 px-2.5 py-1 text-2xs font-bold text-white">
-                -{{ product.discountPercentage }}%
-            </span>
-        {% endif %}
-
         {% if not product.isOrderable %}
             <div class="absolute inset-0 flex items-center justify-center bg-white/80">
                 <span class="rounded-md bg-sabbia-800 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
@@ -44,14 +38,9 @@
             </a>
         </{{ livello }}>
 
-        <div class="mt-auto flex items-baseline gap-2 pt-3">
-            {% if product.hasPriceRange %}
-                <span class="text-sm text-sabbia-600">da</span>
-            {% endif %}
-            <span class="font-display text-lg font-extrabold text-viola-900">{{ product.priceFrom|euro }}</span>
-            {% if product.hasDiscount %}
-                <span class="text-sm text-sabbia-500 line-through">{{ product.compareAtPrice|euro }}</span>
-            {% endif %}
+        <div class="mt-auto pt-3">
+            <span class="font-display text-lg font-extrabold text-viola-900">{{ product.price|euro }}</span>
+            <span class="ml-1 text-2xs text-sabbia-500">+ spedizione</span>
         </div>
     </div>
 </article>

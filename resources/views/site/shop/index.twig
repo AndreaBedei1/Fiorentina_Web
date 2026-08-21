@@ -9,6 +9,17 @@
 
     <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
 
+        {# La regola sui prezzi detta una volta sola, in alto, prima che
+           qualcuno si faccia i conti guardando le card. #}
+        <div class="mb-8 flex items-start gap-3 rounded-card border border-viola-200 bg-viola-50 px-4 py-3.5 text-sm text-viola-900">
+            <span class="mt-0.5 shrink-0 text-viola-600">{{ include('components/icon.twig', { name: 'info', class: 'h-5 w-5' }) }}</span>
+            <p class="leading-relaxed">
+                I prezzi che vedi <strong>non comprendono la spedizione</strong>, che è a carico di chi
+                ordina: ti diciamo quanto costa quando ti ricontattiamo per il pagamento.
+                Ogni articolo costa uguale in tutte le taglie e non facciamo sconti nè promozioni.
+            </p>
+        </div>
+
         {% if not shopEnabled %}
             <div class="mb-8 flex items-start gap-3 rounded-card border border-amber-300 bg-amber-50 px-4 py-3.5 text-sm text-amber-900" role="status">
                 <span class="mt-0.5 shrink-0 text-amber-600">{{ include('components/icon.twig', { name: 'alert', class: 'h-5 w-5' }) }}</span>

@@ -7,7 +7,7 @@ namespace App\Services\Shop;
 use App\Models\Product;
 use App\Models\ProductVariant;
 
-/** Riga del carrello, con prezzo già calcolato sulla variante scelta. */
+/** Riga del carrello: un prodotto, l'eventuale scelta fatta e il prezzo. */
 final readonly class CartLine
 {
     public function __construct(
@@ -23,7 +23,7 @@ final readonly class CartLine
     public function displayName(): string
     {
         return $this->variant !== null
-            ? $this->product->name . ' - ' . $this->variant->label
+            ? sprintf('%s - %s %s', $this->product->name, $this->product->optionName, $this->variant->label)
             : $this->product->name;
     }
 

@@ -41,7 +41,7 @@
                                     </h2>
 
                                     {% if line.variant %}
-                                        <p class="mt-0.5 text-sm text-sabbia-600">Variante: <strong class="font-semibold text-viola-900">{{ line.variant.label }}</strong></p>
+                                        <p class="mt-0.5 text-sm text-sabbia-600">{{ line.product.optionName }}: <strong class="font-semibold text-viola-900">{{ line.variant.label }}</strong></p>
                                     {% endif %}
 
                                     <p class="mt-0.5 text-sm text-sabbia-600">{{ line.unitPrice|euro }} cadauno</p>
@@ -129,8 +129,8 @@
                            alla cifra, evita che qualcuno la scambi per il totale
                            finale e si trovi un importo diverso al momento di pagare. #}
                         <p class="mt-3 rounded-lg bg-viola-50 px-3 py-2.5 text-sm leading-relaxed text-viola-900 ring-1 ring-viola-200" role="status">
-                            <strong>La spedizione non è inclusa.</strong>
-                            Ti diremo quanto costa quando ti ricontattiamo per il pagamento.
+                            <strong>La spedizione non è inclusa</strong> ed è a carico di chi ordina.
+                            Ti diciamo quanto costa quando ti ricontattiamo per il pagamento.
                         </p>
 
                         {% if shopEnabled %}

@@ -113,36 +113,71 @@ final class CartAndOrderTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function un_prodotto_con_varianti_richiede_la_scelta_della_variante(): void
+    public function un_prodotto_con_piu_taglie_richiede_di_sceglierne_una(): void
     {
         $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0]);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'M', 'quantity' => 5, 'is_available' => true, 'price_modifier' => 0],
-            ['label' => 'XXL', 'quantity' => 2, 'is_available' => true, 'price_modifier' => 2.0],
+            ['label' => 'M', 'quantity' => 5, 'is_available' => true],
+            ['label' => 'XXL', 'quantity' => 2, 'is_available' => true],
         ]);
 
-        $senzaVariante = $this->cart->add($id, null, 1);
+        $senzaScelta = $this->cart->add($id, null, 1);
 
-        $this->assertTrue($senzaVariante->failed());
-        $this->assertStringContainsString('taglia', $senzaVariante->message);
+        $this->assertTrue($senzaScelta->failed());
+        $this->assertStringContainsString('Taglia', $senzaScelta->message);
     }
 
     #[Test]
-    public function la_variante_modifica_il_prezzo(): void
+    public function la_taglia_non_cambia_il_prezzo(): void
     {
         $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0]);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'XXL', 'quantity' => 3, 'is_available' => true, 'price_modifier' => 2.0],
+            ['label' => 'S', 'quantity' => 3, 'is_available' => true],
+            ['label' => 'XXL', 'quantity' => 3, 'is_available' => true],
         ]);
 
         $product = $this->products->find($id);
-        $variant = $product?->variants[0] ?? null;
+        $piccola = $product?->variants[0] ?? null;
+        $grande = $product?->variants[1] ?? null;
 
+        $this->assertNotNull($piccola);
+        $this->assertNotNull($grande);
+
+        $this->assertTrue($this->cart->add($id, $piccola->id, 1)->successful);
+        $this->assertTrue($this->cart->add($id, $grande->id, 1)->successful);
+
+        // Due taglie diverse, stesso prezzo: 22 + 22.
+        $this->assertSame(44.00, $this->cart->contents()->subtotal);
+    }
+
+    #[Test]
+    public function l_ordine_conserva_il_nome_della_scelta(): void
+    {
+        $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0, 'option_name' => 'Colore']);
+
+        $this->products->replaceVariants($id, [
+            ['label' => 'Viola', 'quantity' => 4, 'is_available' => true],
+        ]);
+
+        $variant = $this->products->find($id)?->variants[0] ?? null;
         $this->assertNotNull($variant);
-        $this->assertTrue($this->cart->add($id, $variant->id, 1)->successful);
-        $this->assertSame(24.00, $this->cart->contents()->subtotal);
+        $this->cart->add($id, $variant->id, 1);
+
+        $result = self::app()->make(OrderService::class)->placeOrder([
+            'first_name' => 'Marco', 'last_name' => 'Bianchi',
+            'email' => 'marco@example.test', 'phone' => '055 1234567',
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
+        ], $this->fakeRequest('POST', '/ordine'));
+
+        $item = $result->order?->items[0] ?? null;
+
+        $this->assertNotNull($item);
+        $this->assertSame('Colore', $item->variantOption);
+        $this->assertSame('Viola', $item->variantLabel);
+        $this->assertSame('Colore Viola', $item->choiceLabel());
     }
 
     #[Test]

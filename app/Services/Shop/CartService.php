@@ -79,20 +79,27 @@ final class CartService
 
         if ($product->hasVariants()) {
             if ($variantId === null) {
-                return CartActionResult::failure('Seleziona una taglia o una variante prima di procedere.');
+                return CartActionResult::failure(sprintf(
+                    'Devi indicare "%s" prima di aggiungere al carrello.',
+                    $product->optionName,
+                ));
             }
 
             $variant = $this->products->findVariant($variantId, $productId);
 
             if ($variant === null) {
-                return CartActionResult::failure('La variante selezionata non esiste.');
+                return CartActionResult::failure('La scelta indicata non esiste.');
             }
 
             if ($variant->isSoldOut()) {
-                return CartActionResult::failure(sprintf('La variante "%s" e esaurita.', $variant->label));
+                return CartActionResult::failure(sprintf(
+                    '%s "%s" non è disponibile.',
+                    $product->optionName,
+                    $variant->label,
+                ));
             }
         } else {
-            // Ignoriamo una variante indicata per un prodotto che non ne ha:
+            // Ignoriamo una scelta indicata per un prodotto che non ne ha:
             // e sempre un parametro manipolato o un residuo di navigazione.
             $variantId = null;
         }
@@ -110,7 +117,7 @@ final class CartService
         } else {
             if (count($cart) >= $maxItems) {
                 return CartActionResult::failure(sprintf(
-                    'Il carrello può contenere al massimo %d\'articoli diversi.',
+                    'Il carrello può contenere al massimo %d articoli diversi.',
                     $maxItems,
                 ));
             }
@@ -120,10 +127,12 @@ final class CartService
 
         $this->persist($cart);
 
+        // "Aggiunto" o "aggiunta"? Dipende dal nome del prodotto, che non
+        // conosciamo: la forma con i due punti evita del tutto la concordanza.
         return CartActionResult::success(sprintf(
-            '%s%s aggiunto al carrello.',
+            'Hai aggiunto al carrello: %s%s.',
             $product->name,
-            $variant !== null ? ' (' . $variant->label . ')' : '',
+            $variant !== null ? sprintf(' - %s %s', $product->optionName, $variant->label) : '',
         ));
     }
 
@@ -213,7 +222,7 @@ final class CartService
 
                 if ($variant === null || $variant->isSoldOut()) {
                     $removedMessages[] = sprintf(
-                        'La variante scelta per "%s" non è più disponibile ed è stata rimossa.',
+                        'La scelta fatta per "%s" non è più disponibile: l\'articolo è stato tolto dal carrello.',
                         $product->name,
                     );
                     unset($cart[$key]);
@@ -223,7 +232,8 @@ final class CartService
                 }
             }
 
-            $unitPrice = $variant !== null ? $variant->priceFor($product->price) : $product->price;
+            // Il prezzo non dipende dalla scelta: una XXL costa quanto una S.
+            $unitPrice = $product->price;
             $quantity = max(1, (int) $entry['quantity']);
             $lineTotal = round($unitPrice * $quantity, 2);
 
