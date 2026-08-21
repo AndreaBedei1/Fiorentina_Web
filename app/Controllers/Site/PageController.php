@@ -89,8 +89,6 @@ final class PageController extends Controller
         return $this->render('site/pages/join.twig', [
             'seo' => $this->seoFor($page, 'join'),
             'page' => $page,
-            'membershipFee' => $this->settings->string('membership_fee'),
-            'membershipContact' => $this->settings->string('membership_contact'),
         ]);
     }
 

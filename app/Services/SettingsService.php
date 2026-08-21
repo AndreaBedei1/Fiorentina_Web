@@ -128,17 +128,6 @@ final class SettingsService
             'description' => 'Da attivare solo dopo aver verificato di poter usare gli stemmi: sono marchi registrati dei club.',
         ],
 
-        // --- Iscrizioni -----------------------------------------------------
-        'membership_fee' => [
-            'group' => 'iscrizioni', 'type' => 'string', 'sort' => 1,
-            'label' => 'Quota associativa annuale', 'default' => '',
-            'description' => 'Per esempio: 25 euro. Finche e vuota non viene mostrato alcun importo.',
-        ],
-        'membership_contact' => [
-            'group' => 'iscrizioni', 'type' => 'string', 'sort' => 2,
-            'label' => 'Riferimento per le iscrizioni', 'default' => 'info@baraondafiorentina.it',
-        ],
-
         // --- Merchandising --------------------------------------------------
         'shop_enabled' => [
             'group' => 'merchandising', 'type' => 'bool', 'sort' => 1,
@@ -301,7 +290,6 @@ final class SettingsService
             'contatti' => 'Contatti',
             'social' => 'Social network',
             'homepage' => 'Homepage',
-            'iscrizioni' => 'Iscrizioni',
             'merchandising' => 'Merchandising',
             'immagini' => 'Immagini e filigrana',
             'footer' => 'Piede di pagina',

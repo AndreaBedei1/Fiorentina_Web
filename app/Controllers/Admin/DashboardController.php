@@ -126,7 +126,7 @@ final class DashboardController extends Controller
         // scoprirli pubblicati sul sito.
         $placeholders = [];
 
-        foreach (['shop_payment_instructions', 'contact_address', 'footer_association_details', 'membership_fee'] as $key) {
+        foreach (['shop_payment_instructions', 'contact_address', 'footer_association_details'] as $key) {
             if (str_contains(mb_strtoupper($this->settings->string($key)), 'DA COMPLETARE')
                 || str_contains(mb_strtoupper($this->settings->string($key)), 'DA CONFERMARE')
             ) {
