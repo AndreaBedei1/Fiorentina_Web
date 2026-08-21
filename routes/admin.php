@@ -86,11 +86,6 @@ return static function (Router $router): void {
 
         // --- Calendario partite --------------------------------------------
         $router->get('/calendario', [CalendarController::class, 'index'])->name('calendar.index');
-        $router->get('/calendario/nuova', [CalendarController::class, 'create'])->name('calendar.create');
-        $router->post('/calendario', [CalendarController::class, 'store'])->name('calendar.store');
-        $router->get('/calendario/{id:\d+}', [CalendarController::class, 'edit'])->name('calendar.edit');
-        $router->post('/calendario/{id:\d+}', [CalendarController::class, 'update'])->name('calendar.update');
-        $router->post('/calendario/{id:\d+}/elimina', [CalendarController::class, 'destroy'])->name('calendar.destroy');
         $router->post('/calendario/sincronizza', [CalendarController::class, 'sync'])->name('calendar.sync');
 
         // --- Galleria ------------------------------------------------------

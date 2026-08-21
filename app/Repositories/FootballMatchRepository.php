@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Core\Database\Paginator;
 use App\Models\FootballMatch;
 
 /** Copia locale del calendario partite della Fiorentina. */
@@ -75,20 +74,6 @@ final class FootballMatchRepository extends BaseRepository
                  ORDER BY kickoff_at ASC',
                 ['from' => $from, 'to' => $to],
             ),
-        );
-    }
-
-    /** @return Paginator<FootballMatch> */
-    public function paginateForAdmin(int $page, int $perPage = 25, string $basePath = ''): Paginator
-    {
-        return $this->paginateQuery(
-            'SELECT * FROM football_matches ORDER BY kickoff_at DESC',
-            'SELECT COUNT(*) FROM football_matches',
-            [],
-            $page,
-            $perPage,
-            FootballMatch::fromRow(...),
-            $basePath,
         );
     }
 
