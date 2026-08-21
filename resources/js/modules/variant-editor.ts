@@ -9,8 +9,6 @@
 import { component } from './alpine';
 interface VariantRow {
     label: string;
-    quantity: string;
-    available: boolean;
 }
 
 export function variantEditor() {
@@ -72,9 +70,5 @@ export function variantEditor() {
 }
 
 function emptyRow(): VariantRow {
-    return {
-        label: '',
-        quantity: '',
-        available: true,
-    };
+    return { label: '' };
 }

@@ -32,7 +32,7 @@ final class ProductCategoryRepository extends BaseRepository
         $rows = $this->db->select(
             "SELECT c.*, COUNT(p.id) AS products_count
              FROM product_categories c
-             JOIN products p ON p.category_id = c.id AND p.status = 'published' AND p.deleted_at IS NULL
+             JOIN products p ON p.category_id = c.id AND p.deleted_at IS NULL
              WHERE c.status = 'active'
              GROUP BY c.id
              ORDER BY c.sort_order ASC, c.name ASC"

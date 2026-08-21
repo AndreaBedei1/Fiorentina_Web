@@ -248,20 +248,6 @@
                                                 </div>
                                             </div>
 
-                                            <details class="mt-1.5">
-                                                <summary class="cursor-pointer text-xs font-semibold text-viola-800 focus-ring rounded">
-                                                    Descrivi la fotografia
-                                                </summary>
-                                                <form action="{{ route('admin.gallery.photo.update', { photoId: photo.id }) }}"
-                                                      method="post" class="mt-2 space-y-2">
-                                                    {{ csrf_field()|raw }}
-                                                    <label class="sr-only" for="foto-{{ photo.id }}-alt">Testo alternativo</label>
-                                                    <input type="text" id="foto-{{ photo.id }}-alt" name="alt_text" value="{{ photo.altText }}"
-                                                           placeholder="Per chi non puo vederla" maxlength="300" class="campo-input text-xs">
-
-                                                    <button type="submit" class="btn-secondario btn-piccolo w-full">Salva</button>
-                                                </form>
-                                            </details>
                                         </div>
                                     </li>
                                 {% endfor %}

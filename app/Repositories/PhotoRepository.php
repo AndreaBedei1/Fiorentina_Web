@@ -76,7 +76,7 @@ final class PhotoRepository extends BaseRepository
         $rows = $this->db->select(
             "SELECT p.*, a.title AS album_title
              FROM photos p JOIN albums a ON a.id = p.album_id
-             WHERE p.status = 'published' AND a.status = 'published' AND a.deleted_at IS NULL
+             WHERE p.status = 'published' AND a.deleted_at IS NULL
              ORDER BY COALESCE(a.event_date, a.created_at) DESC, p.sort_order ASC
              LIMIT " . max(1, min(40, $limit)),
         );

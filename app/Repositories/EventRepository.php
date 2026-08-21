@@ -175,23 +175,6 @@ final class EventRepository extends BaseRepository
         return $this->softDelete($id);
     }
 
-    /** @return array{total: int, upcoming: int, draft: int} */
-    public function statistics(): array
-    {
-        $row = $this->db->selectOne(
-            "SELECT COUNT(*) AS total,
-                    SUM(status = 'published' AND COALESCE(ends_at, starts_at) >= NOW()) AS upcoming,
-                    SUM(status = 'draft') AS draft
-             FROM events WHERE deleted_at IS NULL"
-        ) ?? [];
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'upcoming' => (int) ($row['upcoming'] ?? 0),
-            'draft' => (int) ($row['draft'] ?? 0),
-        ];
-    }
-
     /** Eventi pubblicati, per la sitemap. @return list<array{key: string, updated_at: string}> */
     public function publishedForSitemap(): array
     {

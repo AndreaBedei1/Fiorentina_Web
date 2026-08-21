@@ -67,12 +67,8 @@ final class CartService
     {
         $product = $this->products->find($productId);
 
-        if ($product === null || ! $product->isPublished()) {
+        if ($product === null) {
             return CartActionResult::failure('Il prodotto richiesto non e disponibile.');
-        }
-
-        if (! $product->isOrderable()) {
-            return CartActionResult::failure(sprintf('%s non e attualmente ordinabile.', $product->name));
         }
 
         $variant = null;
@@ -89,14 +85,6 @@ final class CartService
 
             if ($variant === null) {
                 return CartActionResult::failure('La scelta indicata non esiste.');
-            }
-
-            if ($variant->isSoldOut()) {
-                return CartActionResult::failure(sprintf(
-                    '%s "%s" non è disponibile.',
-                    $product->optionName,
-                    $variant->label,
-                ));
             }
         } else {
             // Ignoriamo una scelta indicata per un prodotto che non ne ha:
@@ -204,11 +192,8 @@ final class CartService
         foreach ($cart as $key => $entry) {
             $product = $this->products->find((int) $entry['product_id']);
 
-            if ($product === null || ! $product->isPublished() || ! $product->isOrderable()) {
-                $removedMessages[] = sprintf(
-                    'Un articolo non più disponibile è stato rimosso dal carrello%s.',
-                    $product !== null ? ' (' . $product->name . ')' : '',
-                );
+            if ($product === null) {
+                $removedMessages[] = 'Un articolo non più disponibile è stato rimosso dal carrello.';
                 unset($cart[$key]);
                 $changed = true;
 
@@ -220,7 +205,7 @@ final class CartService
             if ($entry['variant_id'] !== null) {
                 $variant = $this->products->findVariant((int) $entry['variant_id'], $product->id);
 
-                if ($variant === null || $variant->isSoldOut()) {
+                if ($variant === null) {
                     $removedMessages[] = sprintf(
                         'La scelta fatta per "%s" non è più disponibile: l\'articolo è stato tolto dal carrello.',
                         $product->name,

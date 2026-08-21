@@ -135,9 +135,7 @@ final class ShopController extends Controller
                 '@type' => 'Offer',
                 'price' => number_format($product->price, 2, '.', ''),
                 'priceCurrency' => 'EUR',
-                'availability' => $product->isOrderable()
-                    ? 'https://schema.org/InStock'
-                    : 'https://schema.org/OutOfStock',
+                'availability' => 'https://schema.org/InStock',
                 'url' => $this->url->absoluteRoute('shop.show', ['slug' => $product->slug]),
             ],
         ];

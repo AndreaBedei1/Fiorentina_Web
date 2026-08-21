@@ -91,7 +91,6 @@ final class ShopSeeder extends Seeder
             'description' => '<p>Prodotta in tiratura limitata. Al momento non è disponibile.</p><p><em>Descrizione dimostrativa: mostra come appare un articolo esaurito.</em></p>',
             'price' => 25.00,
             'featured' => false,
-            'availability' => Product::AVAILABILITY_OUT_OF_STOCK,
             'variants' => [],
         ],
     ];
@@ -129,11 +128,7 @@ final class ShopSeeder extends Seeder
                 'description' => $item['description'],
                 'price' => $item['price'],
                 'option_name' => $item['option'] ?? 'Taglia',
-                'availability' => $item['availability'] ?? Product::AVAILABILITY_IN_STOCK,
-                'track_quantity' => $item['variants'] === [] ? 0 : 1,
-                'quantity' => $item['variants'] === [] ? null : 0,
                 'is_featured' => $item['featured'] ? 1 : 0,
-                'status' => Product::STATUS_PUBLISHED,
                 'sort_order' => $created,
                 'meta_description' => $item['short'],
                 'created_by' => $authorId === null ? null : (int) $authorId,
@@ -141,11 +136,7 @@ final class ShopSeeder extends Seeder
 
             if ($item['variants'] !== []) {
                 $products->replaceVariants($productId, array_map(
-                    static fn (array $variant): array => [
-                        'label' => $variant[0],
-                        'quantity' => $variant[1],
-                        'is_available' => $variant[1] > 0,
-                    ],
+                    static fn (array $variant): array => ['label' => $variant[0]],
                     $item['variants'],
                 ));
             }

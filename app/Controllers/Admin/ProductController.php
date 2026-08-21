@@ -44,20 +44,13 @@ final class ProductController extends Controller
     {
         $this->authorize('products.manage');
 
-        $status = $request->string('stato');
-
         return $this->render('admin/products/index.twig', [
             'seo' => $this->seo('Prodotti')->withNoindex(),
             'paginator' => $this->products->paginateForAdmin(
                 page: $this->page($request),
                 perPage: 20,
-                status: $status !== '' ? $status : null,
-                search: $request->string('q'),
                 basePath: $this->url->route('admin.products.index'),
             ),
-            'activeStatus' => $status,
-            'search' => $request->string('q'),
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -69,8 +62,6 @@ final class ProductController extends Controller
             'seo' => $this->seo('Nuovo prodotto')->withNoindex(),
             'product' => null,
             'categoryOptions' => $this->categories->options(),
-            'statuses' => $this->statusOptions(),
-            'availabilities' => $this->availabilityOptions(),
         ]);
     }
 
@@ -118,8 +109,6 @@ final class ProductController extends Controller
             'seo' => $this->seo('Modifica prodotto')->withNoindex(),
             'product' => $product,
             'categoryOptions' => $this->categories->options(),
-            'statuses' => $this->statusOptions(),
-            'availabilities' => $this->availabilityOptions(),
         ]);
     }
 
@@ -155,7 +144,7 @@ final class ProductController extends Controller
             'product',
             $id,
             sprintf('Prodotto aggiornato: %s', $validated['name']),
-            ['price' => $validated['price'] ?? 0, 'status' => $data['status']],
+            ['price' => $validated['price'] ?? 0],
         );
 
         $this->success('Prodotto aggiornato.');
@@ -230,10 +219,7 @@ final class ProductController extends Controller
             ->optional('short_description')->max('short_description', 300, 'La descrizione breve')
             ->optional('option_name')->max('option_name', 30, 'Il nome della scelta')
             ->decimal('price', 'Il prezzo', 0, 100000)
-            ->integer('quantity', 'La quantita', 0, 100000)
             ->integer('sort_order', 'L ordinamento', 0, 9999)
-            ->in('status', array_keys($this->statusOptions()), 'Lo stato')
-            ->in('availability', array_keys($this->availabilityOptions()), 'La disponibilita')
             ->optional('meta_title')->max('meta_title', 200, 'Il titolo SEO')
             ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO');
 
@@ -278,8 +264,6 @@ final class ProductController extends Controller
      */
     private function buildData(Request $request, array $validated): array
     {
-        $trackQuantity = $request->bool('track_quantity');
-
         return [
             'category_id' => $request->nullableInt('category_id'),
             'name' => (string) $validated['name'],
@@ -288,11 +272,7 @@ final class ProductController extends Controller
             'description' => $this->sanitizer->clean((string) $request->post('description', '')),
             'price' => (float) ($validated['price'] ?? 0),
             'option_name' => $this->nomeScelta($validated),
-            'availability' => (string) ($validated['availability'] ?? Product::AVAILABILITY_IN_STOCK),
-            'track_quantity' => $trackQuantity ? 1 : 0,
-            'quantity' => $trackQuantity ? ($validated['quantity'] ?? 0) : null,
             'is_featured' => $request->bool('is_featured') ? 1 : 0,
-            'status' => (string) ($validated['status'] ?? Product::STATUS_DRAFT),
             'sort_order' => (int) ($validated['sort_order'] ?? 0),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
@@ -318,10 +298,6 @@ final class ProductController extends Controller
 
             $variants[] = [
                 'label' => mb_substr($label, 0, 80),
-                'quantity' => is_numeric($request->array('variant_quantity')[$index] ?? null)
-                    ? (int) $request->array('variant_quantity')[$index]
-                    : null,
-                'is_available' => ! empty($request->array('variant_available')[$index]),
             ];
         }
 
@@ -362,24 +338,5 @@ final class ProductController extends Controller
         }
     }
 
-    /** @return array<string, string> */
-    private function statusOptions(): array
-    {
-        return [
-            Product::STATUS_DRAFT => 'Bozza',
-            Product::STATUS_PUBLISHED => 'Pubblicato',
-            Product::STATUS_ARCHIVED => 'Archiviato',
-        ];
-    }
 
-    /** @return array<string, string> */
-    private function availabilityOptions(): array
-    {
-        return [
-            Product::AVAILABILITY_IN_STOCK => 'Disponibile',
-            Product::AVAILABILITY_OUT_OF_STOCK => 'Esaurito',
-            Product::AVAILABILITY_PREORDER => 'Su prenotazione',
-            Product::AVAILABILITY_DISCONTINUED => 'Non più disponibile',
-        ];
-    }
 }

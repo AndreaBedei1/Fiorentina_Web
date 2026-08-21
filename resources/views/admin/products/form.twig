@@ -91,11 +91,7 @@
                     {% set variantData = [] %}
                     {% if not isNew %}
                         {% for variant in product.variants %}
-                            {% set variantData = variantData|merge([{
-                                label: variant.label,
-                                quantity: variant.quantity,
-                                available: variant.isAvailable
-                            }]) %}
+                            {% set variantData = variantData|merge([{ label: variant.label }]) %}
                         {% endfor %}
                     {% endif %}
 
@@ -103,22 +99,12 @@
                         <div x-ref="rows" class="space-y-2">
                             <template x-for="(row, index) in rows" :key="index">
                                 <div data-variant-row class="grid gap-2 rounded-card border border-sabbia-200 p-3 sm:grid-cols-12">
-                                    <div class="sm:col-span-7">
+                                    <div class="sm:col-span-11">
                                         <label class="campo-label text-xs">Etichetta</label>
                                         <input type="text" name="variant_label[]" x-model="row.label"
                                                maxlength="80" placeholder="M" class="campo-input text-sm">
                                     </div>
-                                    <div class="sm:col-span-4">
-                                        <label class="campo-label text-xs">Giacenza</label>
-                                        <input type="number" name="variant_quantity[]" x-model="row.quantity"
-                                               min="0" class="campo-input text-sm">
-                                    </div>
-                                    <div class="flex items-end justify-between gap-2 sm:col-span-1">
-                                        <label class="flex items-center gap-1.5 pb-2 text-xs">
-                                            <input type="checkbox" name="variant_available[]" value="1"
-                                                   x-model="row.available" class="campo-checkbox">
-                                            <span class="sr-only">Disponibile</span>
-                                        </label>
+                                    <div class="flex items-end justify-end sm:col-span-1">
                                         <button type="button" @click="remove"
                                                 class="mb-1 flex h-8 w-8 items-center justify-center rounded text-sabbia-500 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
                                             <span class="sr-only">Rimuovi la riga</span>
@@ -182,16 +168,6 @@
                     </p>
 
                     {{ include('components/field.twig', {
-                        name: 'status', label: 'Stato', type: 'select', options: statuses,
-                        value: old('status', isNew ? 'draft' : product.status)
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'availability', label: 'Disponibilita', type: 'select', options: availabilities,
-                        value: old('availability', isNew ? 'in_stock' : product.availability)
-                    }) }}
-
-                    {{ include('components/field.twig', {
                         name: 'category_id', label: 'Categoria', type: 'select',
                         options: categoryOptions, placeholder: 'Senza categoria',
                         value: old('category_id', isNew ? '' : product.categoryId)
@@ -200,17 +176,6 @@
                     {{ include('components/field.twig', {
                         name: 'is_featured', label: 'In evidenza in homepage', type: 'checkbox',
                         value: old('is_featured', isNew ? false : product.isFeatured)
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'track_quantity', label: 'Gestisci la giacenza', type: 'checkbox',
-                        value: old('track_quantity', isNew ? false : product.trackQuantity),
-                        help: 'Attivalo solo se tieni davvero il conto dei pezzi in magazzino.'
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'quantity', label: 'Pezzi disponibili', type: 'number', min: 0,
-                        value: old('quantity', isNew ? '' : product.quantity)
                     }) }}
 
                     {{ include('components/field.twig', {

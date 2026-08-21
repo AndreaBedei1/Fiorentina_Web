@@ -21,8 +21,6 @@ final class ProductVariant
         public readonly int $id,
         public readonly int $productId,
         public readonly string $label,
-        public readonly ?int $quantity,
-        public readonly bool $isAvailable,
         public readonly int $sortOrder,
     ) {
     }
@@ -34,14 +32,8 @@ final class ProductVariant
             id: self::castInt($row, 'id'),
             productId: self::castInt($row, 'product_id'),
             label: self::castString($row, 'label'),
-            quantity: self::castNullableInt($row, 'quantity'),
-            isAvailable: self::castBool($row, 'is_available', true),
             sortOrder: self::castInt($row, 'sort_order'),
         );
     }
 
-    public function isSoldOut(): bool
-    {
-        return ! $this->isAvailable || ($this->quantity !== null && $this->quantity <= 0);
-    }
 }

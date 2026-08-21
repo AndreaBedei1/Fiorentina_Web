@@ -88,7 +88,6 @@ return static function (Router $router): void {
         $router->post('/galleria/{id:\d+}/carica', [GalleryController::class, 'uploadPhotos'])->name('gallery.upload');
         $router->post('/galleria/{id:\d+}/ordina', [GalleryController::class, 'reorderPhotos'])->name('gallery.reorder');
         $router->post('/galleria/{id:\d+}/rielabora', [GalleryController::class, 'regenerate'])->name('gallery.regenerate');
-        $router->post('/galleria/foto/{photoId:\d+}', [GalleryController::class, 'updatePhoto'])->name('gallery.photo.update');
         $router->post('/galleria/foto/{photoId:\d+}/elimina', [GalleryController::class, 'destroyPhoto'])->name('gallery.photo.destroy');
         $router->post('/galleria/foto/{photoId:\d+}/copertina', [GalleryController::class, 'setCover'])->name('gallery.photo.cover');
 

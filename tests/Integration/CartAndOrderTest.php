@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Models\Order;
-use App\Models\Product;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use App\Services\Shop\CartService;
@@ -49,9 +48,6 @@ final class CartAndOrderTest extends IntegrationTestCase
             'slug' => 'sciarpa-di-prova-' . bin2hex(random_bytes(3)),
             'short_description' => 'Descrizione breve',
             'price' => $price,
-            'availability' => Product::AVAILABILITY_IN_STOCK,
-            'status' => Product::STATUS_PUBLISHED,
-            'track_quantity' => 0,
         ], $overrides));
     }
 
@@ -83,22 +79,15 @@ final class CartAndOrderTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function un_prodotto_non_pubblicato_non_puo_essere_aggiunto(): void
+    public function un_prodotto_eliminato_non_puo_essere_aggiunto(): void
     {
-        $id = $this->createProduct(18.00, ['status' => Product::STATUS_DRAFT]);
+        $id = $this->createProduct(18.00);
+        $this->products->delete($id);
 
         $result = $this->cart->add($id, null, 1);
 
         $this->assertTrue($result->failed());
         $this->assertTrue($this->cart->isEmpty());
-    }
-
-    #[Test]
-    public function un_prodotto_esaurito_non_puo_essere_aggiunto(): void
-    {
-        $id = $this->createProduct(18.00, ['availability' => Product::AVAILABILITY_OUT_OF_STOCK]);
-
-        $this->assertTrue($this->cart->add($id, null, 1)->failed());
     }
 
     #[Test]
@@ -115,11 +104,11 @@ final class CartAndOrderTest extends IntegrationTestCase
     #[Test]
     public function un_prodotto_con_piu_taglie_richiede_di_sceglierne_una(): void
     {
-        $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0]);
+        $id = $this->createProduct(22.00, []);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'M', 'quantity' => 5, 'is_available' => true],
-            ['label' => 'XXL', 'quantity' => 2, 'is_available' => true],
+            ['label' => 'M'],
+            ['label' => 'XXL'],
         ]);
 
         $senzaScelta = $this->cart->add($id, null, 1);
@@ -131,11 +120,11 @@ final class CartAndOrderTest extends IntegrationTestCase
     #[Test]
     public function la_taglia_non_cambia_il_prezzo(): void
     {
-        $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0]);
+        $id = $this->createProduct(22.00, []);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'S', 'quantity' => 3, 'is_available' => true],
-            ['label' => 'XXL', 'quantity' => 3, 'is_available' => true],
+            ['label' => 'S'],
+            ['label' => 'XXL'],
         ]);
 
         $product = $this->products->find($id);
@@ -155,10 +144,10 @@ final class CartAndOrderTest extends IntegrationTestCase
     #[Test]
     public function l_ordine_conserva_il_nome_della_scelta(): void
     {
-        $id = $this->createProduct(22.00, ['track_quantity' => 1, 'quantity' => 0, 'option_name' => 'Colore']);
+        $id = $this->createProduct(22.00, ['option_name' => 'Colore']);
 
         $this->products->replaceVariants($id, [
-            ['label' => 'Viola', 'quantity' => 4, 'is_available' => true],
+            ['label' => 'Viola'],
         ]);
 
         $variant = $this->products->find($id)?->variants[0] ?? null;

@@ -210,27 +210,6 @@ final class GalleryController extends Controller
         ], $report->uploadedCount > 0 ? 200 : 422);
     }
 
-    public function updatePhoto(Request $request): Response
-    {
-        $this->authorize('gallery.manage');
-
-        $photoId = $request->routeInt('photoId');
-        $photo = $this->photos->find($photoId);
-
-        if ($photo === null) {
-            $this->notFound('Fotografia non trovata.');
-        }
-
-        $this->photos->update($photoId, [
-            'alt_text' => $request->nullableString('alt_text'),
-        ]);
-
-        $this->albums->refreshCounters($photo->albumId);
-        $this->success('Fotografia aggiornata.');
-
-        return $this->redirectToRoute('admin.gallery.edit', ['id' => $photo->albumId]);
-    }
-
     public function destroyPhoto(Request $request): Response
     {
         $this->authorize('gallery.manage');

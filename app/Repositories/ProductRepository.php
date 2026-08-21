@@ -25,7 +25,8 @@ final class ProductRepository extends BaseRepository
 
     private const COLUMNS = 'p.*, pc.name AS category_name, pc.slug AS category_slug';
 
-    private const PUBLISHED_CONDITION = "p.deleted_at IS NULL AND p.status = 'published'";
+    // Un prodotto a catalogo e un prodotto che si puo ordinare.
+    private const PUBLISHED_CONDITION = 'p.deleted_at IS NULL';
 
     public function find(int $id): ?Product
     {
@@ -135,38 +136,19 @@ final class ProductRepository extends BaseRepository
     }
 
     /** @return Paginator<Product> */
-    public function paginateForAdmin(
-        int $page,
-        int $perPage = 20,
-        ?string $status = null,
-        string $search = '',
-        string $basePath = '',
-    ): Paginator {
-        $conditions = ['p.deleted_at IS NULL'];
-        $bindings = [];
-
-        if ($status !== null && $status !== '') {
-            $conditions[] = 'p.status = :status';
-            $bindings['status'] = $status;
-        }
-
-        if (trim($search) !== '') {
-            $conditions[] = 'p.name LIKE :search';
-            $bindings['search'] = '%' . trim($search) . '%';
-        }
-
-        $where = implode(' AND ', $conditions);
-
+    /** @return Paginator<Product> */
+    public function paginateForAdmin(int $page, int $perPage = 20, string $basePath = ''): Paginator
+    {
         $paginator = $this->paginateQuery(
             'SELECT ' . self::COLUMNS . ' FROM products p ' . self::JOIN . '
-             WHERE ' . $where . ' ORDER BY p.sort_order ASC, p.created_at DESC',
-            'SELECT COUNT(*) FROM products p WHERE ' . $where,
-            $bindings,
+             WHERE p.deleted_at IS NULL
+             ORDER BY p.sort_order ASC, p.created_at DESC',
+            'SELECT COUNT(*) FROM products p WHERE p.deleted_at IS NULL',
+            [],
             $page,
             $perPage,
             static fn (array $row): array => $row,
             $basePath,
-            array_filter(['stato' => $status, 'q' => $search !== '' ? $search : null]),
         );
 
         return $paginator->withItems($this->hydrateMany($paginator->items()));
@@ -349,8 +331,6 @@ final class ProductRepository extends BaseRepository
                 $this->db->insertInto('product_variants', [
                     'product_id' => $productId,
                     'label' => $label,
-                    'quantity' => $variant['quantity'] ?? null,
-                    'is_available' => (int) (bool) ($variant['is_available'] ?? true),
                     'sort_order' => $position++,
                     'created_at' => $now,
                     'updated_at' => $now,
@@ -367,23 +347,6 @@ final class ProductRepository extends BaseRepository
         );
 
         return $row === null ? null : ProductVariant::fromRow($row);
-    }
-
-    /** @return array{total: int, published: int, out_of_stock: int} */
-    public function statistics(): array
-    {
-        $row = $this->db->selectOne(
-            "SELECT COUNT(*) AS total,
-                    SUM(status = 'published') AS published,
-                    SUM(availability = 'out_of_stock') AS out_of_stock
-             FROM products WHERE deleted_at IS NULL"
-        ) ?? [];
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'published' => (int) ($row['published'] ?? 0),
-            'out_of_stock' => (int) ($row['out_of_stock'] ?? 0),
-        ];
     }
 
     /** @return list<array{slug: string, updated_at: string}> */
