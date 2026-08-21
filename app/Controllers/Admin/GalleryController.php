@@ -68,7 +68,6 @@ final class GalleryController extends Controller
             'seo' => $this->seo('Nuovo album')->withNoindex(),
             'album' => null,
             'categories' => $this->categoryOptions(),
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -113,7 +112,6 @@ final class GalleryController extends Controller
             'album' => $album,
             'photos' => $this->photos->allForAlbum($album->id),
             'categories' => $this->categoryOptions(),
-            'statuses' => $this->statusOptions(),
             'maxUploadBytes' => $this->config->int('image.max_upload_bytes', 16 * 1024 * 1024),
         ]);
     }
@@ -331,8 +329,7 @@ final class GalleryController extends Controller
         $validator = Validator::make($request->all())
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
             ->optional('description')->max('description', 2000, 'La descrizione')
-            ->date('event_date', 'La data')
-            ->in('status', array_keys($this->statusOptions()), 'Lo stato');
+            ->date('event_date', 'La data');
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -360,7 +357,6 @@ final class GalleryController extends Controller
             // L'anno duplicato consente di filtrare la galleria con un confronto
             // indicizzato invece che con una funzione sulla colonna data.
             'year' => $eventDate !== null ? (int) substr((string) $eventDate, 0, 4) : null,
-            'status' => (string) ($validated['status'] ?? Album::STATUS_DRAFT),
         ];
     }
 
@@ -377,13 +373,4 @@ final class GalleryController extends Controller
         ];
     }
 
-    /** @return array<string, string> */
-    private function statusOptions(): array
-    {
-        return [
-            Album::STATUS_DRAFT => 'Bozza',
-            Album::STATUS_PUBLISHED => 'Pubblicato',
-            Album::STATUS_ARCHIVED => 'Archiviato',
-        ];
-    }
 }

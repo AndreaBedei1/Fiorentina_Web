@@ -13,10 +13,6 @@ final class Album
 {
     use CastsRowValues;
 
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_PUBLISHED = 'published';
-    public const STATUS_ARCHIVED = 'archived';
-
     /** @var list<string> */
     public function __construct(
         public readonly int $id,
@@ -26,7 +22,6 @@ final class Album
         public readonly ?int $year,
         public readonly ?int $coverPhotoId,
         public readonly ?Photo $coverPhoto,
-        public readonly string $status,
         public readonly int $photosCount,
         public readonly DateTimeImmutable $createdAt,
         public readonly ?DateTimeImmutable $updatedAt,
@@ -56,7 +51,6 @@ final class Album
             year: self::castNullableInt($row, 'year'),
             coverPhotoId: self::castNullableInt($row, 'cover_photo_id'),
             coverPhoto: $coverPhoto,
-            status: self::castString($row, 'status', self::STATUS_DRAFT),
             photosCount: self::castInt($row, 'photos_count'),
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
             updatedAt: self::castDate($row, 'updated_at'),
@@ -75,20 +69,6 @@ final class Album
         $coda = Str::slug($this->title);
 
         return $coda === '' ? (string) $this->id : $this->id . '-' . $coda;
-    }
-
-    public function isPublished(): bool
-    {
-        return $this->status === self::STATUS_PUBLISHED;
-    }
-
-    public function statusLabel(): string
-    {
-        return match ($this->status) {
-            self::STATUS_PUBLISHED => 'Pubblicato',
-            self::STATUS_ARCHIVED => 'Archiviato',
-            default => 'Bozza',
-        };
     }
 
     public function photosLabel(): string

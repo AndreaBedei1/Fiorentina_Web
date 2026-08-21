@@ -23,7 +23,16 @@ final class AlbumRepository extends BaseRepository
     private const COVER_COLUMNS = 'cp.storage_key AS cover_storage_key, cp.extension AS cover_extension,
         cp.alt_text AS cover_alt_text, cp.width AS cover_width, cp.height AS cover_height';
 
-    private const PUBLISHED_CONDITION = "a.deleted_at IS NULL AND a.status = 'published'";
+    /*
+     * Un album si vede quando ha qualcosa da mostrare.
+     *
+     * Prima c'era uno stato da mettere su "pubblicato" a mano, che serviva a
+     * non far comparire in galleria un album creato e ancora vuoto. Ma quello
+     * non e un permesso da concedere, e un fatto che il conteggio delle
+     * fotografie dice gia: senza fotografie non c'e album da guardare, con la
+     * prima fotografia l'album c'e.
+     */
+    private const PUBLISHED_CONDITION = 'a.deleted_at IS NULL AND a.photos_count > 0';
 
     public function find(int $id): ?Album
     {
@@ -52,7 +61,7 @@ final class AlbumRepository extends BaseRepository
     {
         $rows = $this->db->select(
             'SELECT a.*, ' . self::COVER_COLUMNS . ' FROM albums a ' . self::COVER_JOIN . '
-             WHERE ' . self::PUBLISHED_CONDITION . ' AND a.photos_count > 0
+             WHERE ' . self::PUBLISHED_CONDITION . '
              ORDER BY COALESCE(a.event_date, a.created_at) DESC
              LIMIT ' . max(1, min(20, $limit)),
         );

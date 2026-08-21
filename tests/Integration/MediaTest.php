@@ -350,7 +350,6 @@ final class MediaTest extends IntegrationTestCase
         $albums = self::app()->get(AlbumRepository::class);
         $albumId = $albums->create([
             'title' => 'Album di prova',
-            'status' => Album::STATUS_PUBLISHED,
         ]);
 
         $user = $this->createUser();
@@ -391,7 +390,6 @@ final class MediaTest extends IntegrationTestCase
 
         $albumId = self::app()->get(AlbumRepository::class)->create([
             'title' => 'Album misto',
-            'status' => Album::STATUS_PUBLISHED,
         ]);
 
         $report = self::app()->get(PhotoService::class)->uploadToAlbum(
@@ -421,7 +419,6 @@ final class MediaTest extends IntegrationTestCase
 
         $albumId = self::app()->get(AlbumRepository::class)->create([
             'title' => 'Album da svuotare',
-            'status' => Album::STATUS_PUBLISHED,
         ]);
 
         $user = $this->createUser();

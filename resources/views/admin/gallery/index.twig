@@ -32,15 +32,10 @@
                     </a>
 
                     <div class="p-4">
-                        <div class="flex items-start justify-between gap-2">
-                            <h2 class="min-w-0 font-display text-base font-bold text-viola-900">
-                                <a href="{{ route('admin.gallery.edit', { id: album.id }) }}"
-                                   class="hover:text-viola-700 focus-ring rounded">{{ album.title }}</a>
-                            </h2>
-                            <span class="badge shrink-0 {{ album.status == 'published' ? 'badge-successo' : (album.status == 'archived' ? 'badge-neutro' : 'badge-attenzione') }}">
-                                {{ album.statusLabel }}
-                            </span>
-                        </div>
+                        <h2 class="min-w-0 font-display text-base font-bold text-viola-900">
+                            <a href="{{ route('admin.gallery.edit', { id: album.id }) }}"
+                               class="hover:text-viola-700 focus-ring rounded">{{ album.title }}</a>
+                        </h2>
 
                         <p class="mt-1 text-xs text-sabbia-500">
                             {{ album.photosLabel }}
@@ -52,13 +47,6 @@
                                 {{ include('components/icon.twig', { name: 'upload', class: 'h-3.5 w-3.5' }) }}
                                 Gestisci foto
                             </a>
-                            {% if album.isPublished %}
-                                <a href="{{ route('gallery.show', { riferimento: album.urlKey }) }}" target="_blank" rel="noopener"
-                                   class="btn-fantasma btn-piccolo">
-                                    {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
-                                    <span class="sr-only">Vedi sul sito</span>
-                                </a>
-                            {% endif %}
                             {{ include('components/admin-delete-button.twig', {
                                 action: route('admin.gallery.destroy', { id: album.id }),
                                 question: 'Eliminare album e tutte le sue foto?'

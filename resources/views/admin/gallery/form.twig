@@ -9,11 +9,17 @@
         back: { url: route('admin.gallery.index'), label: 'Torna alla galleria' }
     }) }}
 
-    <div class="grid gap-5 lg:grid-cols-3">
+{#
+   Finche l'album non esiste, la colonna delle fotografie e vuota: tenere il
+   modulo stretto a un terzo lascerebbe due terzi di pagina bianca alla sua
+   destra. Da solo si allarga e si centra; appena c'e un album da riempire
+   torna di fianco alle fotografie.
+#}
+    <div class="{{ isNew ? 'mx-auto max-w-2xl' : 'grid gap-5 lg:grid-cols-3' }}">
 
         {# --- Dati dell album --- #}
         <form action="{{ isNew ? route('admin.gallery.store') : route('admin.gallery.update', { id: album.id }) }}"
-              method="post" class="lg:col-span-1">
+              method="post" class="{{ isNew ? '' : 'lg:col-span-1' }}">
             {{ csrf_field()|raw }}
 
             <section class="pannello">
@@ -41,13 +47,7 @@
 
                     {{ include('components/field.twig', {
                         name: 'event_date', label: 'Data', type: 'date',
-                        value: old('event_date', isNew or not album.eventDate ? '' : album.eventDate|iso_data),
-                        help: 'Serve a ordinare gli album e a filtrarli per anno.'
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'status', label: 'Stato', type: 'select', options: statuses,
-                        value: old('status', isNew ? 'draft' : album.status)
+                        value: old('event_date', isNew or not album.eventDate ? '' : album.eventDate|iso_data)
                     }) }}
 
                     <div class="border-t border-sabbia-200 pt-4">
@@ -58,8 +58,8 @@
         </form>
 
         {# --- Fotografie --- #}
+        {% if not isNew %}
         <div class="space-y-5 lg:col-span-2">
-            {% if not isNew %}
 
                 {# --- Caricamento multiplo --- #}
                 <section class="pannello">
@@ -277,7 +277,7 @@
                         </div>
                     {% endif %}
                 </section>
-            {% endif %}
         </div>
+        {% endif %}
     </div>
 {% endblock %}
