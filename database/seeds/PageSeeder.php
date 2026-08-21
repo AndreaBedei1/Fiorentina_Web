@@ -87,23 +87,22 @@ final class PageSeeder extends Seeder
                 'subtitle' => 'Un gruppo di tifosi nato in curva e cresciuto in trasferta.',
                 'intro' => 'Siamo un gruppo organizzato di tifosi della Fiorentina. Non siamo un club esclusivo: siamo persone che hanno scelto di seguire la squadra insieme, dentro e fuori dallo stadio.',
                 'content' => '<h2>Come è nato il gruppo</h2>'
-                    . '<p>La Baraonda nasce da un gruppo di amici che seguiva la squadra in trasferta con mezzi propri. Con il tempo il gruppo e cresciuto, sono arrivati i primi pullman organizzati, poi la sede, poi le coreografie.</p>'
-                    . '<p><em>Testo dimostrativo: sostituire con la storia reale del gruppo, con date e nomi corretti.</em></p>'
+                    . '<p>La Baraonda nasce da un gruppo di amici che seguiva la squadra in trasferta con mezzi propri. Con il tempo il gruppo è cresciuto, sono arrivati i primi pullman organizzati, poi la sede, poi le coreografie.</p>'
+                    . ''
                     . '<h2>Cosa facciamo</h2>'
                     . '<p>Organizziamo trasferte, curiamo le coreografie della curva, teniamo viva la sede come punto di ritrovo, promuoviamo iniziative solidali sul territorio.</p>'
                     . '<h2>Il rapporto con Firenze</h2>'
                     . '<p>Il legame con la città non finisce con la partita: partecipiamo a iniziative di quartiere, raccolte alimentari e attività con le scuole.</p>'
-                    . '<p><em>Testo dimostrativo.</em></p>',
+                    . '',
                 'blocks' => [
                     [
                         'type' => PageBlock::TYPE_STATS,
                         'title' => 'Il gruppo in numeri',
-                        'subtitle' => 'Dati dimostrativi: da aggiornare con quelli reali.',
-                        'items' => [
+                                                'items' => [
                             ['title' => 'Anno di fondazione', 'text' => '2015'],
                             ['title' => 'Soci tesserati', 'text' => 'oltre 400'],
-                            ['title' => 'Trasferte all anno', 'text' => 'circa 20'],
-                            ['title' => 'Coreografie realizzate', 'text' => 'piu di 60'],
+                            ['title' => "Trasferte all'anno", 'text' => 'circa 20'],
+                            ['title' => 'Coreografie realizzate', 'text' => 'più di 60'],
                         ],
                     ],
                     [
@@ -111,30 +110,25 @@ final class PageSeeder extends Seeder
                         'title' => 'I nostri valori',
                         'items' => [
                             ['title' => 'Appartenenza', 'text' => 'Si entra per restare, non per una stagione.'],
-                            ['title' => 'Rispetto', 'text' => 'Fra noi, verso la città e verso chi tifa un altra squadra.'],
-                            ['title' => 'Indipendenza', 'text' => 'Il gruppo si autofinanzia e decide da se.'],
-                            ['title' => 'Solidarieta', 'text' => 'Quello che possiamo fare per il territorio, lo facciamo.'],
+                            ['title' => 'Rispetto', 'text' => "Fra noi, verso la città e verso chi tifa un'altra squadra."],
+                            ['title' => 'Indipendenza', 'text' => 'Il gruppo si autofinanzia e decide da sé.'],
+                            ['title' => 'Solidarietà', 'text' => 'Quello che possiamo fare per il territorio, lo facciamo.'],
                         ],
                     ],
                     [
                         'type' => PageBlock::TYPE_TIMELINE,
                         'title' => 'Le tappe principali',
-                        'subtitle' => 'Segnaposto: inserire le date reali della storia del gruppo.',
-                        'items' => [
+                                                'items' => [
                             ['title' => '2015', 'text' => 'Nasce il gruppo, prime trasferte con mezzi propri.'],
                             ['title' => '2018', 'text' => 'Apre la prima sede.'],
                             ['title' => '2021', 'text' => 'Prima grande coreografia della curva.'],
-                            ['title' => '2023', 'text' => 'Nasce l attività solidale sul territorio.'],
+                            ['title' => '2023', 'text' => "Nasce l'attività solidale sul territorio."],
                             ['title' => 'Oggi', 'text' => 'Oltre quattrocento soci e una trasferta quasi ogni settimana.'],
                         ],
                     ],
-                    [
-                        'type' => PageBlock::TYPE_CTA,
-                        'title' => 'Vuoi far parte del gruppo?',
-                        'body' => '<p>Le iscrizioni sono sempre aperte. Bastano un documento e una fotografia.</p>',
-                        'link_url' => '/diventa-socio',
-                        'link_label' => 'Scopri come iscriverti',
-                    ],
+                    // Nessun invito all'iscrizione qui: la pagina si chiude
+                    // gia con quello sotto l'organigramma, e ripeterlo a meta
+                    // pagina lo indeboliva soltanto.
                 ],
             ],
             [

@@ -110,7 +110,7 @@ final class AdminUserService
         return $this->tokens->findValidInvite(TokenGenerator::hash($plainToken));
     }
 
-    /** Completa l'invito: imposta la password è attiva l'account. */
+    /** Completa l'invito: imposta la password e attiva l'account. */
     public function acceptInvite(string $plainToken, string $password): AdminActionResult
     {
         $invite = $this->findInviteByToken($plainToken);

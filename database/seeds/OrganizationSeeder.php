@@ -14,12 +14,12 @@ namespace Database\Seeders;
 final class OrganizationSeeder extends Seeder
 {
     private const MEMBERS = [
-        ['presidente', 'Nome Cognome (presidente)', 'Presidente', 'Guida il gruppo dal 2019. Segue i rapporti con la società e con le istituzioni.', 2005, 1],
-        ['vicepresidente', 'Nome Cognome (vicepresidente)', 'Vicepresidente', 'Coordina le attività quotidiane e sostituisce il presidente quando serve.', 2008, 2],
-        ['responsabile-contabile', 'Nome Cognome (contabile)', 'Responsabile contabile', 'Cura quote, bilancio e rendicontazione delle trasferte.', 2010, 3],
-        ['responsabile-trasferte', 'Nome Cognome (trasferte)', 'Responsabile trasferte', 'Organizza pullman, biglietti e logistica.', 2012, 4],
-        ['responsabile-merchandising', 'Nome Cognome (merchandising)', 'Responsabile merchandising', 'Segue produzione, magazzino e consegna del materiale.', 2015, 5],
-        ['responsabile-comunicazione', 'Nome Cognome (comunicazione)', 'Responsabile comunicazione', 'Gestisce sito, social e archivio fotografico.', 2018, 6],
+        ['presidente', 'Nome Cognome', 'Presidente', 'Guida il gruppo dal 2019. Segue i rapporti con la società e con le istituzioni.', 2005, 1],
+        ['vicepresidente', 'Nome Cognome', 'Vicepresidente', 'Coordina le attività quotidiane e sostituisce il presidente quando serve.', 2008, 2],
+        ['responsabile-contabile', 'Nome Cognome', 'Responsabile contabile', 'Cura quote, bilancio e rendicontazione delle trasferte.', 2010, 3],
+        ['responsabile-trasferte', 'Nome Cognome', 'Responsabile trasferte', 'Organizza pullman, biglietti e logistica.', 2012, 4],
+        ['responsabile-merchandising', 'Nome Cognome', 'Responsabile merchandising', 'Segue produzione, magazzino e consegna del materiale.', 2015, 5],
+        ['responsabile-comunicazione', 'Nome Cognome', 'Responsabile comunicazione', 'Gestisce sito, social e archivio fotografico.', 2018, 6],
     ];
 
     public function name(): string

@@ -33,11 +33,10 @@
         {% if members is not empty %}
             <section class="mt-section" aria-labelledby="direttivo-title">
                 <h2 id="direttivo-title" class="font-display text-2xl font-bold text-viola-900">Chi guida il gruppo</h2>
-                <p class="mt-2 max-w-2xl text-base text-sabbia-700">
-                    Il direttivo è eletto dai soci e resta in carica per il mandato stabilito dallo statuto.
-                </p>
 
-                <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
+                {# Fotografia, nome e ruolo: chi arriva qui vuole sapere a chi
+                   rivolgersi, non leggere una biografia. #}
+                <ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="list">
                     {% for member in members %}
                         <li class="rounded-card bg-white p-5 text-center shadow-card">
                             {% if member.hasPhoto %}
@@ -62,13 +61,6 @@
                                 <p class="mt-0.5 text-2xs font-bold uppercase tracking-[0.12em] text-rosso-700">{{ member.displayRole }}</p>
                             {% endif %}
 
-                            {% if member.memberSince %}
-                                <p class="mt-1 text-xs text-sabbia-500">Socio dal {{ member.memberSince }}</p>
-                            {% endif %}
-
-                            {% if member.bio %}
-                                <p class="mt-3 text-sm leading-relaxed text-sabbia-700">{{ member.bio }}</p>
-                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>

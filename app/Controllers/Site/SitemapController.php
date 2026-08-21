@@ -93,7 +93,7 @@ final class SitemapController extends Controller
     {
         $lines = [
             'User-agent: *',
-            // L'area riservata, il carrello è il percorso d'ordine non hanno
+            // L'area riservata, il carrello e il percorso d'ordine non hanno
             // alcun valore per i motori di ricerca.
             'Disallow: /admin',
             'Disallow: /carrello',

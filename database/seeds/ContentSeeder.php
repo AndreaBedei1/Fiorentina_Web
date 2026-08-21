@@ -72,7 +72,7 @@ final class ContentSeeder extends Seeder
         return [
             [
                 'title' => 'Tesseramento 2026: aperte le iscrizioni',
-                'excerpt' => 'Da questa settimana è possibile rinnovare la tessera o iscriversi per la prima volta. Sede aperta il martedì è il giovedì sera.',
+                'excerpt' => 'Da questa settimana è possibile rinnovare la tessera o iscriversi per la prima volta. Sede aperta il martedì e il giovedì sera.',
                 'content' => '<p>Sono ufficialmente aperte le iscrizioni per la stagione 2026. Chi era già socio può rinnovare la tessera direttamente in sede; per le nuove iscrizioni serve un documento di identità e una fotografia formato tessera.</p>'
                     . '<h2>Cosa comprende la tessera</h2>'
                     . '<ul><li>Priorita nella prenotazione dei posti in trasferta</li>'
@@ -80,8 +80,7 @@ final class ContentSeeder extends Seeder
                     . '<li>Accesso alle iniziative riservate ai soci</li>'
                     . '<li>Partecipazione all\'assemblea annuale</li></ul>'
                     . '<h2>Quando venire</h2>'
-                    . '<p>La sede è aperta il martedì è il giovedì dalle 21 alle 23. Nelle settimane con partita in casa apriamo anche il sabato pomeriggio.</p>'
-                    . '<p><em>Testo dimostrativo: sostituire con le informazioni reali del gruppo.</em></p>',
+                    . '<p>La sede è aperta il martedì e il giovedì dalle 21 alle 23. Nelle settimane con partita in casa apriamo anche il sabato pomeriggio.</p>',
                 'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 3,
                 'views' => 214,
@@ -92,8 +91,7 @@ final class ContentSeeder extends Seeder
                 'content' => '<p>La risposta è stata immediata: i due pullman per Bologna sono al completo in meno di due giorni. Chi è rimasto fuori può lasciare il nominativo in sede, stiamo valutando un terzo mezzo.</p>'
                     . '<h2>Informazioni pratiche</h2>'
                     . '<p>Ritrovo alle 12:30 al piazzale, partenza alle 13 in punto. Chi arriva in ritardo non viene aspettato: i tempi con la prefettura sono rigidi.</p>'
-                    . '<p>Portare tessera e documento. Il biglietto viene consegnato in pullman.</p>'
-                    . '<p><em>Testo dimostrativo: sostituire con le informazioni reali della trasferta.</em></p>',
+                    . '<p>Portare tessera e documento. Il biglietto viene consegnato in pullman.</p>',
                 'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 9,
                 'views' => 178,
@@ -106,8 +104,7 @@ final class ContentSeeder extends Seeder
                     . '<ul><li>Tremila cartoncini tagliati a mano</li>'
                     . '<li>Quattrocento metri di teli dipinti</li>'
                     . '<li>Ottanta persone coinvolte nel montaggio</li></ul>'
-                    . '<blockquote><p>Non si fa per la fotografia. Si fa perché quando la squadra entra deve sentire che non e sola.</p></blockquote>'
-                    . '<p><em>Testo dimostrativo: sostituire con il racconto reale.</em></p>',
+                    . '<blockquote><p>Non si fa per la fotografia. Si fa perché quando la squadra entra deve sentire che non e sola.</p></blockquote>',
                 'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 21,
                 'views' => 402,
@@ -117,17 +114,16 @@ final class ContentSeeder extends Seeder
                 'excerpt' => 'Il risultato della raccolta di dicembre è stato consegnato alla mensa cittadina. Grazie a tutti quelli che hanno portato qualcosa.',
                 'content' => '<p>La raccolta alimentare organizzata prima della gara casalinga di dicembre ha permesso di consegnare oltre ottocento chili di generi alimentari alla mensa cittadina.</p>'
                     . '<p>E la quarta edizione dell\'iniziativa. Ogni anno cresce, e ogni anno ci ricorda che una curva può essere anche questo.</p>'
-                    . '<p><em>Testo dimostrativo: sostituire con i dati reali dell\'iniziativa.</em></p>',
+                    . '',
                 'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 34,
                 'views' => 156,
             ],
             [
                 'title' => 'Nuovo materiale disponibile in sede',
-                'excerpt' => 'Sciarpe della nuova serie, felpe invernali è la maglietta celebrativa dell\'anniversario.',
+                'excerpt' => 'Sciarpe della nuova serie, felpe invernali e la maglietta celebrativa dell\'anniversario.',
                 'content' => '<p>E\'arrivato il nuovo materiale. Trovate tutto nel catalogo del sito, oppure direttamente in sede negli orari di apertura.</p>'
-                    . '<p>Per i soci resta attivo lo sconto riservato: ricordate di presentare la tessera.</p>'
-                    . '<p><em>Testo dimostrativo: sostituire con le novità reali.</em></p>',
+                    . '<p>Per i soci resta attivo lo sconto riservato: ricordate di presentare la tessera.</p>',
                 'status' => News::STATUS_PUBLISHED,
                 'daysAgo' => 48,
                 'views' => 97,
@@ -203,7 +199,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Riunione mensile dei soci',
                 'category' => 'riunione',
                 'short' => 'Punto sulle trasferte, tesseramento e organizzazione delle prossime iniziative.',
-                'description' => '<p>Appuntamento fisso del gruppo. Si parla di trasferte in programma, tesseramento, materiale e proposte dei soci.</p><p>La riunione è aperta a tutti i tesserati. Chi vuole iscriversi può venire e farlo direttamente in sede.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>Appuntamento fisso del gruppo. Si parla di trasferte in programma, tesseramento, materiale e proposte dei soci.</p><p>La riunione è aperta a tutti i tesserati. Chi vuole iscriversi può venire e farlo direttamente in sede.</p>',
                 'inDays' => 5,
                 'time' => '21:00',
                 'location' => 'Sede della Baraonda',
@@ -221,7 +217,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Trasferta a Bologna',
                 'category' => 'trasferta',
                 'short' => 'Due pullman organizzati. Ritrovo alle 12:30, partenza alle 13 in punto.',
-                'description' => '<p>Trasferta organizzata con due pullman. Il prezzo comprende viaggio e biglietto del settore ospiti.</p><h2>Programma</h2><ul><li>12:30 ritrovo al piazzale</li><li>13:00 partenza</li><li>Rientro previsto in serata</li></ul><p>Portare tessera e documento di identità: senza, l\'accesso al settore ospiti non è consentito.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>Trasferta organizzata con due pullman. Il prezzo comprende viaggio e biglietto del settore ospiti.</p><h2>Programma</h2><ul><li>12:30 ritrovo al piazzale</li><li>13:00 partenza</li><li>Rientro previsto in serata</li></ul><p>Portare tessera e documento di identità: senza, l\'accesso al settore ospiti non è consentito.</p>',
                 'inDays' => 12,
                 'time' => '13:00',
                 'location' => 'Stadio Renato Dall Ara',
@@ -239,7 +235,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Cena sociale di primavera',
                 'category' => 'cena-sociale',
                 'short' => 'La cena annuale del gruppo. Menu fisso, si prenota in sede entro la settimana precedente.',
-                'description' => '<p>La cena sociale e uno dei momenti più partecipati dell\'anno: si mangia insieme, si premiano i soci storici e si presentano le attività della stagione.</p><p>Menu fisso, bevande incluse. I bambini sotto i dieci anni pagano meta.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>La cena sociale e uno dei momenti più partecipati dell\'anno: si mangia insieme, si premiano i soci storici e si presentano le attività della stagione.</p><p>Menu fisso, bevande incluse. I bambini sotto i dieci anni pagano meta.</p>',
                 'inDays' => 26,
                 'time' => '20:00',
                 'location' => 'Circolo ricreativo',
@@ -257,7 +253,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Raduno prima della partita in casa',
                 'category' => 'raduno',
                 'short' => 'Ritrovo al circolo due ore prima del fischio d\'inizio, poi tutti insieme allo stadio.',
-                'description' => '<p>Come sempre ci troviamo al circolo due ore prima del fischio d\'inizio. Si beve qualcosa insieme e si va allo stadio in corteo.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>Come sempre ci troviamo al circolo due ore prima del fischio d\'inizio. Si beve qualcosa insieme e si va allo stadio in corteo.</p>',
                 'inDays' => 8,
                 'time' => '13:00',
                 'location' => 'Circolo vicino allo stadio',
@@ -275,7 +271,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Festa per l\'anniversario del gruppo',
                 'category' => 'festa',
                 'short' => 'Musica, proiezione del video storico e taglio della torta.',
-                'description' => '<p>Festeggiamo l\'anniversario della fondazione con una serata aperta a soci, familiari e amici.</p><p>In programma la proiezione del video storico del gruppo è la premiazione dei soci fondatori.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>Festeggiamo l\'anniversario della fondazione con una serata aperta a soci, familiari e amici.</p><p>In programma la proiezione del video storico del gruppo e la premiazione dei soci fondatori.</p>',
                 'inDays' => 45,
                 'time' => '19:30',
                 'location' => 'Sede della Baraonda',
@@ -293,7 +289,7 @@ final class ContentSeeder extends Seeder
                 'title' => 'Raccolta alimentare per la mensa cittadina',
                 'category' => 'iniziativa',
                 'short' => 'Banchetto davanti allo stadio prima della partita: portate quello che potete.',
-                'description' => '<p>Quarta edizione della raccolta alimentare. Il banchetto sara davanti all\'ingresso della curva dalle 13 fino al fischio d\'inizio.</p><p>Servono soprattutto generi a lunga conservazione: pasta, riso, legumi in scatola, olio.</p><p><em>Testo dimostrativo.</em></p>',
+                'description' => '<p>Quarta edizione della raccolta alimentare. Il banchetto sara davanti all\'ingresso della curva dalle 13 fino al fischio d\'inizio.</p><p>Servono soprattutto generi a lunga conservazione: pasta, riso, legumi in scatola, olio.</p>',
                 'inDays' => -18,
                 'time' => '13:00',
                 'location' => 'Ingresso Curva Fiesole',
