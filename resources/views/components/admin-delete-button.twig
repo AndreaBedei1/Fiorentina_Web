@@ -11,10 +11,14 @@
   di non fare nulla. Con JavaScript, Alpine intercetta il clic e apre la
   finestra, che e il comportamento normale.
 
+  La domanda basta a se stessa: "Eliminare questa notizia?" dice tutto quello
+  che c'e da sapere per rispondere, e una riga in piu sotto sarebbe soltanto
+  qualcosa da leggere prima di premere il pulsante che si era gia deciso di
+  premere.
+
   Parametri:
     action        obbligatorio  indirizzo a cui inviare
     question                    la domanda, per esempio "Eliminare questa notizia?"
-    detail                      una riga in piu su cosa comporta
     label                       testo del pulsante (default "Elimina")
     icon, buttonClass
 #}
@@ -36,14 +40,9 @@
                 {{ include('components/icon.twig', { name: 'alert', class: 'h-5 w-5' }) }}
             </span>
 
-            <div class="min-w-0">
-                <h2 id="{{ titolo }}" class="font-display text-base font-bold text-viola-900">
-                    {{ question|default('Confermi?') }}
-                </h2>
-                <p class="mt-1 text-sm leading-relaxed text-sabbia-600">
-                    {{ detail|default("Non potrai annullare da qui: se sbagli, serve rimetterci le mani a mano.") }}
-                </p>
-            </div>
+            <h2 id="{{ titolo }}" class="min-w-0 pt-2 font-display text-base font-bold text-viola-900">
+                {{ question|default('Confermi?') }}
+            </h2>
         </div>
 
         <div class="mt-5 flex flex-wrap justify-end gap-2">
