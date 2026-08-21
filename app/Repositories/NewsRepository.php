@@ -19,7 +19,7 @@ final class NewsRepository extends BaseRepository
      * e che, moltiplicata per una pagina di risultati, pesa parecchio.
      */
     private const LIST_COLUMNS = 'n.id, n.title, n.slug, n.excerpt, n.image_key, n.image_alt,
-        n.author_id, n.status, n.published_at, n.is_featured, n.views,
+        n.author_id, n.status, n.published_at, n.views,
         n.created_at, n.updated_at, u.name AS author_name';
 
     private const FULL_COLUMNS = 'n.*, u.name AS author_name';

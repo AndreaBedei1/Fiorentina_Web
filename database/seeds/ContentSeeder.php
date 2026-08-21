@@ -39,7 +39,7 @@ final class ContentSeeder extends Seeder
         $authorId = $this->db->scalar("SELECT id FROM users WHERE role = 'SUPER_ADMIN' ORDER BY id LIMIT 1");
         $created = 0;
 
-        foreach ($this->newsFixtures() as $index => $item) {
+        foreach ($this->newsFixtures() as $item) {
             $this->db->insertInto('news', [
                 'title' => $item['title'],
                 'slug' => Str::slug($item['title']),
@@ -51,7 +51,6 @@ final class ContentSeeder extends Seeder
                 'published_at' => $item['status'] === News::STATUS_PUBLISHED
                     ? $this->daysFromNow(-$item['daysAgo'], '10:30')
                     : null,
-                'is_featured' => $index === 0 ? 1 : 0,
                 'meta_description' => $item['excerpt'],
                 'views' => $item['views'],
                 'created_at' => $this->daysFromNow(-$item['daysAgo'] - 1, '18:00'),
@@ -66,75 +65,45 @@ final class ContentSeeder extends Seeder
         return $created;
     }
 
-    /** @return list<array{title: string, excerpt: string, content: string, status: string, daysAgo: int, views: int}> */
+    /**
+     * L'unica notizia del sito: quella che ne annuncia l'apertura.
+     *
+     * Le altre erano contenuti dimostrativi. Averne una vera e utile e meglio
+     * che averne sei inventate: il gruppo aggiungera le proprie dal pannello.
+     *
+     * @return list<array{title: string, excerpt: string, content: string, status: string, daysAgo: int, views: int}>
+     */
     private function newsFixtures(): array
     {
         return [
             [
-                'title' => 'Tesseramento 2026: aperte le iscrizioni',
-                'excerpt' => 'Da questa settimana è possibile rinnovare la tessera o iscriversi per la prima volta. Sede aperta il martedì e il giovedì sera.',
-                'content' => '<p>Sono ufficialmente aperte le iscrizioni per la stagione 2026. Chi era già socio può rinnovare la tessera direttamente in sede; per le nuove iscrizioni serve un documento di identità e una fotografia formato tessera.</p>'
-                    . '<h2>Cosa comprende la tessera</h2>'
-                    . '<ul><li>Priorita nella prenotazione dei posti in trasferta</li>'
-                    . '<li>Prezzo riservato sul materiale ufficiale</li>'
-                    . '<li>Accesso alle iniziative riservate ai soci</li>'
-                    . '<li>Partecipazione all\'assemblea annuale</li></ul>'
-                    . '<h2>Quando venire</h2>'
-                    . '<p>La sede è aperta il martedì e il giovedì dalle 21 alle 23. Nelle settimane con partita in casa apriamo anche il sabato pomeriggio.</p>',
+                'title' => 'Il sito della Baraonda è online',
+                'excerpt' => 'Da oggi il gruppo ha un sito: calendario, eventi, fotografie, '
+                    . 'merchandising e informazioni per iscriversi, tutto in un unico posto.',
+                'content' => '<p>Da oggi il gruppo ha un sito. Nasce per avere un posto solo dove trovare '
+                    . 'quello che prima girava fra messaggi, storie e passaparola: quando si gioca, '
+                    . 'quando ci si trova, come ci si iscrive.</p>'
+                    . '<h2>Cosa ci trovi</h2>'
+                    . '<ul>'
+                    . '<li><strong>Il calendario</strong> con le partite della Fiorentina e gli '
+                    . 'appuntamenti del gruppo, in un unico elenco.</li>'
+                    . '<li><strong>Gli eventi</strong>: trasferte organizzate, riunioni, cene sociali, '
+                    . 'con luogo, orario e come partecipare.</li>'
+                    . '<li><strong>Le fotografie</strong> divise per album, dalle trasferte alle coreografie.</li>'
+                    . '<li><strong>Il merchandising</strong>: sciarpe, magliette e materiale del gruppo, '
+                    . 'con la richiesta d\'ordine direttamente dal sito.</li>'
+                    . '<li><strong>Come iscriversi</strong>, con quota e riferimenti per farlo.</li>'
+                    . '</ul>'
+                    . '<h2>Sugli ordini</h2>'
+                    . '<p>Il sito non gestisce pagamenti: l\'ordine è una richiesta, e il pagamento '
+                    . 'avviene come sempre, in sede o come concordato. Non ti verranno mai chiesti '
+                    . 'dati di carte di credito.</p>'
+                    . '<h2>Segnalazioni</h2>'
+                    . '<p>Il sito è appena partito e continuerà a crescere. Se trovi qualcosa che non '
+                    . 'funziona, o se hai fotografie e materiale da aggiungere, scrivici dalla pagina '
+                    . 'dei contatti.</p>',
                 'status' => News::STATUS_PUBLISHED,
-                'daysAgo' => 3,
-                'views' => 214,
-            ],
-            [
-                'title' => 'Trasferta di Bologna: due pullman al completo',
-                'excerpt' => 'Posti esauriti in quarantotto ore. Ritrovo alle 12:30 al piazzale, partenza alle 13 in punto.',
-                'content' => '<p>La risposta è stata immediata: i due pullman per Bologna sono al completo in meno di due giorni. Chi è rimasto fuori può lasciare il nominativo in sede, stiamo valutando un terzo mezzo.</p>'
-                    . '<h2>Informazioni pratiche</h2>'
-                    . '<p>Ritrovo alle 12:30 al piazzale, partenza alle 13 in punto. Chi arriva in ritardo non viene aspettato: i tempi con la prefettura sono rigidi.</p>'
-                    . '<p>Portare tessera e documento. Il biglietto viene consegnato in pullman.</p>',
-                'status' => News::STATUS_PUBLISHED,
-                'daysAgo' => 9,
-                'views' => 178,
-            ],
-            [
-                'title' => 'La coreografia del derby, un anno di lavoro',
-                'excerpt' => 'Tremila cartoncini, quattrocento metri di teli e sei mesi di preparazione. Il racconto di come nasce una coreografia.',
-                'content' => '<p>Dietro i novanta secondi in cui la curva si accende ci sono mesi di lavoro. Abbiamo raccontato tutto il percorso: dal primo bozzetto alla notte prima della partita.</p>'
-                    . '<h2>I numeri</h2>'
-                    . '<ul><li>Tremila cartoncini tagliati a mano</li>'
-                    . '<li>Quattrocento metri di teli dipinti</li>'
-                    . '<li>Ottanta persone coinvolte nel montaggio</li></ul>'
-                    . '<blockquote><p>Non si fa per la fotografia. Si fa perché quando la squadra entra deve sentire che non e sola.</p></blockquote>',
-                'status' => News::STATUS_PUBLISHED,
-                'daysAgo' => 21,
-                'views' => 402,
-            ],
-            [
-                'title' => 'Raccolta alimentare: consegnati 800 chili',
-                'excerpt' => 'Il risultato della raccolta di dicembre è stato consegnato alla mensa cittadina. Grazie a tutti quelli che hanno portato qualcosa.',
-                'content' => '<p>La raccolta alimentare organizzata prima della gara casalinga di dicembre ha permesso di consegnare oltre ottocento chili di generi alimentari alla mensa cittadina.</p>'
-                    . '<p>E la quarta edizione dell\'iniziativa. Ogni anno cresce, e ogni anno ci ricorda che una curva può essere anche questo.</p>'
-                    . '',
-                'status' => News::STATUS_PUBLISHED,
-                'daysAgo' => 34,
-                'views' => 156,
-            ],
-            [
-                'title' => 'Nuovo materiale disponibile in sede',
-                'excerpt' => 'Sciarpe della nuova serie, felpe invernali e la maglietta celebrativa dell\'anniversario.',
-                'content' => '<p>E\'arrivato il nuovo materiale. Trovate tutto nel catalogo del sito, oppure direttamente in sede negli orari di apertura.</p>'
-                    . '<p>Per i soci resta attivo lo sconto riservato: ricordate di presentare la tessera.</p>',
-                'status' => News::STATUS_PUBLISHED,
-                'daysAgo' => 48,
-                'views' => 97,
-            ],
-            [
-                'title' => 'Bozza: assemblea annuale dei soci',
-                'excerpt' => 'Convocazione dell\'assemblea ordinaria. Data e ordine del giorno da definire.',
-                'content' => '<p>Questa notizia e in bozza: serve a mostrare come appare un contenuto non ancora pubblicato nel pannello di gestione.</p>'
-                    . '<p>Una bozza non e visibile sul sito pubblico finché non viene pubblicata.</p>',
-                'status' => News::STATUS_DRAFT,
-                'daysAgo' => 1,
+                'daysAgo' => 0,
                 'views' => 0,
             ],
         ];

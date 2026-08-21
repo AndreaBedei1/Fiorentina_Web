@@ -273,7 +273,6 @@ final class NewsController extends Controller
             'image_alt' => $request->nullableString('image_alt'),
             'status' => $status,
             'published_at' => $publishedAt,
-            'is_featured' => $request->bool('is_featured') ? 1 : 0,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
         ];

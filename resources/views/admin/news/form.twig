@@ -128,12 +128,6 @@
                         Con una data futura la notizia resta programmata.
                     </p>
 
-                    {{ include('components/field.twig', {
-                        name: 'is_featured', label: 'Metti in evidenza', type: 'checkbox',
-                        value: old('is_featured', isNew ? false : article.isFeatured),
-                        help: 'La notizia viene messa in risalto negli elenchi.'
-                    }) }}
-
                     <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-4">
                         <button type="submit" class="btn-primario flex-1">Salva</button>
                         {% if not isNew and article.isPublished %}
