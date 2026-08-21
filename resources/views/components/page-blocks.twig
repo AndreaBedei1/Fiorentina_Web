@@ -7,7 +7,13 @@
   e il sito diventerebbe impossibile da mantenere per chi lo eredita.
 
   I titoli dei blocchi sono h2, quindi restano sotto l'h1 della pagina.
+
+  Parametro "stretto": il blocco viene reso in una colonna laterale invece che
+  a tutta larghezza. Cambia solo il numero di colonne interne e la scala dei
+  titoli, non la struttura: cosi lo stesso blocco resta leggibile in entrambi i
+  contesti senza doverne scrivere una seconda versione.
 #}
+{% set stretto = stretto|default(false) %}
 {% for block in blocks %}
 
     {# ---------- ELENCO PUNTATO ---------- #}
@@ -52,15 +58,17 @@
 
     {# ---------- NUMERI CHIAVE ---------- #}
     {% elseif block.type == 'stats' %}
-        <section class="mt-12">
-            {% if block.title %}<h2 class="font-display text-2xl font-bold text-viola-900">{{ block.title }}</h2>{% endif %}
+        <section class="{{ stretto ? '' : 'mt-12' }}">
+            {% if block.title %}<h2 class="font-display font-bold text-viola-900 {{ stretto ? 'text-xl' : 'text-2xl' }}">{{ block.title }}</h2>{% endif %}
             {% if block.subtitle %}<p class="mt-2 text-sm text-sabbia-600">{{ block.subtitle }}</p>{% endif %}
 
-            <dl class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <dl class="mt-6 grid gap-4 {{ stretto ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4' }}">
                 {% for item in block.items %}
-                    <div class="rounded-card bg-viola-900 p-5 text-center">
+                    {# In colonna stretta il numero sta accanto all'etichetta:
+                       impilarli verticalmente sprecherebbe altezza per niente. #}
+                    <div class="rounded-card bg-viola-900 p-4 {{ stretto ? 'flex items-baseline justify-between gap-4 px-5' : 'p-5 text-center' }}">
                         <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-viola-300">{{ item.title }}</dt>
-                        <dd class="mt-2 font-display text-2xl font-extrabold text-white sm:text-3xl">{{ item.text }}</dd>
+                        <dd class="font-display font-extrabold text-white {{ stretto ? 'text-xl shrink-0' : 'mt-2 text-2xl sm:text-3xl' }}">{{ item.text }}</dd>
                     </div>
                 {% endfor %}
             </dl>
@@ -68,8 +76,8 @@
 
     {# ---------- LINEA DEL TEMPO ---------- #}
     {% elseif block.type == 'timeline' %}
-        <section class="mt-12">
-            {% if block.title %}<h2 class="font-display text-2xl font-bold text-viola-900">{{ block.title }}</h2>{% endif %}
+        <section class="{{ stretto ? 'mt-10' : 'mt-12' }}">
+            {% if block.title %}<h2 class="font-display font-bold text-viola-900 {{ stretto ? 'text-xl' : 'text-2xl' }}">{{ block.title }}</h2>{% endif %}
             {% if block.subtitle %}<p class="mt-2 text-sm text-sabbia-600">{{ block.subtitle }}</p>{% endif %}
 
             <ol class="relative mt-6 space-y-6 border-l-2 border-viola-200 pl-6">

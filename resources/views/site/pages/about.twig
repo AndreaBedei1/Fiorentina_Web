@@ -7,27 +7,48 @@
         subtitle: page.subtitle
     }) }}
 
-    <div class="mx-auto max-w-5xl px-4 py-section sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
 
         {% if page.heroImageKey %}
             <figure class="-mt-16 mb-10 overflow-hidden rounded-panel shadow-panel">
                 {{ include('components/responsive-image.twig', {
                     key: page.heroImageKey, collection: 'pages',
                     alt: page.heroImageAlt ?? page.title, eager: true,
-                    class: 'w-full object-cover', sizes: '(min-width: 1024px) 64rem, 100vw'
+                    class: 'w-full object-cover', sizes: '(min-width: 1024px) 72rem, 100vw'
                 }) }}
             </figure>
         {% endif %}
 
-        {% if page.intro %}
-            <p class="max-w-3xl text-xl leading-relaxed text-viola-900">{{ page.intro }}</p>
-        {% endif %}
+        {#
+          Numeri e tappe sono dati da consultare, non da leggere in sequenza:
+          su schermo largo stanno in una colonna a fianco, dove non spezzano
+          il filo del racconto. Sotto i 1024 px tornano in fila sotto il testo,
+          perche affiancarli su schermo stretto li renderebbe illeggibili.
+        #}
+        {% set aFianco = page.visibleBlocks|filter(b => b.type in ['stats', 'timeline']) %}
+        {% set nelTesto = page.visibleBlocks|filter(b => b.type not in ['stats', 'timeline']) %}
 
-        {% if page.content %}
-            <div class="contenuto mt-8">{{ page.content|raw }}</div>
-        {% endif %}
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-12">
 
-        {{ include('components/page-blocks.twig', { blocks: page.visibleBlocks }) }}
+            <div class="lg:col-span-7">
+                {% if page.intro %}
+                    <p class="text-xl leading-relaxed text-viola-900">{{ page.intro }}</p>
+                {% endif %}
+
+                {% if page.content %}
+                    <div class="contenuto mt-8">{{ page.content|raw }}</div>
+                {% endif %}
+
+                {{ include('components/page-blocks.twig', { blocks: nelTesto }) }}
+            </div>
+
+            {% if aFianco is not empty %}
+                <aside class="mt-12 lg:col-span-5 lg:mt-0" aria-label="Il gruppo in cifre">
+                    {{ include('components/page-blocks.twig', { blocks: aFianco, stretto: true }) }}
+                </aside>
+            {% endif %}
+
+        </div>
 
         {# --- Organigramma --- #}
         {% if members is not empty %}

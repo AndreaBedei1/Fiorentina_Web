@@ -52,7 +52,7 @@
         <nav class="ml-auto hidden items-center gap-0.5 lg:flex" aria-label="Menu principale">
             {% for item in nav %}
                 <a href="{{ item.url }}"
-                   class="relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus-ring-light
+                   class="relative rounded-lg px-2 py-2 text-sm font-semibold transition-colors focus-ring-light xl:px-3
                           {{ is_active(item.url) ? 'text-white' : 'text-viola-100 hover:bg-white/10 hover:text-white' }}"
                    {{ is_active(item.url) ? 'aria-current="page"' : '' }}>
                     {{ item.label }}
@@ -83,11 +83,22 @@
               ricordare a memoria. E volutamente discreto - serve a due o tre
               persone - ma raggiungibile da tastiera come tutto il resto.
             #}
+            {#
+              Fra 1024 e 1280 px il menu completo e i due pulsanti non ci
+              stanno insieme: la testata straripava di centoventi pixel, che
+              overflow-x:hidden nascondeva senza risolvere. A quelle larghezze
+              resta la sola icona, con il nome leggibile dagli screen reader e
+              nel suggerimento del browser.
+            #}
             <a href="{{ route('admin.login') }}"
-               class="hidden items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2.5 text-sm font-semibold text-viola-100 transition hover:border-white/40 hover:bg-white/10 hover:text-white focus-ring-light sm:inline-flex">
+               aria-label="Area riservata"
+               title="Area riservata"
+               class="hidden items-center gap-1.5 rounded-lg border border-white/20 px-2.5 py-2.5 text-sm font-semibold text-viola-100 transition hover:border-white/40 hover:bg-white/10 hover:text-white focus-ring-light sm:inline-flex xl:px-3">
                 {{ include('components/icon.twig', { name: 'lock', class: 'h-4 w-4' }) }}
-                <span class="hidden md:inline">Area riservata</span>
-                <span class="md:hidden">Accedi</span>
+                {# La scritta compare quando c'e spazio; il nome del
+                   collegamento sta nell'aria-label, quindi resta corretto
+                   anche quando si vede solo il lucchetto. #}
+                <span class="hidden md:inline lg:hidden xl:inline" aria-hidden="true">Area riservata</span>
             </a>
 
             <a href="{{ route('page.join') }}"
