@@ -35,4 +35,14 @@ interface FootballApiInterface
 
     /** Indica se il fornitore e utilizzabile (per esempio se la chiave e presente). */
     public function isConfigured(): bool;
+
+    /**
+     * Perche l'ultima lettura non ha prodotto niente.
+     *
+     * Un elenco vuoto puo voler dire due cose molto diverse - non ci sono
+     * partite in programma, oppure la chiave non funziona - e chi guarda il
+     * pannello ha bisogno di sapere quale delle due. Null quando non c'e
+     * stato alcun errore.
+     */
+    public function lastError(): ?string;
 }

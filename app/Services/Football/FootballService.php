@@ -132,7 +132,11 @@ final class FootballService
          * stamperebbe "aggiornato" e chi lo lancia penserebbe che funzioni.
          */
         if ($provider->name() !== 'mock' && $upcoming === 0 && $results === 0 && $errors === []) {
-            $errors[] = 'Il fornitore non ha restituito alcuna partita: controlla la chiave API in FOOTBALL_API_KEY e il dettaglio in storage/logs.';
+            // Il fornitore sa perche non ha dato niente: chiederglielo evita
+            // di rispondere "non ha funzionato" a chi vuole sapere cosa
+            // sistemare. Se non lo sa, resta la traccia nei log.
+            $errors[] = $provider->lastError()
+                ?? 'il fornitore non ha restituito alcuna partita (il dettaglio e in storage/logs)';
         }
 
         $this->audit->logSystem(

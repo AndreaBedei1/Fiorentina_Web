@@ -53,6 +53,9 @@ final class FootballDataProvider implements FootballApiInterface
     /** Vero quando l'endpoint della squadra si e gia rivelato inutilizzabile. */
     private bool $soloCampionato = false;
 
+    /** Perche l'ultima lettura non ha dato niente. Vedi FootballApiInterface. */
+    private ?string $ultimoErrore = null;
+
     public function __construct(
         private readonly HttpClient $http,
         private readonly LoggerInterface $logger,
@@ -249,6 +252,7 @@ final class FootballDataProvider implements FootballApiInterface
 
         if ($risposta === null) {
             $this->logger->warning('API calcio: nessuna risposta utilizzabile.', ['url' => $url]);
+            $this->ultimoErrore = $this->http->lastFailure() ?? 'il fornitore non ha risposto';
 
             return null;
         }
@@ -261,11 +265,19 @@ final class FootballDataProvider implements FootballApiInterface
                 'codice' => $risposta['errorCode'] ?? null,
                 'messaggio' => $risposta['message'] ?? null,
             ]);
+            $this->ultimoErrore = trim((string) ($risposta['message'] ?? '')) !== ''
+                ? 'il fornitore ha risposto: ' . (string) $risposta['message']
+                : 'il fornitore ha rifiutato la richiesta';
 
             return null;
         }
 
         return $risposta;
+    }
+
+    public function lastError(): ?string
+    {
+        return $this->ultimoErrore;
     }
 
     /** @param array<string, mixed> $partita */

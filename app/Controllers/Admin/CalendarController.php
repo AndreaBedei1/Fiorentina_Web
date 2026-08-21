@@ -52,21 +52,34 @@ final class CalendarController extends Controller
         $scritte = $report->upcomingCount + $report->resultsCount;
 
         /*
-         * Chi preme il pulsante vuole sapere una cosa sola: il calendario
-         * adesso e giusto o no. Il dettaglio - fornitore, numeri, messaggio
-         * del server - resta nei log e nel comando di cron, che li ha
-         * qualcuno che sa leggerli.
+         * Chi preme il pulsante vuole sapere due cose: se il calendario
+         * adesso e giusto e, quando non lo e, cosa deve sistemare. La prima
+         * risposta e il tipo di messaggio, la seconda e il motivo che il
+         * fornitore ha registrato - chiave non valida, limite raggiunto,
+         * servizio irraggiungibile - invece di un generico "non ha
+         * funzionato".
          *
          * I tre casi sono distinti perche dire "fallita" quando meta delle
          * partite sono arrivate, o "aggiornato" quando non e arrivato niente,
          * sarebbe falso in due modi diversi.
          */
+        // Il motivo arriva a volte gia con il punto finale ("Your API token
+        // is invalid."): toglierlo evita il doppio punto nella frase.
+        $motivo = $report->reason();
+        $motivo = $motivo === null ? null : rtrim(trim($motivo), '.');
+
         if (! $report->hasErrors()) {
             $this->success('Calendario aggiornato.');
         } elseif ($scritte > 0) {
-            $this->warning('Calendario aggiornato solo in parte: alcune partite non sono arrivate. Riprova fra qualche minuto.');
+            $this->warning(sprintf(
+                'Calendario aggiornato solo in parte: %s. Riprova fra qualche minuto.',
+                $motivo ?? 'alcune partite non sono arrivate',
+            ));
         } else {
-            $this->error('Sincronizzazione fallita. Riprova fra qualche minuto.');
+            $this->error(sprintf(
+                'Sincronizzazione fallita: %s. Riprova fra qualche minuto.',
+                $motivo ?? 'motivo non registrato, il dettaglio e in storage/logs',
+            ));
         }
 
         return $this->redirectToRoute('admin.calendar.index');

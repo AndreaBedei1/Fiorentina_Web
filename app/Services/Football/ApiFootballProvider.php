@@ -43,6 +43,11 @@ final class ApiFootballProvider implements FootballApiInterface
         return trim($this->apiKey) !== '' && $this->teamId > 0;
     }
 
+    public function lastError(): ?string
+    {
+        return $this->http->lastFailure();
+    }
+
     /** @return list<FootballMatchData> */
     public function fetchUpcomingMatches(int $limit = 10): array
     {

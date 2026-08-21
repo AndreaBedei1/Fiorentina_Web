@@ -25,6 +25,17 @@ use Psr\Log\LoggerInterface;
  */
 class HttpClient
 {
+    /**
+     * Motivo per cui l'ultima chiamata non e riuscita.
+     *
+     * Serve a chi sta sopra: un fornitore che restituisce null non sa dire se
+     * la chiave e sbagliata, se il limite di richieste e finito o se la rete
+     * non risponde, e senza quella distinzione il pannello puo solo scrivere
+     * "non ha funzionato". Vale per l'ultima chiamata e basta, che in PHP -
+     * una richiesta, un processo - e esattamente quello che serve.
+     */
+    private ?string $ultimoErrore = null;
+
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly int $timeoutSeconds = 10,
@@ -41,15 +52,19 @@ class HttpClient
     {
         if (! function_exists('curl_init')) {
             $this->logger->error('Estensione cURL non disponibile: chiamata esterna impossibile.');
+            $this->ultimoErrore = 'il server non puo effettuare chiamate esterne (cURL non disponibile)';
 
             return null;
         }
 
         if (! $this->isAllowedUrl($url)) {
             $this->logger->error('URL esterno rifiutato.', ['url' => $url]);
+            $this->ultimoErrore = 'indirizzo esterno non consentito';
 
             return null;
         }
+
+        $this->ultimoErrore = null;
 
         $handle = curl_init();
 
@@ -77,6 +92,7 @@ class HttpClient
 
         if ($body === false || $error !== '') {
             $this->logger->warning('Chiamata HTTP non riuscita.', ['url' => $url, 'error' => $error]);
+            $this->ultimoErrore = 'il server non ha risposto (rete assente o tempo scaduto)';
 
             return null;
         }
@@ -87,11 +103,72 @@ class HttpClient
                 'status' => $statusCode,
                 'body' => mb_substr((string) $body, 0, 300),
             ]);
+            $this->ultimoErrore = $this->spiega($statusCode, (string) $body);
 
             return null;
         }
 
         return (string) $body;
+    }
+
+    /** Perche l'ultima chiamata non e riuscita, oppure null se e andata bene. */
+    public function lastFailure(): ?string
+    {
+        return $this->ultimoErrore;
+    }
+
+    /**
+     * Traduce l'esito negativo in una frase che dica cosa fare.
+     *
+     * I codici sono quelli che si incontrano davvero parlando con un'API a
+     * chiave: 401 e 403 quando la chiave non va, 429 quando si e chiesto
+     * troppo, 5xx quando il problema e dall'altra parte.
+     *
+     * Al codice si aggiunge, quando c'e, la spiegazione del fornitore stesso:
+     * e in inglese, ma "Your API token is invalid" dice esattamente cosa
+     * sistemare, mentre "errore 400" lascia a indovinare.
+     */
+    private function spiega(int $statusCode, string $corpo): string
+    {
+        $base = match (true) {
+            $statusCode === 401, $statusCode === 403 => 'la chiave di accesso non e valida o non copre questi dati',
+            $statusCode === 429 => 'limite di richieste raggiunto, il fornitore chiede di aspettare',
+            $statusCode === 404 => 'l indirizzo richiesto non esiste piu',
+            $statusCode >= 500 => 'il servizio del fornitore non e raggiungibile in questo momento',
+            default => sprintf('il fornitore ha risposto con un errore (codice %d)', $statusCode),
+        };
+
+        $dettaglio = $this->messaggioDelFornitore($corpo);
+
+        return $dettaglio === null ? $base : $base . ' - ' . $dettaglio;
+    }
+
+    /** Estrae il messaggio d'errore dal corpo JSON, se ce n'e uno leggibile. */
+    private function messaggioDelFornitore(string $corpo): ?string
+    {
+        if (trim($corpo) === '') {
+            return null;
+        }
+
+        try {
+            $decoded = json_decode($corpo, true, 8, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+
+        if (! is_array($decoded)) {
+            return null;
+        }
+
+        foreach (['message', 'error', 'detail'] as $chiave) {
+            $valore = $decoded[$chiave] ?? null;
+
+            if (is_string($valore) && trim($valore) !== '') {
+                return mb_substr(trim(preg_replace('/\s+/u', ' ', $valore) ?? ''), 0, 160);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -112,6 +189,7 @@ class HttpClient
             $decoded = json_decode($body, true, 64, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             $this->logger->warning('Risposta JSON non valida.', ['url' => $url, 'error' => $e->getMessage()]);
+            $this->ultimoErrore = 'la risposta del fornitore non era leggibile';
 
             return null;
         }

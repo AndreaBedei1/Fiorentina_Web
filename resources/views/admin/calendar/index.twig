@@ -1,10 +1,10 @@
 {#
-  Calendario partite: un pulsante, e basta.
+  Calendario partite: una riga e un pulsante.
 
   Le partite arrivano dal fornitore e si guardano sul sito, dove le guarda
   chiunque. Qui non c'e niente da amministrare: l'unica cosa che un
-  amministratore puo fare e chiedere di riallineare il calendario adesso,
-  senza aspettare il cron della notte.
+  amministratore puo fare e non aspettare, e la riga sopra il pulsante serve
+  proprio a dire che aspettare, di solito, basta.
 #}
 {% extends 'layouts/admin.twig' %}
 
@@ -13,6 +13,11 @@
 
     <div class="pannello">
         <div class="pannello-corpo">
+            <p class="mb-4 max-w-2xl text-sm leading-relaxed text-sabbia-700">
+                Il calendario si aggiorna da solo due volte al giorno, alle 6 e alle 18.
+                Premi il pulsante solo se non vuoi aspettare il prossimo aggiornamento.
+            </p>
+
             <form action="{{ route('admin.calendar.sync') }}" method="post">
                 {{ csrf_field()|raw }}
                 <button type="submit" class="btn-primario">

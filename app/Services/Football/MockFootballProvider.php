@@ -64,6 +64,12 @@ final class MockFootballProvider implements FootballApiInterface
         return true;
     }
 
+    /** I dati sono inventati sul posto: non c'e niente che possa fallire. */
+    public function lastError(): ?string
+    {
+        return null;
+    }
+
     /** @return list<FootballMatchData> */
     public function fetchUpcomingMatches(int $limit = 10): array
     {

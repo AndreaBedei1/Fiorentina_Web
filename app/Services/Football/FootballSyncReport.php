@@ -21,6 +21,12 @@ final readonly class FootballSyncReport
         return $this->errors !== [];
     }
 
+    /** La prima ragione del fallimento, quella da mostrare a chi guarda. */
+    public function reason(): ?string
+    {
+        return $this->errors[0] ?? null;
+    }
+
     public function summary(): string
     {
         return sprintf(
