@@ -14,7 +14,6 @@ use App\Core\Support\Dates;
 use App\Core\View\ViewRenderer;
 use App\Services\AuthService;
 use App\Services\CalendarService;
-use App\Services\Football\FootballService;
 use App\Services\SettingsService;
 use DateTimeImmutable;
 
@@ -34,7 +33,6 @@ final class CalendarController extends Controller
         AuthService $auth,
         Config $config,
         private readonly CalendarService $calendar,
-        private readonly FootballService $football,
         private readonly SettingsService $settings,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
@@ -67,7 +65,6 @@ final class CalendarController extends Controller
             'monthLabel' => Dates::monthName($period['month']) . ' ' . $period['year'],
             'previousMonth' => $current->modify('-1 month'),
             'nextMonth' => $current->modify('+1 month'),
-            'recentResults' => $this->football->recentResults(5),
             'showTeamLogos' => $this->settings->bool('home_show_team_logos', false),
             'today' => (new DateTimeImmutable())->format('Y-m-d'),
         ]);

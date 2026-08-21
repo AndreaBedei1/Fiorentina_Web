@@ -121,43 +121,11 @@
                 </tbody>
             </table>
 
-            {# --- Elenco anche su desktop: più leggibile della griglia --- #}
-            {% if upcoming is not empty %}
-                <div class="mt-10">
-                    <h2 class="mb-4 font-display text-xl font-bold text-viola-900">Prossimi appuntamenti</h2>
-                    <ul class="grid gap-3 xl:grid-cols-2" role="list">
-                        {% for entry in upcoming %}
-                            {{ include('components/calendar-entry.twig', { entry: entry, showTeamLogos: showTeamLogos }) }}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
+            {# Nessun elenco sotto la griglia: gli stessi appuntamenti sono gia
+               nelle caselle del mese, e ripeterli raddoppiava la pagina senza
+               aggiungere niente. L'elenco resta su mobile, dove la griglia non
+               c'e e quindi e l'unica vista disponibile. #}
         </div>
 
-        {# --- Ultimi risultati --- #}
-        {% if recentResults is not empty %}
-            <section class="mt-section" aria-labelledby="risultati-title">
-                <h2 id="risultati-title" class="mb-4 font-display text-xl font-bold text-viola-900">Ultimi risultati</h2>
-
-                <div class="overflow-hidden rounded-panel bg-white shadow-card">
-                    <ul class="divide-y divide-sabbia-100" role="list">
-                        {% for match in recentResults %}
-                            <li class="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-sm">
-                                <time datetime="{{ match.kickoffAt|iso }}" class="w-24 shrink-0 text-sabbia-500">
-                                    {{ match.kickoffAt|data_breve }}
-                                </time>
-                                <span class="min-w-0 flex-1 font-semibold text-viola-900">{{ match.title }}</span>
-                                <span class="font-display text-base font-extrabold text-viola-900">{{ match.scoreLabel }}</span>
-                                {% if match.resultLabel %}
-                                    <span class="badge {{ match.result == 'W' ? 'badge-successo' : (match.result == 'L' ? 'badge-errore' : 'badge-neutro') }}">
-                                        {{ match.resultLabel }}
-                                    </span>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </section>
-        {% endif %}
     </section>
 {% endblock %}
