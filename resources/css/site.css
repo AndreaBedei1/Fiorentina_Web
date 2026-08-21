@@ -89,6 +89,16 @@
         @apply prose prose-baraonda max-w-prose-wide;
     }
 
+    /*
+     * Il primo elemento non porta margine sopra: quello spazio lo decide chi
+     * colloca il blocco, non il blocco stesso. Senza questa regola un titolo
+     * in apertura scendeva di tre quarti di centimetro rispetto a cio che gli
+     * sta accanto, e nessun allineamento fra colonne reggeva.
+     */
+    .contenuto > :first-child {
+        @apply mt-0;
+    }
+
     .contenuto :where(img) {
         @apply rounded-card shadow-card;
     }

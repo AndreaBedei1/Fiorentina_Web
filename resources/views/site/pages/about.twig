@@ -25,26 +25,68 @@
           il filo del racconto. Sotto i 1024 px tornano in fila sotto il testo,
           perche affiancarli su schermo stretto li renderebbe illeggibili.
         #}
-        {% set aFianco = page.visibleBlocks|filter(b => b.type in ['stats', 'timeline']) %}
+        {# Il filtro di Twig conserva le chiavi originali: qui servono numerate
+           da zero, perche le due tavole vengono collocate una per riga. #}
+        {% set aFianco = [] %}
+        {% for blocco in page.visibleBlocks %}
+            {% if blocco.type in ['stats', 'timeline'] %}
+                {% set aFianco = aFianco|merge([blocco]) %}
+            {% endif %}
+        {% endfor %}
+
         {% set nelTesto = page.visibleBlocks|filter(b => b.type not in ['stats', 'timeline']) %}
 
-        <div class="lg:grid lg:grid-cols-12 lg:gap-x-12">
+        {#
+          Due righe, due colonne. Ogni riga allinea in alto quello che contiene,
+          quindi la prima tavola parte all'altezza della presentazione e la
+          seconda all'altezza dell'ultima sezione del testo. Senza griglia le
+          due colonne scorrerebbero indipendenti e i titoli non si
+          incontrerebbero mai.
 
-            <div class="lg:col-span-7">
+          Sotto i 1024 px la griglia non si applica e tutto torna in fila.
+        #}
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:gap-y-12">
+
+            {# --- Riga 1: presentazione e prime sezioni | prima tavola --- #}
+            <div class="lg:col-span-7 lg:row-start-1">
                 {% if page.intro %}
                     <p class="text-xl leading-relaxed text-viola-900">{{ page.intro }}</p>
                 {% endif %}
 
-                {% if page.content %}
-                    <div class="contenuto mt-8">{{ page.content|raw }}</div>
+                {% if testoIniziale %}
+                    <div class="contenuto mt-8">{{ testoIniziale|raw }}</div>
+                {% endif %}
+            </div>
+
+            {% if aFianco[0] is defined %}
+                <aside class="mt-12 lg:col-span-5 lg:row-start-1 lg:mt-0" aria-label="{{ aFianco[0].title|default('Approfondimento') }}">
+                    {{ include('components/page-blocks.twig', { blocks: [aFianco[0]], stretto: true }) }}
+                </aside>
+            {% endif %}
+
+            {# --- Riga 2: ultima sezione e valori | seconda tavola --- #}
+            <div class="lg:col-span-7 lg:row-start-2">
+                {% if testoFinale %}
+                    {# Su schermo stretto serve stacco dalla sezione precedente; su
+                       schermo largo lo spazio fra le righe lo mette la griglia. #}
+                    <div class="contenuto {{ testoIniziale ? 'mt-10 lg:mt-0' : 'mt-8 lg:mt-0' }}">{{ testoFinale|raw }}</div>
                 {% endif %}
 
                 {{ include('components/page-blocks.twig', { blocks: nelTesto }) }}
             </div>
 
-            {% if aFianco is not empty %}
-                <aside class="mt-12 lg:col-span-5 lg:mt-0" aria-label="Il gruppo in cifre">
-                    {{ include('components/page-blocks.twig', { blocks: aFianco, stretto: true }) }}
+            {% if aFianco[1] is defined %}
+                <aside class="mt-12 lg:col-span-5 lg:row-start-2 lg:mt-0" aria-label="{{ aFianco[1].title|default('Approfondimento') }}">
+                    {{ include('components/page-blocks.twig', { blocks: [aFianco[1]], stretto: true }) }}
+                </aside>
+            {% endif %}
+
+            {# Eventuali tavole oltre le due previste restano in coda, senza
+               allineamenti forzati: la pagina non deve rompersi se qualcuno ne
+               aggiunge una terza dal pannello. #}
+            {% if aFianco|length > 2 %}
+                <aside class="mt-12 lg:col-span-5 lg:col-start-8 lg:row-start-3" aria-label="Altri dati">
+                    {{ include('components/page-blocks.twig', { blocks: aFianco|slice(2), stretto: true }) }}
                 </aside>
             {% endif %}
 

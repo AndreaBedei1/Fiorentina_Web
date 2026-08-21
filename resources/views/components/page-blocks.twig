@@ -76,7 +76,7 @@
 
     {# ---------- LINEA DEL TEMPO ---------- #}
     {% elseif block.type == 'timeline' %}
-        <section class="{{ stretto ? 'mt-10' : 'mt-12' }}">
+        <section class="{{ stretto ? '' : 'mt-12' }}">
             {% if block.title %}<h2 class="font-display font-bold text-viola-900 {{ stretto ? 'text-xl' : 'text-2xl' }}">{{ block.title }}</h2>{% endif %}
             {% if block.subtitle %}<p class="mt-2 text-sm text-sabbia-600">{{ block.subtitle }}</p>{% endif %}
 

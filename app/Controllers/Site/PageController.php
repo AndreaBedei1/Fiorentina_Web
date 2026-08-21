@@ -45,12 +45,41 @@ final class PageController extends Controller
     {
         $page = $this->requirePage(Page::SLUG_CHI_SIAMO);
 
+        [$testoIniziale, $testoFinale] = $this->dividiAllUltimoTitolo((string) $page->content);
+
         return $this->render('site/pages/about.twig', [
             'seo' => $this->seoFor($page, 'about'),
             'page' => $page,
+            'testoIniziale' => $testoIniziale,
+            'testoFinale' => $testoFinale,
             'members' => $this->organization->visibleMembers(),
             'foundedYear' => $this->settings->int('site_founded_year'),
         ]);
+    }
+
+    /**
+     * Divide il testo della pagina in due parti, all'ultimo titolo di sezione.
+     *
+     * Serve alla pagina "Chi siamo", dove il testo scorre a sinistra e le due
+     * tavole - tappe e numeri - stanno a destra. Le due parti diventano due
+     * righe della griglia, e ogni riga allinea in alto cio che contiene: cosi
+     * l'ultima sezione del testo parte alla stessa altezza della seconda
+     * tavola, invece di finire dove capita.
+     *
+     * Se il testo non ha titoli, o ne ha uno solo, resta tutto nella prima
+     * parte: meglio nessun allineamento che un taglio a meta di un discorso.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function dividiAllUltimoTitolo(string $html): array
+    {
+        if (preg_match_all('/<h2[\s>]/i', $html, $titoli, PREG_OFFSET_CAPTURE) < 2) {
+            return [$html, ''];
+        }
+
+        $inizioUltimo = $titoli[0][count($titoli[0]) - 1][1];
+
+        return [substr($html, 0, $inizioUltimo), substr($html, $inizioUltimo)];
     }
 
     public function join(Request $request): Response
