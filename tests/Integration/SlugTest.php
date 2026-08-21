@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Repositories\AlbumRepository;
+use App\Repositories\ProductRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
 
@@ -17,14 +17,14 @@ use Tests\Support\IntegrationTestCase;
  */
 final class SlugTest extends IntegrationTestCase
 {
-    private AlbumRepository $albums;
+    private ProductRepository $prodotti;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->fakeRequest();
-        $this->albums = self::app()->get(AlbumRepository::class);
+        $this->prodotti = self::app()->get(ProductRepository::class);
     }
 
     #[Test]
@@ -33,45 +33,45 @@ final class SlugTest extends IntegrationTestCase
         $slugs = [];
 
         for ($i = 0; $i < 3; $i++) {
-            $id = $this->albums->create([
-                'title' => 'Cena sociale 2026',
-                'slug' => 'cena-sociale-2026',
+            $id = $this->prodotti->create([
+                'name' => 'Sciarpa storica',
+                'slug' => 'sciarpa-storica',
             ]);
 
-            $slugs[] = $this->albums->find($id)?->slug;
+            $slugs[] = $this->prodotti->find($id)?->slug;
         }
 
-        $this->assertSame('cena-sociale-2026', $slugs[0]);
-        $this->assertSame('cena-sociale-2026-2', $slugs[1]);
-        $this->assertSame('cena-sociale-2026-3', $slugs[2]);
+        $this->assertSame('sciarpa-storica', $slugs[0]);
+        $this->assertSame('sciarpa-storica-2', $slugs[1]);
+        $this->assertSame('sciarpa-storica-3', $slugs[2]);
         $this->assertSame(3, count(array_unique($slugs)));
     }
 
     #[Test]
     public function aggiornare_un_contenuto_non_cambia_il_suo_slug(): void
     {
-        $id = $this->albums->create([
-            'title' => 'Titolo originale',
-            'slug' => 'titolo-originale',
+        $id = $this->prodotti->create([
+            'name' => 'Nome originale',
+            'slug' => 'nome-originale',
         ]);
 
         // Aggiornando lo stesso record, lo slug non deve prendere il suffisso
         // per collisione con se stesso.
-        $this->albums->update($id, ['slug' => 'titolo-originale', 'title' => 'Titolo aggiornato']);
+        $this->prodotti->update($id, ['slug' => 'nome-originale', 'name' => 'Nome aggiornato']);
 
-        $this->assertSame('titolo-originale', $this->albums->find($id)?->slug);
+        $this->assertSame('nome-originale', $this->prodotti->find($id)?->slug);
     }
 
     #[Test]
     public function il_vincolo_unico_e_attivo_a_database(): void
     {
-        $this->albums->create(['title' => 'Uno', 'slug' => 'slug-unico']);
+        $this->prodotti->create(['name' => 'Uno', 'slug' => 'slug-unico']);
 
         $this->expectException(\PDOException::class);
 
         // Inserimento diretto, aggirando la generazione dello slug.
-        $this->db->insertInto('albums', [
-            'title' => 'Due',
+        $this->db->insertInto('products', [
+            'name' => 'Due',
             'slug' => 'slug-unico',
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),

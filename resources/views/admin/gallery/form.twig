@@ -5,7 +5,7 @@
 
     {{ include('components/admin-page-header.twig', {
         title: isNew ? 'Nuovo album' : album.title,
-        description: isNew ? 'Crea l album, poi potrai caricare le fotografie.' : null,
+        description: isNew ? "Crea l'album, poi potrai caricare le fotografie." : null,
         back: { url: route('admin.gallery.index'), label: 'Torna alla galleria' }
     }) }}
 
@@ -21,32 +21,16 @@
                     <h2 class="font-display text-base font-bold text-viola-900">Dati dell'album</h2>
                 </div>
 
-                <div class="pannello-corpo space-y-4" x-data="slugField"
-                     data-slug="{{ isNew ? '' : album.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+                <div class="pannello-corpo space-y-4">
 
                     <div>
                         <label for="campo-title" class="campo-label" data-required>Titolo</label>
                         <input type="text" id="campo-title" name="title" required maxlength="200"
                                value="{{ old('title', isNew ? '' : album.title) }}"
-                               @input="fromTitle" class="campo-input"
+                               class="campo-input"
                                {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
                         {% if has_error('title') %}
                             <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('title') }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="campo-slug" class="campo-label">Indirizzo</label>
-                        <div class="flex items-center gap-2">
-                            <span class="shrink-0 text-sm text-sabbia-500">/galleria/</span>
-                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
-                                   maxlength="200" class="campo-input font-mono text-sm">
-                        </div>
-                        {% if not isNew %}
-                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
-                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l'indirizzo pubblico</span>
-                            </label>
                         {% endif %}
                     </div>
 
@@ -66,17 +50,6 @@
                         value: old('status', isNew ? 'draft' : album.status)
                     }) }}
 
-                    {{ include('components/field.twig', {
-                        name: 'sort_order', label: 'Ordinamento', type: 'number', min: 0, max: 9999,
-                        value: old('sort_order', isNew ? 0 : album.sortOrder),
-                        help: 'I valori più bassi compaiono per primi.'
-                    }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'meta_description', label: 'Descrizione per Google', type: 'textarea', rows: 2, maxlength: 300,
-                        value: old('meta_description', isNew ? '' : album.metaDescription)
-                    }) }}
-
                     <div class="border-t border-sabbia-200 pt-4">
                         <button type="submit" class="btn-primario w-full">Salva album</button>
                     </div>
@@ -86,14 +59,7 @@
 
         {# --- Fotografie --- #}
         <div class="space-y-5 lg:col-span-2">
-            {% if isNew %}
-                <section class="pannello">
-                    {{ include('components/admin-empty.twig', {
-                        icon: 'upload', title: 'Prima salva l album',
-                        message: 'Le fotografie si caricano dopo aver creato l album: servono a saperle dove archiviare.'
-                    }) }}
-                </section>
-            {% else %}
+            {% if not isNew %}
 
                 {# --- Caricamento multiplo --- #}
                 <section class="pannello">

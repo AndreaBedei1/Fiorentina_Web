@@ -63,13 +63,10 @@ final class GallerySeeder extends Seeder
 
             $albumId = $albums->create([
                 'title' => $title,
-                'slug' => Str::slug($title),
                 'description' => $description . ' [album dimostrativo]',
                 'event_date' => $date,
                 'year' => (int) substr($date, 0, 4),
                 'status' => Album::STATUS_PUBLISHED,
-                'sort_order' => $created,
-                'meta_description' => $description,
                 'created_by' => $author?->id,
             ]);
 

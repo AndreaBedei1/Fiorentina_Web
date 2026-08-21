@@ -36,12 +36,12 @@ final class AlbumRepository extends BaseRepository
         return $row === null ? null : Album::fromRow($row);
     }
 
-    public function findPublishedBySlug(string $slug): ?Album
+    public function findPublished(int $id): ?Album
     {
         $row = $this->db->selectOne(
             'SELECT a.*, ' . self::COVER_COLUMNS . ' FROM albums a ' . self::COVER_JOIN . '
-             WHERE a.slug = :slug AND ' . self::PUBLISHED_CONDITION,
-            ['slug' => $slug],
+             WHERE a.id = :id AND ' . self::PUBLISHED_CONDITION,
+            ['id' => $id],
         );
 
         return $row === null ? null : Album::fromRow($row);
@@ -80,7 +80,7 @@ final class AlbumRepository extends BaseRepository
         return $this->paginateQuery(
             'SELECT a.*, ' . self::COVER_COLUMNS . ' FROM albums a ' . self::COVER_JOIN . '
              WHERE ' . $where . '
-             ORDER BY a.sort_order ASC, COALESCE(a.event_date, a.created_at) DESC',
+             ORDER BY COALESCE(a.event_date, a.created_at) DESC',
             'SELECT COUNT(*) FROM albums a WHERE ' . $where,
             $bindings,
             $page,
@@ -92,28 +92,18 @@ final class AlbumRepository extends BaseRepository
     }
 
     /** @return Paginator<Album> */
-    public function paginateForAdmin(int $page, int $perPage = 20, string $search = '', string $basePath = ''): Paginator
+    public function paginateForAdmin(int $page, int $perPage = 20, string $basePath = ''): Paginator
     {
-        $conditions = ['a.deleted_at IS NULL'];
-        $bindings = [];
-
-        if (trim($search) !== '') {
-            $conditions[] = 'a.title LIKE :search';
-            $bindings['search'] = '%' . trim($search) . '%';
-        }
-
-        $where = implode(' AND ', $conditions);
-
+        // Dal piu recente al piu vecchio, come sul sito.
         return $this->paginateQuery(
             'SELECT a.*, ' . self::COVER_COLUMNS . ' FROM albums a ' . self::COVER_JOIN . '
-             WHERE ' . $where . ' ORDER BY COALESCE(a.event_date, a.created_at) DESC',
-            'SELECT COUNT(*) FROM albums a WHERE ' . $where,
-            $bindings,
+             WHERE a.deleted_at IS NULL ORDER BY COALESCE(a.event_date, a.created_at) DESC',
+            'SELECT COUNT(*) FROM albums a WHERE a.deleted_at IS NULL',
+            [],
             $page,
             $perPage,
             Album::fromRow(...),
             $basePath,
-            array_filter(['q' => $search !== '' ? $search : null]),
         );
     }
 
@@ -145,7 +135,6 @@ final class AlbumRepository extends BaseRepository
     public function create(array $data): int
     {
         $now = $this->now();
-        $data['slug'] = $this->uniqueSlug($data['slug'] ?? Str::slug((string) ($data['title'] ?? '')));
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
 
@@ -155,10 +144,6 @@ final class AlbumRepository extends BaseRepository
     /** @param array<string, mixed> $data */
     public function update(int $id, array $data): bool
     {
-        if (isset($data['slug'])) {
-            $data['slug'] = $this->uniqueSlug($data['slug'], $id);
-        }
-
         $data['updated_at'] = $this->now();
 
         return $this->db->updateWhereId('albums', $id, $data) >= 0;
@@ -211,13 +196,16 @@ final class AlbumRepository extends BaseRepository
         return ['albums' => $albums, 'photos' => $photos];
     }
 
-    /** @return list<array{slug: string, updated_at: string}> */
+    /** Album pubblicati, per la sitemap. @return list<array{key: string, updated_at: string}> */
     public function publishedForSitemap(): array
     {
         return array_map(
-            static fn (array $r): array => ['slug' => (string) $r['slug'], 'updated_at' => (string) $r['updated_at']],
+            static fn (array $r): array => [
+                'key' => Album::fromRow($r)->urlKey(),
+                'updated_at' => (string) $r['updated_at'],
+            ],
             $this->db->select(
-                'SELECT a.slug, a.updated_at FROM albums a
+                'SELECT a.id, a.title, a.updated_at FROM albums a
                  WHERE ' . self::PUBLISHED_CONDITION . ' ORDER BY a.event_date DESC LIMIT 1000'
             ),
         );

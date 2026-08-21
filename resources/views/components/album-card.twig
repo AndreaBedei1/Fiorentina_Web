@@ -47,7 +47,7 @@
 
     {# Un solo collegamento per card: chi naviga a colpi di Tab incontra una
        voce sola, con un nome che dice dove porta. #}
-    <a href="{{ route('gallery.show', { slug: album.slug }) }}"
+    <a href="{{ route('gallery.show', { riferimento: album.urlKey }) }}"
        class="absolute inset-0 rounded-card focus-ring">
         <span class="sr-only">Apri l'album {{ album.title }}</span>
     </a>

@@ -10,7 +10,6 @@ use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
-use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
 use App\Models\Album;
 use App\Repositories\AlbumRepository;
@@ -56,10 +55,8 @@ final class GalleryController extends Controller
             'paginator' => $this->albums->paginateForAdmin(
                 page: $this->page($request),
                 perPage: 20,
-                search: $request->string('q'),
                 basePath: $this->url->route('admin.gallery.index'),
             ),
-            'search' => $request->string('q'),
         ]);
     }
 
@@ -139,10 +136,6 @@ final class GalleryController extends Controller
         }
 
         $data = $this->buildAlbumData($request, $validated);
-
-        if (! $request->bool('update_slug')) {
-            unset($data['slug']);
-        }
 
         $this->albums->update($id, $data);
 
@@ -339,9 +332,7 @@ final class GalleryController extends Controller
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
             ->optional('description')->max('description', 2000, 'La descrizione')
             ->date('event_date', 'La data')
-            ->in('status', array_keys($this->statusOptions()), 'Lo stato')
-            ->integer('sort_order', 'L ordinamento', 0, 9999)
-            ->optional('meta_description')->max('meta_description', 300, 'La descrizione SEO');
+            ->in('status', array_keys($this->statusOptions()), 'Lo stato');
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -364,15 +355,12 @@ final class GalleryController extends Controller
 
         return [
             'title' => (string) $validated['title'],
-            'slug' => Str::slug($request->string('slug') !== '' ? $request->string('slug') : (string) $validated['title']),
             'description' => $validated['description'] ?? null,
             'event_date' => $eventDate,
             // L'anno duplicato consente di filtrare la galleria con un confronto
             // indicizzato invece che con una funzione sulla colonna data.
             'year' => $eventDate !== null ? (int) substr((string) $eventDate, 0, 4) : null,
             'status' => (string) ($validated['status'] ?? Album::STATUS_DRAFT),
-            'sort_order' => (int) ($validated['sort_order'] ?? 0),
-            'meta_description' => $validated['meta_description'] ?? null,
         ];
     }
 

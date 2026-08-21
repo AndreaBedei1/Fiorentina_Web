@@ -38,7 +38,6 @@ final class Photo
         public readonly int $sortOrder,
         public readonly string $status,
         public readonly ?string $albumTitle = null,
-        public readonly ?string $albumSlug = null,
     ) {
     }
 
@@ -62,7 +61,6 @@ final class Photo
             sortOrder: self::castInt($row, 'sort_order'),
             status: self::castString($row, 'status', self::STATUS_PUBLISHED),
             albumTitle: self::castNullableString($row, 'album_title'),
-            albumSlug: self::castNullableString($row, 'album_slug'),
         );
     }
 

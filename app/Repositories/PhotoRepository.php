@@ -15,7 +15,7 @@ final class PhotoRepository extends BaseRepository
     public function find(int $id): ?Photo
     {
         $row = $this->db->selectOne(
-            'SELECT p.*, a.title AS album_title, a.slug AS album_slug
+            'SELECT p.*, a.title AS album_title
              FROM photos p JOIN albums a ON a.id = p.album_id
              WHERE p.id = :id',
             ['id' => $id],
@@ -32,7 +32,7 @@ final class PhotoRepository extends BaseRepository
     public function publishedForAlbum(int $albumId): array
     {
         $rows = $this->db->select(
-            "SELECT p.*, a.title AS album_title, a.slug AS album_slug
+            "SELECT p.*, a.title AS album_title
              FROM photos p JOIN albums a ON a.id = p.album_id
              WHERE p.album_id = :album AND p.status = 'published'
              ORDER BY p.sort_order ASC, p.id ASC",
@@ -46,7 +46,7 @@ final class PhotoRepository extends BaseRepository
     public function paginatePublishedForAlbum(int $albumId, int $page, int $perPage = 36, string $basePath = ''): Paginator
     {
         return $this->paginateQuery(
-            "SELECT p.*, a.title AS album_title, a.slug AS album_slug
+            "SELECT p.*, a.title AS album_title
              FROM photos p JOIN albums a ON a.id = p.album_id
              WHERE p.album_id = :album AND p.status = 'published'
              ORDER BY p.sort_order ASC, p.id ASC",
@@ -74,7 +74,7 @@ final class PhotoRepository extends BaseRepository
     public function latestPublished(int $limit = 8): array
     {
         $rows = $this->db->select(
-            "SELECT p.*, a.title AS album_title, a.slug AS album_slug
+            "SELECT p.*, a.title AS album_title
              FROM photos p JOIN albums a ON a.id = p.album_id
              WHERE p.status = 'published' AND a.status = 'published' AND a.deleted_at IS NULL
              ORDER BY COALESCE(a.event_date, a.created_at) DESC, p.sort_order ASC

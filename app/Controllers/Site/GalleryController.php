@@ -6,6 +6,7 @@ namespace App\Controllers\Site;
 
 use App\Controllers\Controller;
 use App\Core\Config;
+use App\Core\Http\RedirectResponse;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
@@ -77,11 +78,17 @@ final class GalleryController extends Controller
 
     public function show(Request $request): Response
     {
-        $slug = (string) $request->route('slug');
-        $album = $this->albums->findPublishedBySlug($slug);
+        // Conta il numero davanti; il titolo che segue rende leggibile il
+        // collegamento e puo cambiare senza spezzare niente.
+        $riferimento = (string) $request->route('riferimento');
+        $album = $this->albums->findPublished((int) $riferimento);
 
         if ($album === null) {
             $this->notFound('L album che cerchi non esiste o non è più pubblicato.');
+        }
+
+        if ($riferimento !== $album->urlKey()) {
+            return RedirectResponse::to($this->url->route('gallery.show', ['riferimento' => $album->urlKey()]), 301);
         }
 
         $page = $this->page($request);
@@ -89,7 +96,7 @@ final class GalleryController extends Controller
             albumId: $album->id,
             page: $page,
             perPage: 36,
-            basePath: $this->url->route('gallery.show', ['slug' => $album->slug]),
+            basePath: $this->url->route('gallery.show', ['riferimento' => $album->urlKey()]),
         );
 
         $coverUrl = $album->coverPhoto !== null
@@ -98,14 +105,14 @@ final class GalleryController extends Controller
 
         $seo = $this->seo(
             $album->title,
-            $album->metaDescription ?? sprintf('%s - %s fotografie di %s.', $album->title, $album->photosCount, $this->settings->string('site_group_name')),
+            sprintf('%s - %s fotografie di %s.', $album->title, $album->photosCount, $this->settings->string('site_group_name')),
         )
             ->withImage($coverUrl)
-            ->withCanonical($this->url->absoluteRoute('gallery.show', ['slug' => $album->slug]))
+            ->withCanonical($this->url->absoluteRoute('gallery.show', ['riferimento' => $album->urlKey()]))
             ->withBreadcrumbs([
                 ['name' => 'Home', 'url' => '/'],
                 ['name' => 'Galleria', 'url' => $this->url->route('gallery.index')],
-                ['name' => $album->title, 'url' => $this->url->route('gallery.show', ['slug' => $album->slug])],
+                ['name' => $album->title, 'url' => $this->url->route('gallery.show', ['riferimento' => $album->urlKey()])],
             ]);
 
         if ($page > 1) {

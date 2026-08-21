@@ -3,21 +3,9 @@
 {% block content %}
     {{ include('components/admin-page-header.twig', {
         title: 'Galleria',
-        description: 'Le fotografie sono organizzate in album. Crea prima l album, poi carica le immagini.',
+        description: "Le fotografie sono organizzate in album. Crea prima l'album, poi carica le immagini.",
         action: { url: route('admin.gallery.create'), label: 'Nuovo album' }
     }) }}
-
-    <form action="{{ route('admin.gallery.index') }}" method="get" class="mb-4 flex flex-wrap items-end gap-3" role="search">
-        <div class="min-w-0 flex-1 sm:max-w-xs">
-            <label for="filtro-ricerca" class="campo-label">Cerca album</label>
-            <input type="search" id="filtro-ricerca" name="q" value="{{ search }}" class="campo-input" placeholder="Titolo dell album">
-        </div>
-        <button type="submit" class="btn-primario">
-            {{ include('components/icon.twig', { name: 'search', class: 'h-4 w-4' }) }}
-            Filtra
-        </button>
-        {% if search %}<a href="{{ route('admin.gallery.index') }}" class="btn-fantasma">Azzera</a>{% endif %}
-    </form>
 
     {% if paginator.isEmpty %}
         <div class="pannello">
@@ -65,7 +53,7 @@
                                 Gestisci foto
                             </a>
                             {% if album.isPublished %}
-                                <a href="{{ route('gallery.show', { slug: album.slug }) }}" target="_blank" rel="noopener"
+                                <a href="{{ route('gallery.show', { riferimento: album.urlKey }) }}" target="_blank" rel="noopener"
                                    class="btn-fantasma btn-piccolo">
                                     {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
                                     <span class="sr-only">Vedi sul sito</span>

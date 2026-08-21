@@ -52,7 +52,7 @@ return static function (Router $router): void {
 
     // --- Galleria ----------------------------------------------------------
     $router->get('/galleria', [GalleryController::class, 'index'])->name('gallery.index');
-    $router->get('/galleria/{slug}', [GalleryController::class, 'show'])->name('gallery.show');
+    $router->get('/galleria/{riferimento}', [GalleryController::class, 'show'])->name('gallery.show');
 
     // --- Merchandising -----------------------------------------------------
     $router->get('/merchandising', [ShopController::class, 'index'])->name('shop.index');
