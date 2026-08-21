@@ -53,7 +53,7 @@
                 message: showPast
                     ? 'Non ci sono eventi conclusi da mostrare con questi filtri.'
                     : 'Al momento non ci sono appuntamenti in calendario. Torna a trovarci presto.',
-                action: { url: route('calendar.index'), label: 'Vai al calendario' }
+                action: { url: '#calendario', label: 'Vai al calendario' }
             }) }}
         {% else %}
             <ul class="grid gap-4 lg:grid-cols-2" role="list">
@@ -66,5 +66,33 @@
 
             {{ include('components/pagination.twig', { paginator: paginator }) }}
         {% endif %}
+    </section>
+
+    {# =====================================================================
+       CALENDARIO
+       Chiude la pagina: sopra c'e cosa organizza il gruppo, qui sotto tutto
+       il mese, partite comprese.
+       ===================================================================== #}
+    <section id="calendario" class="border-t border-sabbia-200 bg-white/60 scroll-mt-24" aria-label="Calendario del mese">
+        <div class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
+            {{ include('components/section-header.twig', {
+                eyebrow: 'Mese per mese',
+                title: 'Calendario',
+                subtitle: 'Le partite della Fiorentina e gli appuntamenti della Baraonda, in un unico posto.'
+            }) }}
+
+            {#
+              Le frecce dei mesi conservano i filtri dell'elenco qui sopra:
+              cambiare mese nel calendario non deve azzerare la categoria che
+              il lettore aveva scelto.
+            #}
+            {% set filtri = [] %}
+            {% if activeCategory %}{% set filtri = filtri|merge(['categoria=' ~ activeCategory]) %}{% endif %}
+            {% if showPast %}{% set filtri = filtri|merge(['passati=1']) %}{% endif %}
+
+            {{ include('components/calendario-mensile.twig', {
+                base: route('events.index') ~ (filtri is empty ? '' : '?' ~ filtri|join('&'))
+            }) }}
+        </div>
     </section>
 {% endblock %}

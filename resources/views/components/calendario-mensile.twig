@@ -1,0 +1,136 @@
+{#
+  Calendario mensile: partite della Fiorentina e appuntamenti del gruppo.
+
+  Vive in fondo alla pagina degli eventi. Aveva una pagina propria, ma elenco e
+  griglia sono la stessa cosa guardata in due modi - l'elenco per sapere cosa
+  viene dopo, la griglia per orientarsi nel mese - e tenerli separati
+  costringeva a saltare da una pagina all'altra.
+
+  Su schermo stretto la griglia non viene disegnata: sette colonne su 375 pixel
+  sono illeggibili. Al suo posto l'elenco cronologico, che include anche le
+  partite e quindi non ripete l'elenco degli eventi qui sopra.
+
+  Chi include questo componente deve passare: weeks, upcoming, monthLabel,
+  previousMonth, nextMonth, today, showTeamLogos e "base", cioe l'indirizzo a
+  cui puntano le frecce dei mesi.
+#}
+{% set base = base|default(route('events.index')) %}
+{% set sep = '?' in base ? '&' : '?' %}
+
+    {# --- Legenda: l'informazione non passa dal solo colore --- #}
+    <div class="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-card bg-white px-4 py-3 shadow-card">
+        <span class="text-2xs font-bold uppercase tracking-[0.14em] text-sabbia-500">Legenda</span>
+        <span class="inline-flex items-center gap-1.5 text-sm text-sabbia-700">
+            <span class="text-rosso-600">{{ include('components/icon.twig', { name: 'ball', class: 'h-4 w-4' }) }}</span>
+            Partite della Fiorentina
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-sm text-sabbia-700">
+            <span class="text-viola-600">{{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4' }) }}</span>
+            Appuntamenti della Baraonda
+        </span>
+    </div>
+
+    {# =================================================================
+       ELENCO: vista predefinita su mobile.
+       Una griglia mensile su schermo stretto e illeggibile; l elenco
+       funziona sempre, quindi e lui la vista di partenza.
+       ================================================================= #}
+    <div class="lg:hidden">
+        <h2 class="mb-4 font-display text-xl font-bold text-viola-900">Partite e appuntamenti</h2>
+
+        {% if upcoming is empty %}
+            {{ include('components/empty-state.twig', {
+                icon: 'calendar',
+                title: 'Nessun appuntamento in programma',
+                message: 'Il calendario verrà aggiornato appena ci saranno novità.'
+            }) }}
+        {% else %}
+            <ul class="space-y-3" role="list">
+                {% for entry in upcoming %}
+                    {{ include('components/calendar-entry.twig', { entry: entry, showTeamLogos: showTeamLogos }) }}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    {# =================================================================
+       GRIGLIA MENSILE: solo da tablet in su.
+       ================================================================= #}
+    <div class="hidden lg:block">
+        <div class="mb-5 flex items-center justify-between">
+            <h2 class="font-display text-2xl font-bold capitalize text-viola-900">{{ monthLabel }}</h2>
+
+            <nav class="flex items-center gap-2" aria-label="Cambia mese">
+                <a href="{{ base }}{{ sep }}anno={{ previousMonth|date('Y') }}&mese={{ previousMonth|date('n') }}#calendario"
+                   class="btn-secondario btn-piccolo" rel="prev">
+                    {{ include('components/icon.twig', { name: 'arrow-left', class: 'h-4 w-4' }) }}
+                    <span class="sr-only">Mese precedente</span>
+                </a>
+                <a href="{{ base }}#calendario" class="btn-secondario btn-piccolo">Oggi</a>
+                <a href="{{ base }}{{ sep }}anno={{ nextMonth|date('Y') }}&mese={{ nextMonth|date('n') }}#calendario"
+                   class="btn-secondario btn-piccolo" rel="next">
+                    <span class="sr-only">Mese successivo</span>
+                    {{ include('components/icon.twig', { name: 'arrow-right', class: 'h-4 w-4' }) }}
+                </a>
+            </nav>
+        </div>
+
+        <table class="w-full table-fixed border-collapse overflow-hidden rounded-panel bg-white shadow-panel">
+            <caption class="sr-only">Calendario di {{ monthLabel }}: partite della Fiorentina e appuntamenti della Baraonda</caption>
+            <thead>
+                <tr>
+                    {% for day in ['Lunedi', 'Martedi', 'Mercoledi', 'Giovedi', 'Venerdi', 'Sabato', 'Domenica'] %}
+                        <th scope="col" class="border-b border-sabbia-200 bg-sabbia-50 px-2 py-3 text-2xs font-bold uppercase tracking-wide text-sabbia-600">
+                            <span aria-hidden="true">{{ day|slice(0, 3) }}</span>
+                            <span class="sr-only">{{ day }}</span>
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks %}
+                    <tr>
+                        {% for cell in week %}
+                            {% set isToday = cell.date|date('Y-m-d') == today %}
+                            <td class="h-28 border border-sabbia-100 p-1.5 align-top
+                                       {{ cell.inMonth ? 'bg-white' : 'bg-sabbia-50/60' }}">
+                                <span class="mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold
+                                             {{ isToday ? 'bg-rosso-600 text-white' : (cell.inMonth ? 'text-viola-900' : 'text-sabbia-400') }}">
+                                    {% if isToday %}<span class="sr-only">Oggi, </span>{% endif %}
+                                    {{ cell.date|date('j') }}
+                                </span>
+
+                                {% for entry in cell.entries %}
+                                    {# Nella griglia lo spazio e pochissimo: senza orario
+                                       confermato si mostra solo il titolo, e il dettaglio
+                                       sta nel title dell'elemento. #}
+                                    {% set oraBreve = entry.timeConfirmed ? entry.startsAt|ora ~ ' ' : '' %}
+                                    {% set titoloEsteso = entry.timeConfirmed
+                                        ? entry.title ~ ' - ore ' ~ entry.startsAt|ora
+                                        : entry.title ~ ' - orario da definire' %}
+
+                                    {% if entry.url %}
+                                        <a href="{{ entry.url }}"
+                                           class="mb-1 block truncate rounded border-l-2 px-1.5 py-1 text-2xs font-semibold transition hover:brightness-95 focus-ring {{ entry.badgeClasses }} {{ entry.accentClasses }}"
+                                           title="{{ titoloEsteso }}">
+                                            {{ oraBreve }}{{ entry.title }}
+                                        </a>
+                                    {% else %}
+                                        <span class="mb-1 block truncate rounded border-l-2 px-1.5 py-1 text-2xs font-semibold {{ entry.badgeClasses }} {{ entry.accentClasses }}"
+                                              title="{{ titoloEsteso }}">
+                                            {{ oraBreve }}{{ entry.title }}
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# Nessun elenco sotto la griglia: gli stessi appuntamenti sono gia
+           nelle caselle del mese, e ripeterli raddoppiava la pagina senza
+           aggiungere niente. L'elenco resta su mobile, dove la griglia non
+           c'e e quindi e l'unica vista disponibile. #}
+    </div>

@@ -51,7 +51,6 @@ final class SitemapController extends Controller
             ['route' => 'page.about', 'priority' => '0.8', 'changefreq' => 'monthly'],
             ['route' => 'news.index', 'priority' => '0.8', 'changefreq' => 'weekly'],
             ['route' => 'events.index', 'priority' => '0.8', 'changefreq' => 'weekly'],
-            ['route' => 'calendar.index', 'priority' => '0.7', 'changefreq' => 'weekly'],
             ['route' => 'gallery.index', 'priority' => '0.7', 'changefreq' => 'weekly'],
             ['route' => 'shop.index', 'priority' => '0.7', 'changefreq' => 'weekly'],
             ['route' => 'contact.show', 'priority' => '0.6', 'changefreq' => 'yearly'],

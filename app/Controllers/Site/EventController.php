@@ -12,13 +12,22 @@ use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\Support\Dates;
 use App\Core\View\ViewRenderer;
+use DateTimeImmutable;
 use App\Repositories\EventCategoryRepository;
 use App\Repositories\EventRepository;
 use App\Services\AuthService;
+use App\Services\CalendarService;
 use App\Services\Media\MediaPaths;
 use App\Services\SettingsService;
 
-/** Elenco e dettaglio degli appuntamenti del gruppo. */
+/**
+ * Elenco e dettaglio degli appuntamenti del gruppo.
+ *
+ * In fondo all'elenco c'e anche il calendario mensile, che prima aveva una
+ * pagina propria. Sono la stessa cosa guardata in due modi - l'elenco per
+ * sapere cosa viene dopo, la griglia per orientarsi nel mese - e tenerli
+ * separati costringeva a saltare da una pagina all'altra.
+ */
 final class EventController extends Controller
 {
     public function __construct(
@@ -29,6 +38,7 @@ final class EventController extends Controller
         Config $config,
         private readonly EventRepository $events,
         private readonly EventCategoryRepository $categories,
+        private readonly CalendarService $calendar,
         private readonly SettingsService $settings,
         private readonly MediaPaths $media,
     ) {
@@ -64,12 +74,29 @@ final class EventController extends Controller
             $seo->withNoindex();
         }
 
+        $periodo = $this->calendar->normalizeMonth(
+            $request->nullableInt('anno'),
+            $request->nullableInt('mese'),
+        );
+
+        $mese = (new DateTimeImmutable())->setDate($periodo['year'], $periodo['month'], 1)->setTime(0, 0);
+
         return $this->render('site/events/index.twig', [
             'seo' => $seo,
             'paginator' => $paginator,
             'categories' => $this->categories->all(),
             'activeCategory' => $categorySlug,
             'showPast' => $showPast,
+
+            // Calendario mensile in coda alla pagina.
+            'weeks' => $this->calendar->monthGrid($periodo['year'], $periodo['month']),
+            'upcoming' => $this->calendar->upcoming(15),
+            'currentMonth' => $mese,
+            'monthLabel' => Dates::monthName($periodo['month']) . ' ' . $periodo['year'],
+            'previousMonth' => $mese->modify('-1 month'),
+            'nextMonth' => $mese->modify('+1 month'),
+            'showTeamLogos' => $this->settings->bool('home_show_team_logos', false),
+            'today' => (new DateTimeImmutable())->format('Y-m-d'),
         ]);
     }
 

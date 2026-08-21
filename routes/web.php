@@ -42,7 +42,13 @@ return static function (Router $router): void {
     $router->get('/eventi/{slug}', [EventController::class, 'show'])->name('events.show');
 
     // --- Calendario --------------------------------------------------------
-    $router->get('/calendario', [CalendarController::class, 'index'])->name('calendar.index');
+    /*
+     * Il calendario non ha piu una pagina propria: vive in fondo agli eventi.
+     * L'indirizzo resta valido e reindirizza in modo permanente, cosi i
+     * collegamenti gia condivisi e i segnalibri continuano a funzionare e i
+     * motori di ricerca trasferiscono la pagina invece di perderla.
+     */
+    $router->get('/calendario', [CalendarController::class, 'redirectToEvents'])->name('calendar.index');
 
     // --- Galleria ----------------------------------------------------------
     $router->get('/galleria', [GalleryController::class, 'index'])->name('gallery.index');

@@ -186,7 +186,7 @@
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {{ include('components/section-header.twig', {
                         title: 'Prossimi appuntamenti', level: 'h2',
-                        link: { url: route('calendar.index'), label: 'Calendario completo' }
+                        link: { url: route('events.index') ~ '#calendario', label: 'Calendario completo' }
                     }) }}
 
                     <ul class="grid gap-4 lg:grid-cols-2" role="list">
