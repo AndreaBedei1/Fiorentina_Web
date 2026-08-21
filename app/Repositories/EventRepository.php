@@ -19,12 +19,14 @@ final class EventRepository extends BaseRepository
         c.icon AS category_icon, c.color AS category_color';
 
     /** Il campo `description` resta fuori dagli elenchi: serve solo nel dettaglio. */
-    private const LIST_COLUMNS = 'e.id, e.title, e.slug, e.short_description, e.category_id,
+    private const LIST_COLUMNS = 'e.id, e.title, e.short_description, e.category_id,
         e.starts_at, e.ends_at, e.location_name, e.city, e.address, e.meeting_point, e.meeting_at,
         e.image_key, e.image_alt, e.cost, e.cost_note, e.limited_seats, e.seats,
-        e.status, e.is_featured, e.maps_url, e.created_at, e.updated_at, ' . self::CATEGORY_COLUMNS;
+        e.created_at, e.updated_at, ' . self::CATEGORY_COLUMNS;
 
-    private const PUBLISHED_CONDITION = "e.deleted_at IS NULL AND e.status IN ('published', 'cancelled')";
+    // Un evento in calendario e un evento che si vede: non c'e uno stato
+    // che lo trattenga.
+    private const PUBLISHED_CONDITION = 'e.deleted_at IS NULL';
 
     public function find(int $id): ?Event
     {
@@ -37,12 +39,12 @@ final class EventRepository extends BaseRepository
         return $row === null ? null : Event::fromRow($row);
     }
 
-    public function findPublishedBySlug(string $slug): ?Event
+    public function findPublished(int $id): ?Event
     {
         $row = $this->db->selectOne(
             'SELECT e.*, ' . self::CATEGORY_COLUMNS . ' FROM events e ' . self::JOIN . '
-             WHERE e.slug = :slug AND ' . self::PUBLISHED_CONDITION,
-            ['slug' => $slug],
+             WHERE e.id = :id AND ' . self::PUBLISHED_CONDITION,
+            ['id' => $id],
         );
 
         return $row === null ? null : Event::fromRow($row);
@@ -124,38 +126,18 @@ final class EventRepository extends BaseRepository
     }
 
     /** @return Paginator<Event> */
-    public function paginateForAdmin(
-        int $page,
-        int $perPage = 20,
-        ?string $status = null,
-        string $search = '',
-        string $basePath = '',
-    ): Paginator {
-        $conditions = ['e.deleted_at IS NULL'];
-        $bindings = [];
-
-        if ($status !== null && $status !== '') {
-            $conditions[] = 'e.status = :status';
-            $bindings['status'] = $status;
-        }
-
-        if (trim($search) !== '') {
-            $conditions[] = '(e.title LIKE :search OR e.location_name LIKE :search OR e.city LIKE :search)';
-            $bindings['search'] = '%' . trim($search) . '%';
-        }
-
-        $where = implode(' AND ', $conditions);
-
+    public function paginateForAdmin(int $page, int $perPage = 20, string $basePath = ''): Paginator
+    {
+        // Dal piu recente al piu vecchio, come le notizie.
         return $this->paginateQuery(
             'SELECT ' . self::LIST_COLUMNS . ' FROM events e ' . self::JOIN . '
-             WHERE ' . $where . ' ORDER BY e.starts_at DESC',
-            'SELECT COUNT(*) FROM events e WHERE ' . $where,
-            $bindings,
+             WHERE e.deleted_at IS NULL ORDER BY e.starts_at DESC',
+            'SELECT COUNT(*) FROM events e WHERE e.deleted_at IS NULL',
+            [],
             $page,
             $perPage,
             Event::fromRow(...),
             $basePath,
-            array_filter(['stato' => $status, 'q' => $search !== '' ? $search : null]),
         );
     }
 
@@ -163,7 +145,6 @@ final class EventRepository extends BaseRepository
     public function create(array $data): int
     {
         $now = $this->now();
-        $data['slug'] = $this->uniqueSlug($data['slug'] ?? Str::slug((string) ($data['title'] ?? '')));
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
 
@@ -173,10 +154,6 @@ final class EventRepository extends BaseRepository
     /** @param array<string, mixed> $data */
     public function update(int $id, array $data): bool
     {
-        if (isset($data['slug'])) {
-            $data['slug'] = $this->uniqueSlug($data['slug'], $id);
-        }
-
         $data['updated_at'] = $this->now();
 
         return $this->db->updateWhereId('events', $id, $data) >= 0;
@@ -204,13 +181,16 @@ final class EventRepository extends BaseRepository
         ];
     }
 
-    /** @return list<array{slug: string, updated_at: string}> */
+    /** Eventi pubblicati, per la sitemap. @return list<array{key: string, updated_at: string}> */
     public function publishedForSitemap(): array
     {
         return array_map(
-            static fn (array $r): array => ['slug' => (string) $r['slug'], 'updated_at' => (string) $r['updated_at']],
+            static fn (array $r): array => [
+                'key' => Event::fromRow($r)->urlKey(),
+                'updated_at' => (string) $r['updated_at'],
+            ],
             $this->db->select(
-                'SELECT e.slug, e.updated_at FROM events e
+                'SELECT e.id, e.title, e.starts_at, e.updated_at FROM events e
                  WHERE ' . self::PUBLISHED_CONDITION . '
                  ORDER BY e.starts_at DESC LIMIT 2000'
             ),

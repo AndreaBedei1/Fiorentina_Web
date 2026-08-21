@@ -23,9 +23,7 @@
                         </span>
                     {% endif %}
 
-                    {% if event.isCancelled %}
-                        <span class="rounded-md bg-rosso-600 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-white">Annullato</span>
-                    {% elseif event.isPast %}
+                    {% if event.isPast %}
                         <span class="rounded-md bg-white/10 px-2.5 py-1 text-2xs font-bold uppercase tracking-wide text-viola-100">Concluso</span>
                     {% endif %}
                 </div>
@@ -129,14 +127,6 @@
                             {% endif %}
                         </dl>
 
-                        {% if event.mapsUrl %}
-                            <a href="{{ event.mapsUrl }}" target="_blank" rel="noopener noreferrer"
-                               class="btn-secondario mt-5 w-full">
-                                {{ include('components/icon.twig', { name: 'pin', class: 'h-4 w-4' }) }}
-                                Apri la mappa
-                                <span class="sr-only">(si apre in una nuova scheda)</span>
-                            </a>
-                        {% endif %}
 
                         <a href="{{ route('contact.show') }}" class="btn-accento mt-2 w-full">Chiedi informazioni</a>
                     </div>

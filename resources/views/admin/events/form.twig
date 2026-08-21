@@ -21,32 +21,16 @@
                     <h2 class="font-display text-base font-bold text-viola-900">Descrizione</h2>
                 </div>
 
-                <div class="pannello-corpo space-y-4" x-data="slugField"
-                     data-slug="{{ isNew ? '' : event.slug }}" data-is-new="{{ isNew ? '1' : '0' }}">
+                <div class="pannello-corpo space-y-4">
 
                     <div>
                         <label for="campo-title" class="campo-label" data-required>Titolo</label>
                         <input type="text" id="campo-title" name="title" required maxlength="200"
                                value="{{ old('title', isNew ? '' : event.title) }}"
-                               @input="fromTitle" class="campo-input text-base"
+                               class="campo-input text-base"
                                {{ has_error('title') ? 'aria-invalid="true"' : '' }}>
                         {% if has_error('title') %}
                             <p class="campo-errore">{{ include('components/icon.twig', { name: 'alert', class: 'h-4 w-4' }) }} {{ error('title') }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label for="campo-slug" class="campo-label">Indirizzo della pagina</label>
-                        <div class="flex items-center gap-2">
-                            <span class="shrink-0 text-sm text-sabbia-500">/eventi/</span>
-                            <input type="text" id="campo-slug" name="slug" x-model="slug" @input="manual"
-                                   maxlength="200" class="campo-input font-mono text-sm">
-                        </div>
-                        {% if not isNew %}
-                            <label class="mt-2 flex items-start gap-2 text-sm text-sabbia-700">
-                                <input type="checkbox" name="update_slug" value="1" class="campo-checkbox mt-0.5">
-                                <span>Aggiorna anche l'indirizzo pubblico</span>
-                            </label>
                         {% endif %}
                     </div>
 
@@ -126,12 +110,6 @@
                         value: old('meeting_point', isNew ? '' : event.meetingPoint),
                         help: 'Dove ci si trova prima di partire, se diverso dal luogo dell evento.'
                     }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'maps_url', label: 'Link alla mappa', type: 'url', maxlength: 500,
-                        value: old('maps_url', isNew ? '' : event.mapsUrl),
-                        placeholder: 'https://maps.google.com/...'
-                    }) }}
                 </div>
             </section>
         </div>
@@ -140,35 +118,15 @@
 
             <section class="pannello">
                 <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Pubblicazione</h2>
+                    <h2 class="font-display text-base font-bold text-viola-900">Categoria</h2>
                 </div>
 
-                <div class="pannello-corpo space-y-4">
-                    {{ include('components/field.twig', {
-                        name: 'status', label: 'Stato', type: 'select', options: statuses,
-                        value: old('status', isNew ? 'draft' : event.status)
-                    }) }}
-
+                <div class="pannello-corpo">
                     {{ include('components/field.twig', {
                         name: 'category_id', label: 'Categoria', type: 'select',
                         options: categoryOptions, placeholder: 'Nessuna categoria',
                         value: old('category_id', isNew ? '' : event.categoryId)
                     }) }}
-
-                    {{ include('components/field.twig', {
-                        name: 'is_featured', label: 'Metti in evidenza', type: 'checkbox',
-                        value: old('is_featured', isNew ? false : event.isFeatured)
-                    }) }}
-
-                    <div class="flex flex-wrap gap-2 border-t border-sabbia-200 pt-4">
-                        <button type="submit" class="btn-primario flex-1">Salva</button>
-                        {% if not isNew and event.isPublished %}
-                            <a href="{{ route('events.show', { slug: event.slug }) }}" target="_blank" rel="noopener" class="btn-secondario">
-                                {{ include('components/icon.twig', { name: 'external', class: 'h-4 w-4' }) }}
-                                Vedi
-                            </a>
-                        {% endif %}
-                    </div>
                 </div>
             </section>
 
@@ -213,6 +171,7 @@
             <section class="pannello">
                 <div class="pannello-testata">
                     <h2 class="font-display text-base font-bold text-viola-900">Immagine</h2>
+                    <span class="text-xs text-sabbia-500">Facoltativa</span>
                 </div>
 
                 <div class="pannello-corpo space-y-4">
@@ -230,17 +189,32 @@
                         </label>
                     {% endif %}
 
-                    {{ include('components/field.twig', {
-                        name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
-                        accept: 'image/jpeg,image/png,image/webp'
-                    }) }}
+                    <div x-data="immagineDescritta" @change="controlla" class="space-y-4"
+                         data-gia-presente="{{ (not isNew and event.imageKey) ? '1' : '0' }}">
+                        {{ include('components/field.twig', {
+                            name: 'image', label: isNew ? 'Carica immagine' : 'Sostituisci immagine', type: 'file',
+                            accept: 'image/jpeg,image/png,image/webp'
+                        }) }}
 
-                    {{ include('components/field.twig', {
-                        name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
-                        value: old('image_alt', isNew ? '' : event.imageAlt)
-                    }) }}
+                        {{ include('components/field.twig', {
+                            name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
+                            required: not isNew and event.imageKey,
+                            value: old('image_alt', isNew ? '' : event.imageAlt),
+                            help: 'Come descriveresti la fotografia a chi non puo vederla. Compare al posto dell immagine quando questa non si carica.'
+                        }) }}
+                    </div>
                 </div>
             </section>
+
+            {# Il pulsante sta in fondo: si preme quando si e finito, e finire
+               vuol dire anche aver deciso costi, posti e fotografia. #}
+            <div class="pannello">
+                <div class="pannello-corpo">
+                    <button type="submit" class="btn-primario w-full text-base">
+                        {{ isNew ? 'Pubblica' : 'Salva le modifiche' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 {% endblock %}

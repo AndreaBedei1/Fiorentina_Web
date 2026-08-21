@@ -7,17 +7,11 @@
         action: { url: route('admin.events.create'), label: 'Nuovo evento' }
     }) }}
 
-    {{ include('components/admin-filters.twig', {
-        action: route('admin.events.index'),
-        statuses: statuses, activeStatus: activeStatus, search: search,
-        searchPlaceholder: 'Titolo, luogo o citta'
-    }) }}
-
     <div class="pannello overflow-hidden">
         {% if paginator.isEmpty %}
             {{ include('components/admin-empty.twig', {
-                icon: 'calendar', title: 'Nessun evento trovato',
-                message: 'Prova a cambiare i filtri, oppure crea il primo evento.',
+                icon: 'calendar', title: 'Nessun evento',
+                message: 'Metti in calendario il primo appuntamento del gruppo.',
                 action: { url: route('admin.events.create'), label: 'Nuovo evento' }
             }) }}
         {% else %}
@@ -29,8 +23,7 @@
                             <th scope="col">Evento</th>
                             <th scope="col" class="w-36">Quando</th>
                             <th scope="col" class="w-32">Categoria</th>
-                            <th scope="col" class="w-28">Stato</th>
-                            <th scope="col" class="w-40"><span class="sr-only">Azioni</span></th>
+                            <th scope="col" class="w-36"><span class="sr-only">Azioni</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,19 +53,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge {{ event.status == 'published' ? 'badge-successo' : (event.status == 'cancelled' ? 'badge-errore' : 'badge-attenzione') }}">
-                                        {{ event.statusLabel }}
-                                    </span>
-                                </td>
-                                <td>
                                     <div class="flex flex-wrap items-center justify-end gap-1.5">
-                                        {% if event.isPublished %}
-                                            <a href="{{ route('events.show', { slug: event.slug }) }}" target="_blank" rel="noopener"
-                                               class="btn-fantasma btn-piccolo">
-                                                {{ include('components/icon.twig', { name: 'external', class: 'h-3.5 w-3.5' }) }}
-                                                <span class="sr-only">Vedi sul sito</span>
-                                            </a>
-                                        {% endif %}
                                         <a href="{{ route('admin.events.edit', { id: event.id }) }}" class="btn-secondario btn-piccolo">
                                             {{ include('components/icon.twig', { name: 'edit', class: 'h-3.5 w-3.5' }) }}
                                             Modifica

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Core\Support\Str;
-use App\Models\Event;
-use App\Models\News;
 
 /**
  * Notizie ed eventi dimostrativi.
@@ -118,7 +115,6 @@ final class ContentSeeder extends Seeder
 
             $this->db->insertInto('events', [
                 'title' => $item['title'],
-                'slug' => Str::slug($item['title']),
                 'short_description' => $item['short'],
                 'description' => $item['description'],
                 'category_id' => $categoryId === null ? null : (int) $categoryId,
@@ -137,8 +133,6 @@ final class ContentSeeder extends Seeder
                 'contact_info' => 'Informazioni in sede o via email.',
                 'limited_seats' => $item['limitedSeats'] ? 1 : 0,
                 'seats' => $item['seats'],
-                'status' => Event::STATUS_PUBLISHED,
-                'is_featured' => $item['inDays'] > 0 && $item['inDays'] < 12 ? 1 : 0,
                 'created_by' => $authorId === null ? null : (int) $authorId,
                 'created_at' => $this->now(),
                 'updated_at' => $this->now(),

@@ -13,15 +13,9 @@ final class Event
 {
     use CastsRowValues;
 
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_PUBLISHED = 'published';
-    public const STATUS_CANCELLED = 'cancelled';
-    public const STATUS_ARCHIVED = 'archived';
-
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-        public readonly string $slug,
         public readonly ?string $shortDescription,
         public readonly ?string $description,
         public readonly ?int $categoryId,
@@ -33,7 +27,6 @@ final class Event
         public readonly ?string $city,
         public readonly ?string $meetingPoint,
         public readonly ?DateTimeImmutable $meetingAt,
-        public readonly ?string $mapsUrl,
         public readonly ?string $imageKey,
         public readonly ?string $imageAlt,
         public readonly ?float $cost,
@@ -42,8 +35,6 @@ final class Event
         public readonly ?string $contactInfo,
         public readonly bool $limitedSeats,
         public readonly ?int $seats,
-        public readonly string $status,
-        public readonly bool $isFeatured,
         public readonly ?string $metaTitle,
         public readonly ?string $metaDescription,
         public readonly DateTimeImmutable $createdAt,
@@ -67,7 +58,6 @@ final class Event
         return new self(
             id: self::castInt($row, 'id'),
             title: self::castString($row, 'title'),
-            slug: self::castString($row, 'slug'),
             shortDescription: self::castNullableString($row, 'short_description'),
             description: self::castNullableString($row, 'description'),
             categoryId: self::castNullableInt($row, 'category_id'),
@@ -79,7 +69,6 @@ final class Event
             city: self::castNullableString($row, 'city'),
             meetingPoint: self::castNullableString($row, 'meeting_point'),
             meetingAt: self::castDate($row, 'meeting_at'),
-            mapsUrl: self::castNullableString($row, 'maps_url'),
             imageKey: self::castNullableString($row, 'image_key'),
             imageAlt: self::castNullableString($row, 'image_alt'),
             cost: self::castNullableFloat($row, 'cost'),
@@ -88,23 +77,11 @@ final class Event
             contactInfo: self::castNullableString($row, 'contact_info'),
             limitedSeats: self::castBool($row, 'limited_seats'),
             seats: self::castNullableInt($row, 'seats'),
-            status: self::castString($row, 'status', self::STATUS_DRAFT),
-            isFeatured: self::castBool($row, 'is_featured'),
             metaTitle: self::castNullableString($row, 'meta_title'),
             metaDescription: self::castNullableString($row, 'meta_description'),
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
             updatedAt: self::castDate($row, 'updated_at'),
         );
-    }
-
-    public function isPublished(): bool
-    {
-        return $this->status === self::STATUS_PUBLISHED;
-    }
-
-    public function isCancelled(): bool
-    {
-        return $this->status === self::STATUS_CANCELLED;
     }
 
     public function isPast(): bool
@@ -114,20 +91,24 @@ final class Event
 
     public function isUpcoming(): bool
     {
-        return ! $this->isPast() && ! $this->isCancelled();
-    }
-
-    public function statusLabel(): string
-    {
-        return match ($this->status) {
-            self::STATUS_PUBLISHED => $this->isPast() ? 'Concluso' : 'Pubblicato',
-            self::STATUS_CANCELLED => 'Annullato',
-            self::STATUS_ARCHIVED => 'Archiviato',
-            default => 'Bozza',
-        };
+        return ! $this->isPast();
     }
 
     /** Luogo leggibile in una riga: "Stadio Franchi, Firenze". */
+    /**
+     * Il pezzo di indirizzo che identifica l'evento.
+     *
+     * Conta il numero; il titolo lo segue solo per rendere leggibile il
+     * collegamento quando finisce in una chat. Cambiando il titolo cambia la
+     * coda, ma il numero resta e il vecchio indirizzo porta ancora qui.
+     */
+    public function urlKey(): string
+    {
+        $coda = Str::slug($this->title);
+
+        return $coda === '' ? (string) $this->id : $this->id . '-' . $coda;
+    }
+
     public function locationLine(): string
     {
         $parts = array_filter([$this->locationName, $this->city]);

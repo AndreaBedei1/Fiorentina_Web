@@ -58,10 +58,9 @@ final readonly class CalendarEntry
             icon: $event->category?->icon ?? 'calendar',
             categoryLabel: $event->category?->name ?? 'Evento',
             colorKey: $event->category?->color ?? 'viola',
-            url: '/eventi/' . $event->slug,
+            url: '/eventi/' . $event->urlKey(),
             location: $event->locationLine() !== '' ? $event->locationLine() : null,
             detail: $event->summary(90),
-            isCancelled: $event->isCancelled(),
             event: $event,
         );
     }

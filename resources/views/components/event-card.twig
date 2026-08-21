@@ -26,15 +26,13 @@
                 </span>
             {% endif %}
 
-            {% if event.isCancelled %}
-                <span class="rounded-md bg-sabbia-200 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-sabbia-800">Annullato</span>
-            {% elseif event.isPast %}
+            {% if event.isPast %}
                 <span class="rounded-md bg-sabbia-100 px-2 py-1 text-2xs font-bold uppercase tracking-wide text-sabbia-700">Concluso</span>
             {% endif %}
         </div>
 
         <{{ livello }} class="mt-2 font-display text-base font-bold leading-snug text-viola-900 sm:text-lg">
-            <a href="{{ route('events.show', { slug: event.slug }) }}"
+            <a href="{{ route('events.show', { riferimento: event.urlKey }) }}"
                class="rounded transition group-hover:text-viola-700 focus-ring after:absolute after:inset-0 after:content-['']">
                 {{ event.title }}
             </a>

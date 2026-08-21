@@ -11,9 +11,7 @@ use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\Support\Dates;
-use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
-use App\Models\Event;
 use App\Repositories\EventCategoryRepository;
 use App\Repositories\EventRepository;
 use App\Services\AuditLogger;
@@ -45,21 +43,13 @@ final class EventController extends Controller
     {
         $this->authorize('events.manage');
 
-        $status = $request->string('stato');
-        $search = $request->string('q');
-
         return $this->render('admin/events/index.twig', [
             'seo' => $this->seo('Eventi')->withNoindex(),
             'paginator' => $this->events->paginateForAdmin(
                 page: $this->page($request),
                 perPage: 20,
-                status: $status !== '' ? $status : null,
-                search: $search,
                 basePath: $this->url->route('admin.events.index'),
             ),
-            'activeStatus' => $status,
-            'search' => $search,
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -71,7 +61,6 @@ final class EventController extends Controller
             'seo' => $this->seo('Nuovo evento')->withNoindex(),
             'event' => null,
             'categories' => $this->categories->all(),
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -108,7 +97,7 @@ final class EventController extends Controller
             'event',
             $id,
             sprintf('Evento creato: %s', $data['title']),
-            ['status' => $data['status'], 'starts_at' => $data['starts_at']],
+            ['starts_at' => $data['starts_at']],
         );
 
         $this->success('Evento creato.');
@@ -130,7 +119,6 @@ final class EventController extends Controller
             'seo' => $this->seo('Modifica evento')->withNoindex(),
             'event' => $event,
             'categories' => $this->categories->all(),
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
@@ -152,10 +140,6 @@ final class EventController extends Controller
         }
 
         $data = $this->buildData($request, $validated);
-
-        if (! $request->bool('update_slug')) {
-            unset($data['slug']);
-        }
 
         $image = $this->storeImage($request, $event->imageKey);
 
@@ -181,7 +165,6 @@ final class EventController extends Controller
             'event',
             $id,
             sprintf('Evento aggiornato: %s', $data['title']),
-            ['status' => $data['status']],
         );
 
         $this->success('Evento aggiornato.');
@@ -235,15 +218,29 @@ final class EventController extends Controller
             ->optional('address')->max('address', 255, 'L indirizzo')
             ->optional('city')->max('city', 100, 'La citta')
             ->optional('meeting_point')->max('meeting_point', 255, 'Il punto di ritrovo')
-            ->optional('maps_url')->url('maps_url', 'Il link alla mappa')
             ->decimal('cost', 'Il costo', 0)
             ->optional('cost_note')->max('cost_note', 150, 'La nota sul costo')
             ->optional('contact_info')->max('contact_info', 255, 'I riferimenti')
-            ->integer('seats', 'I posti disponibili', 0, 100000)
-            ->in('status', array_keys($this->statusOptions()), 'Lo stato');
+            ->integer('seats', 'I posti disponibili', 0, 100000);
 
         if ($categoryIds !== []) {
             $validator->in('category_id', $categoryIds, 'La categoria');
+        }
+
+        // Un evento che finisce prima di cominciare non esiste: e quasi sempre
+        // una data digitata storta, e senza questo controllo finirebbe in
+        // calendario a occupare giorni all'indietro.
+        $inizio = Dates::combineToDatabase(
+            $request->string('start_date'),
+            $request->string('start_time'),
+        );
+        $fine = Dates::combineToDatabase(
+            $request->string('end_date'),
+            $request->string('end_time'),
+        );
+
+        if ($inizio !== null && $fine !== null && $fine <= $inizio) {
+            $validator->addError('end_date', 'La fine deve venire dopo l\'inizio.');
         }
 
         if ($validator->fails()) {
@@ -267,7 +264,6 @@ final class EventController extends Controller
 
         return [
             'title' => (string) $validated['title'],
-            'slug' => Str::slug($request->string('slug') !== '' ? $request->string('slug') : (string) $validated['title']),
             'short_description' => $validated['short_description'] ?? null,
             'description' => $this->sanitizer->clean((string) $request->post('description', '')),
             'category_id' => $request->nullableInt('category_id'),
@@ -278,7 +274,6 @@ final class EventController extends Controller
             'city' => $validated['city'] ?? null,
             'meeting_point' => $validated['meeting_point'] ?? null,
             'meeting_at' => Dates::combineToDatabase($validated['start_date'] ?? null, $validated['meeting_time'] ?? null),
-            'maps_url' => $validated['maps_url'] ?? null,
             'image_alt' => $request->nullableString('image_alt'),
             'cost' => $validated['cost'] ?? null,
             'cost_note' => $validated['cost_note'] ?? null,
@@ -287,8 +282,6 @@ final class EventController extends Controller
             'limited_seats' => $limitedSeats ? 1 : 0,
             // Il numero di posti ha senso solo se i posti sono dichiarati limitati.
             'seats' => $limitedSeats ? ($validated['seats'] ?? null) : null,
-            'status' => (string) ($validated['status'] ?? Event::STATUS_DRAFT),
-            'is_featured' => $request->bool('is_featured') ? 1 : 0,
             'meta_title' => $request->nullableString('meta_title'),
             'meta_description' => $request->nullableString('meta_description'),
         ];
@@ -312,14 +305,4 @@ final class EventController extends Controller
         return ['key' => $result['key'], 'error' => $result['error']];
     }
 
-    /** @return array<string, string> */
-    private function statusOptions(): array
-    {
-        return [
-            Event::STATUS_DRAFT => 'Bozza',
-            Event::STATUS_PUBLISHED => 'Pubblicato',
-            Event::STATUS_CANCELLED => 'Annullato',
-            Event::STATUS_ARCHIVED => 'Archiviato',
-        ];
-    }
 }

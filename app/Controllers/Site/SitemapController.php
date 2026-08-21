@@ -77,7 +77,12 @@ final class SitemapController extends Controller
         }
 
         foreach ($this->events->publishedForSitemap() as $item) {
-            $entries[] = $this->entry('events.show', $item, '0.6', 'monthly');
+            $entries[] = [
+                'loc' => $this->url->absoluteRoute('events.show', ['riferimento' => $item['key']]),
+                'lastmod' => substr($item['updated_at'], 0, 10),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ];
         }
 
         foreach ($this->albums->publishedForSitemap() as $item) {

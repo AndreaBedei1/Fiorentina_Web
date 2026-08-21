@@ -39,7 +39,7 @@ return static function (Router $router): void {
 
     // --- Eventi ------------------------------------------------------------
     $router->get('/eventi', [EventController::class, 'index'])->name('events.index');
-    $router->get('/eventi/{slug}', [EventController::class, 'show'])->name('events.show');
+    $router->get('/eventi/{riferimento}', [EventController::class, 'show'])->name('events.show');
 
     // --- Calendario --------------------------------------------------------
     /*

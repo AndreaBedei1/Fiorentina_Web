@@ -6,6 +6,7 @@ namespace App\Controllers\Site;
 
 use App\Controllers\Controller;
 use App\Core\Config;
+use App\Core\Http\RedirectResponse;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
@@ -102,11 +103,18 @@ final class EventController extends Controller
 
     public function show(Request $request): Response
     {
-        $slug = (string) $request->route('slug');
-        $event = $this->events->findPublishedBySlug($slug);
+        // L'indirizzo e "7-cena-sociale": conta il numero, la coda serve a
+        // rendere leggibile il collegamento. Cambiare il titolo non spezza
+        // quello che e gia stato condiviso.
+        $riferimento = (string) $request->route('riferimento');
+        $event = $this->events->findPublished((int) $riferimento);
 
         if ($event === null) {
             $this->notFound('L\'evento che cerchi non esiste o non è più pubblicato.');
+        }
+
+        if ($riferimento !== $event->urlKey()) {
+            return RedirectResponse::to($this->url->route('events.show', ['riferimento' => $event->urlKey()]), 301);
         }
 
         $imageUrl = $event->imageKey !== null
@@ -116,11 +124,11 @@ final class EventController extends Controller
         $seo = $this->seo($event->seoTitle(), $event->seoDescription())
             ->withType('article')
             ->withImage($imageUrl)
-            ->withCanonical($this->url->absoluteRoute('events.show', ['slug' => $event->slug]))
+            ->withCanonical($this->url->absoluteRoute('events.show', ['riferimento' => $event->urlKey()]))
             ->withBreadcrumbs([
                 ['name' => 'Home', 'url' => '/'],
                 ['name' => 'Eventi', 'url' => $this->url->route('events.index')],
-                ['name' => $event->title, 'url' => $this->url->route('events.show', ['slug' => $event->slug])],
+                ['name' => $event->title, 'url' => $this->url->route('events.show', ['riferimento' => $event->urlKey()])],
             ])
             ->withStructuredData($this->eventSchema($event, $imageUrl));
 
@@ -147,9 +155,7 @@ final class EventController extends Controller
             'name' => $event->title,
             'startDate' => Dates::iso($event->startsAt),
             'description' => $event->summary(200),
-            'eventStatus' => $event->isCancelled()
-                ? 'https://schema.org/EventCancelled'
-                : 'https://schema.org/EventScheduled',
+            'eventStatus' => 'https://schema.org/EventScheduled',
             'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
             'organizer' => [
                 '@type' => 'Organization',
