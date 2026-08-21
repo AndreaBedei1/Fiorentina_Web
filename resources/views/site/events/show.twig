@@ -39,7 +39,16 @@
         </header>
 
         <div class="mx-auto max-w-5xl px-4 sm:px-6">
-            <div class="-mt-8 grid gap-6 lg:grid-cols-3">
+            {#
+              I pannelli non salgono sopra l'intestazione viola.
+
+              Il rialzo di due righe funziona quando a sovrapporsi e una
+              fotografia: qui invece sono riquadri di testo, e i trentadue pixel
+              di risalita si mangiavano i venti di spaziatura interna. Il
+              risultato era che "Appuntamento fisso del gruppo" e "Informazioni"
+              partivano esattamente sul bordo del viola, appiccicati.
+            #}
+            <div class="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-3">
 
                 {# --- Informazioni pratiche: in cima su mobile, e cio che serve davvero --- #}
                 <aside class="lg:order-2 lg:col-span-1">
