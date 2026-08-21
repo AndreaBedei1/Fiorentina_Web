@@ -36,21 +36,18 @@
 
                     {{ include('components/field.twig', {
                         name: 'short_description', label: 'Descrizione breve', type: 'textarea', rows: 2, maxlength: 400,
-                        value: old('short_description', isNew ? '' : event.shortDescription),
-                        help: 'Una o due righe: è quello che si legge nelle card e nel calendario.'
+                        value: old('short_description', isNew ? '' : event.shortDescription)
                     }) }}
 
                     <div>
                         <label for="campo-description" class="campo-label">Descrizione completa</label>
                         <textarea id="campo-description" name="description" rows="10"
                                   class="campo-textarea font-mono text-sm">{{ old('description', isNew ? '' : event.description) }}</textarea>
-                        <p class="campo-aiuto">HTML semplice consentito, come per le notizie.</p>
                     </div>
 
                     {{ include('components/field.twig', {
                         name: 'info', label: 'Note utili', type: 'textarea', rows: 3, maxlength: 1000,
-                        value: old('info', isNew ? '' : event.info),
-                        help: 'Compare in un riquadro a parte: documenti da portare, orari da rispettare, avvertenze.'
+                        value: old('info', isNew ? '' : event.info)
                     }) }}
                 </div>
             </section>
@@ -79,8 +76,7 @@
                     <div class="grid gap-3 sm:grid-cols-2">
                         {{ include('components/field.twig', {
                             name: 'end_date', label: 'Data di fine', type: 'date',
-                            value: old('end_date', isNew or not event.endsAt ? '' : event.endsAt|iso_data),
-                            help: 'Solo per eventi su più giorni.'
+                            value: old('end_date', isNew or not event.endsAt ? '' : event.endsAt|iso_data)
                         }) }}
                         {{ include('components/field.twig', {
                             name: 'end_time', label: 'Ora di fine', type: 'time',

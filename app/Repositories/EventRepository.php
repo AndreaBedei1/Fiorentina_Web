@@ -125,13 +125,24 @@ final class EventRepository extends BaseRepository
         );
     }
 
-    /** @return Paginator<Event> */
+    /**
+     * Elenco per il pannello: prima quello che deve ancora succedere.
+     *
+     * Chi apre questa pagina sta preparando i prossimi appuntamenti, non
+     * rileggendo quelli finiti: in cima va il piu vicino, poi i successivi in
+     * ordine di data. Sotto restano i passati, dal piu recente indietro, che
+     * e l'ordine in cui capita di doverli ritoccare.
+     *
+     * @return Paginator<Event>
+     */
     public function paginateForAdmin(int $page, int $perPage = 20, string $basePath = ''): Paginator
     {
-        // Dal piu recente al piu vecchio, come le notizie.
         return $this->paginateQuery(
             'SELECT ' . self::LIST_COLUMNS . ' FROM events e ' . self::JOIN . '
-             WHERE e.deleted_at IS NULL ORDER BY e.starts_at DESC',
+             WHERE e.deleted_at IS NULL
+             ORDER BY e.starts_at < NOW(),
+                      CASE WHEN e.starts_at >= NOW() THEN e.starts_at END ASC,
+                      e.starts_at DESC',
             'SELECT COUNT(*) FROM events e WHERE e.deleted_at IS NULL',
             [],
             $page,

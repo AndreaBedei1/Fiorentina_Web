@@ -3,7 +3,6 @@
 {% block content %}
     {{ include('components/admin-page-header.twig', {
         title: 'Eventi',
-        description: 'Trasferte, riunioni, cene sociali e raduni del gruppo.',
         action: { url: route('admin.events.create'), label: 'Nuovo evento' }
     }) }}
 
