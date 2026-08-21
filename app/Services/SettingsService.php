@@ -50,11 +50,6 @@ final class SettingsService
             'group' => 'contatti', 'type' => 'email', 'sort' => 1,
             'label' => 'Email principale', 'default' => 'info@baraondafiorentina.it',
         ],
-        'contact_merchandising_email' => [
-            'group' => 'contatti', 'type' => 'email', 'sort' => 2,
-            'label' => 'Email merchandising', 'default' => 'merchandising@baraondafiorentina.it',
-            'description' => 'Riceve la notifica di ogni nuovo ordine.',
-        ],
         'contact_phone' => [
             'group' => 'contatti', 'type' => 'string', 'sort' => 3,
             'label' => 'Telefono', 'default' => '',
@@ -150,24 +145,17 @@ final class SettingsService
             'label' => 'Catalogo attivo', 'default' => '1',
             'description' => 'Disattivandolo il catalogo resta visibile ma non e possibile inviare ordini.',
         ],
-        'shop_shipping_cost' => [
-            'group' => 'merchandising', 'type' => 'float', 'sort' => 2,
-            'label' => 'Costo di spedizione', 'default' => '7.00',
-        ],
-        'shop_free_shipping_threshold' => [
-            'group' => 'merchandising', 'type' => 'float', 'sort' => 3,
-            'label' => 'Soglia per la spedizione gratuita', 'default' => '80.00',
-            'description' => 'Impostare 0 per disattivare la spedizione gratuita.',
-        ],
-        'shop_pickup_enabled' => [
-            'group' => 'merchandising', 'type' => 'bool', 'sort' => 4,
-            'label' => 'Consenti il ritiro in sede', 'default' => '1',
+        'contact_merchandising_email' => [
+            'group' => 'merchandising', 'type' => 'email', 'sort' => 2,
+            'label' => 'Email del responsabile merchandising',
+            'default' => 'merchandising@baraondafiorentina.it',
+            'description' => 'Riceve la notifica di ogni nuovo ordine. Cambiando questo indirizzo cambia il destinatario, senza toccare il codice.',
         ],
         'shop_payment_instructions' => [
-            'group' => 'merchandising', 'type' => 'text', 'sort' => 5,
+            'group' => 'merchandising', 'type' => 'text', 'sort' => 3,
             'label' => 'Istruzioni di pagamento',
             'default' => '',
-            'description' => "Come pagare l'ordine: bonifico con IBAN, pagamento in sede o alla consegna. Questo testo viene inviato al cliente nella email di conferma, quindi conviene compilarlo prima di aprire il merchandising.",
+            'description' => "Come pagare l'ordine, per esempio con un bonifico e il relativo IBAN. Questo testo viene inviato al cliente nella email di conferma, quindi conviene compilarlo prima di aprire il merchandising.",
         ],
 
         // --- Filigrana ------------------------------------------------------

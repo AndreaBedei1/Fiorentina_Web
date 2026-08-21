@@ -40,25 +40,18 @@
         {% endfor %}
 
         <tr>
-            <td style="padding:10px 0; font-size:14px; color:#57504a;">Subtotale</td>
-            <td align="right" style="padding:10px 0; font-size:14px; color:#57504a;">{{ order.subtotal|euro }}</td>
-        </tr>
-        <tr>
-            <td style="padding:0 0 10px; font-size:14px; color:#57504a;">
-                {{ order.isPickup ? 'Ritiro in sede' : 'Spedizione' }}
-            </td>
-            <td align="right" style="padding:0 0 10px; font-size:14px; color:#57504a;">
-                {{ order.shippingCost > 0 ? order.shippingCost|euro : 'gratuita' }}
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:12px 0 0; border-top:2px solid #2f1d64; font-size:16px; font-weight:800; color:#221547;">Totale</td>
+            <td style="padding:12px 0 0; border-top:2px solid #2f1d64; font-size:16px; font-weight:800; color:#221547;">Totale articoli</td>
             <td align="right" style="padding:12px 0 0; border-top:2px solid #2f1d64; font-size:18px; font-weight:800; color:#221547;">{{ order.total|euro }}</td>
         </tr>
     </table>
 
+    <p style="margin:0 0 24px; font-size:13px; line-height:1.6; color:#7a6f63;">
+        La spedizione non è compresa in questo importo: ti diciamo noi quanto costa
+        quando ti contattiamo per il pagamento.
+    </p>
+
     <p style="margin:0 0 10px; font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#7a6f63;">
-        {{ order.isPickup ? 'Ritiro' : 'Consegna' }}
+        Consegna
     </p>
     <p style="margin:0 0 24px; font-size:14px; line-height:1.65; color:#57504a;">
         {{ order.customerName }}<br>

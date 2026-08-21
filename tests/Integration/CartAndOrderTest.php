@@ -10,7 +10,6 @@ use App\Repositories\OrderRepository;
 use App\Repositories\ProductRepository;
 use App\Services\Shop\CartService;
 use App\Services\Shop\OrderService;
-use App\Services\Shop\ShippingCalculator;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\IntegrationTestCase;
 
@@ -161,25 +160,6 @@ final class CartAndOrderTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function la_spedizione_e_gratuita_oltre_la_soglia(): void
-    {
-        $shipping = self::app()->get(ShippingCalculator::class);
-        $threshold = $shipping->freeThreshold();
-
-        $this->assertGreaterThan(0.0, $shipping->costFor($threshold - 1, ShippingCalculator::METHOD_DELIVERY));
-        $this->assertSame(0.0, $shipping->costFor($threshold, ShippingCalculator::METHOD_DELIVERY));
-        $this->assertSame(0.0, $shipping->costFor($threshold + 10, ShippingCalculator::METHOD_DELIVERY));
-    }
-
-    #[Test]
-    public function il_ritiro_in_sede_non_ha_costi(): void
-    {
-        $shipping = self::app()->get(ShippingCalculator::class);
-
-        $this->assertSame(0.0, $shipping->costFor(10.00, ShippingCalculator::METHOD_PICKUP));
-    }
-
-    #[Test]
     public function l_ordine_registra_totali_e_snapshot_dei_prodotti(): void
     {
         $id = $this->createProduct(18.00);
@@ -193,12 +173,10 @@ final class CartAndOrderTest extends IntegrationTestCase
             'last_name' => 'Bianchi',
             'email' => 'marco@example.test',
             'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_DELIVERY,
             'address' => 'Via del Campo 12',
             'postal_code' => '50100',
             'city' => 'Firenze',
             'province' => 'FI',
-            'notes' => null,
         ], $request);
 
         $this->assertTrue($result->successful, (string) $result->error);
@@ -207,8 +185,8 @@ final class CartAndOrderTest extends IntegrationTestCase
 
         $this->assertNotNull($order);
         $this->assertSame(36.00, $order->subtotal);
-        $this->assertSame(7.00, $order->shippingCost);
-        $this->assertSame(43.00, $order->total);
+        // La spedizione non entra nel totale: si concorda dopo, al telefono.
+        $this->assertSame(36.00, $order->total);
         $this->assertSame(2, $order->itemsCount);
         $this->assertSame(Order::STATUS_NEW, $order->status);
 
@@ -235,7 +213,8 @@ final class CartAndOrderTest extends IntegrationTestCase
                 'last_name' => 'Numero ' . $i,
                 'email' => 'cliente' . $i . '@example.test',
                 'phone' => '055 1234567',
-                'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+                'address' => 'Via del Campo 12', 'postal_code' => '50100',
+                'city' => 'Firenze', 'province' => 'FI',
             ], $request);
 
             $numeri[] = $result->order?->orderNumber;
@@ -259,7 +238,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         $result = $orders->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $orderId = $result->order?->id;
@@ -285,7 +265,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         self::app()->make(OrderService::class)->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $this->assertTrue($this->cart->isEmpty());
@@ -301,7 +282,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         $result = $orders->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $orderId = (int) $result->order?->id;
@@ -327,7 +309,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         $result = $orders->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $admin = $this->createUser();
@@ -346,7 +329,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         $result = self::app()->make(OrderService::class)->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $orderId = (int) $result->order?->id;
@@ -370,7 +354,8 @@ final class CartAndOrderTest extends IntegrationTestCase
         $result = self::app()->make(OrderService::class)->placeOrder([
             'first_name' => 'Marco', 'last_name' => 'Bianchi',
             'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'shipping_method' => ShippingCalculator::METHOD_PICKUP,
+            'address' => 'Via del Campo 12', 'postal_code' => '50100',
+            'city' => 'Firenze', 'province' => 'FI',
         ], $this->fakeRequest('POST', '/ordine'));
 
         $this->assertTrue($result->failed());

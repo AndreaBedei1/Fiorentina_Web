@@ -4,7 +4,7 @@
     {{ include('components/page-hero.twig', {
         eyebrow: 'Materiale ufficiale',
         title: 'Merchandising',
-        subtitle: 'Sciarpe, magliette, felpe e gadget. Si ordina dal sito e si paga di persona o con bonifico: nessun pagamento online.'
+        subtitle: 'Sciarpe, magliette, felpe e gadget del gruppo.'
     }) }}
 
     <section class="mx-auto max-w-7xl px-4 py-section sm:px-6 lg:px-8">
@@ -15,13 +15,6 @@
                 <p>Gli ordini sono temporaneamente sospesi. Il catalogo resta consultabile: per informazioni
                    <a href="{{ route('contact.show') }}" class="font-semibold underline underline-offset-2 focus-ring rounded">scrivici</a>.</p>
             </div>
-        {% endif %}
-
-        {% if freeShippingThreshold > 0 %}
-            <p class="mb-6 rounded-card bg-viola-50 px-4 py-3 text-sm text-viola-900 ring-1 ring-viola-200">
-                Spedizione gratuita per ordini superiori a <strong>{{ freeShippingThreshold|euro }}</strong>.
-                In alternativa è sempre possibile il ritiro in sede.
-            </p>
         {% endif %}
 
         {# --- Filtri e ricerca --- #}

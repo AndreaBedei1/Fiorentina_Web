@@ -9,6 +9,14 @@
       vengono letti insieme al campo e non restano informazioni "solo visive";
    3. marca il campo con aria-invalid quando c'e un errore.
 
+  Gli attributi facoltativi si scrivono con {% if %} e virgolette letterali,
+  mai costruendo la stringa 'attributo="' ~ valore ~ '"': in quel caso Twig
+  scappa anche le virgolette e nel documento finisce attributo=&quot;valore&quot;,
+  cioe un valore che comprende le virgolette. Un pattern cosi non combacia con
+  nulla e blocca l'invio del modulo, un autocomplete cosi viene ignorato e un
+  aria-describedby cosi punta a un elemento inesistente. Con le virgolette nel
+  markup il valore resta protetto dall'escape e l'attributo funziona.
+
   Parametri:
     name        obbligatorio  nome del campo
     label       obbligatorio  etichetta visibile
@@ -41,8 +49,8 @@
                    class="campo-checkbox mt-0.5"
                    {{ currentValue ? 'checked' : '' }}
                    {{ disabled|default(false) ? 'disabled' : '' }}
-                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
-                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+                   {% if describedBy is not empty %}aria-describedby="{{ describedBy|join(' ') }}"{% endif %}
+                   {% if hasError %}aria-invalid="true"{% endif %}>
             <div class="min-w-0">
                 <label for="{{ id }}" class="text-sm font-semibold text-viola-900">{{ label }}</label>
                 {% if help is defined and help %}
@@ -60,12 +68,12 @@
                       name="{{ name }}"
                       rows="{{ rows|default(5) }}"
                       class="campo-textarea"
-                      {{ placeholder is defined and placeholder ? 'placeholder="' ~ placeholder ~ '"' : '' }}
+                      {% if placeholder is defined and placeholder %}placeholder="{{ placeholder }}"{% endif %}
                       {{ required|default(false) ? 'required' : '' }}
-                      {{ maxlength is defined ? 'maxlength="' ~ maxlength ~ '"' : '' }}
+                      {% if maxlength is defined %}maxlength="{{ maxlength }}"{% endif %}
                       {{ disabled|default(false) ? 'disabled' : '' }}
-                      {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
-                      {{ hasError ? 'aria-invalid="true"' : '' }}>{{ currentValue }}</textarea>
+                      {% if describedBy is not empty %}aria-describedby="{{ describedBy|join(' ') }}"{% endif %}
+                      {% if hasError %}aria-invalid="true"{% endif %}>{{ currentValue }}</textarea>
 
         {% elseif type == 'select' %}
             <select id="{{ id }}"
@@ -73,8 +81,8 @@
                     class="campo-select"
                     {{ required|default(false) ? 'required' : '' }}
                     {{ disabled|default(false) ? 'disabled' : '' }}
-                    {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
-                    {{ hasError ? 'aria-invalid="true"' : '' }}>
+                    {% if describedBy is not empty %}aria-describedby="{{ describedBy|join(' ') }}"{% endif %}
+                    {% if hasError %}aria-invalid="true"{% endif %}>
                 {% if placeholder is defined and placeholder %}
                     <option value="">{{ placeholder }}</option>
                 {% endif %}
@@ -93,11 +101,11 @@
                           file:mr-3 file:cursor-pointer file:border-0 file:bg-viola-50 file:px-4 file:py-2.5
                           file:text-sm file:font-semibold file:text-viola-800 hover:file:bg-viola-100
                           focus:border-viola-500 focus:outline-none focus:ring-2 focus:ring-viola-500/25"
-                   {{ accept is defined ? 'accept="' ~ accept ~ '"' : '' }}
+                   {% if accept is defined %}accept="{{ accept }}"{% endif %}
                    {{ multiple|default(false) ? 'multiple' : '' }}
                    {{ required|default(false) ? 'required' : '' }}
-                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
-                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+                   {% if describedBy is not empty %}aria-describedby="{{ describedBy|join(' ') }}"{% endif %}
+                   {% if hasError %}aria-invalid="true"{% endif %}>
 
         {% else %}
             <input type="{{ type }}"
@@ -105,19 +113,19 @@
                    name="{{ name }}"
                    value="{{ currentValue }}"
                    class="campo-input"
-                   {{ placeholder is defined and placeholder ? 'placeholder="' ~ placeholder ~ '"' : '' }}
-                   {{ autocomplete is defined ? 'autocomplete="' ~ autocomplete ~ '"' : '' }}
-                   {{ inputmode is defined ? 'inputmode="' ~ inputmode ~ '"' : '' }}
-                   {{ min is defined ? 'min="' ~ min ~ '"' : '' }}
-                   {{ max is defined ? 'max="' ~ max ~ '"' : '' }}
-                   {{ step is defined ? 'step="' ~ step ~ '"' : '' }}
-                   {{ maxlength is defined ? 'maxlength="' ~ maxlength ~ '"' : '' }}
-                   {{ pattern is defined ? 'pattern="' ~ pattern ~ '"' : '' }}
+                   {% if placeholder is defined and placeholder %}placeholder="{{ placeholder }}"{% endif %}
+                   {% if autocomplete is defined %}autocomplete="{{ autocomplete }}"{% endif %}
+                   {% if inputmode is defined %}inputmode="{{ inputmode }}"{% endif %}
+                   {% if min is defined %}min="{{ min }}"{% endif %}
+                   {% if max is defined %}max="{{ max }}"{% endif %}
+                   {% if step is defined %}step="{{ step }}"{% endif %}
+                   {% if maxlength is defined %}maxlength="{{ maxlength }}"{% endif %}
+                   {% if pattern is defined %}pattern="{{ pattern }}"{% endif %}
                    {{ required|default(false) ? 'required' : '' }}
                    {{ disabled|default(false) ? 'disabled' : '' }}
                    {{ readonly|default(false) ? 'readonly' : '' }}
-                   {{ describedBy is not empty ? 'aria-describedby="' ~ describedBy|join(' ') ~ '"' : '' }}
-                   {{ hasError ? 'aria-invalid="true"' : '' }}>
+                   {% if describedBy is not empty %}aria-describedby="{{ describedBy|join(' ') }}"{% endif %}
+                   {% if hasError %}aria-invalid="true"{% endif %}>
         {% endif %}
 
         {% if help is defined and help %}

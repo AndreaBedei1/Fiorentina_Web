@@ -17,7 +17,6 @@ use App\Repositories\ProductRepository;
 use App\Services\AuthService;
 use App\Services\Media\MediaPaths;
 use App\Services\SettingsService;
-use App\Services\Shop\ShippingCalculator;
 
 /**
  * Catalogo merchandising.
@@ -37,7 +36,6 @@ final class ShopController extends Controller
         private readonly ProductRepository $products,
         private readonly ProductCategoryRepository $categories,
         private readonly SettingsService $settings,
-        private readonly ShippingCalculator $shipping,
         private readonly MediaPaths $media,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
@@ -82,7 +80,6 @@ final class ShopController extends Controller
             'search' => $search,
             'sort' => $sort,
             'shopEnabled' => $this->settings->bool('shop_enabled', true),
-            'freeShippingThreshold' => $this->shipping->freeThreshold(),
         ]);
     }
 
@@ -118,10 +115,7 @@ final class ShopController extends Controller
         return $this->render('site/shop/show.twig', [
             'seo' => $seo,
             'product' => $product,
-            'related' => $this->products->relatedTo($product, 4),
             'shopEnabled' => $this->settings->bool('shop_enabled', true),
-            'shippingCost' => $this->shipping->flatRate(),
-            'freeShippingThreshold' => $this->shipping->freeThreshold(),
         ]);
     }
 

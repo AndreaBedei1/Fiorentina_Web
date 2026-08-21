@@ -29,7 +29,6 @@ final class OrderService
     public function __construct(
         private readonly OrderRepository $orders,
         private readonly CartService $cart,
-        private readonly ShippingCalculator $shipping,
         private readonly MailService $mail,
         private readonly SettingsService $settings,
         private readonly AuditLogger $audit,
@@ -56,17 +55,11 @@ final class OrderService
             return OrderPlacementResult::failure('Il carrello e vuoto.');
         }
 
-        $method = (string) ($customer['shipping_method'] ?? ShippingCalculator::METHOD_DELIVERY);
-
-        if (! $this->shipping->isValidMethod($method)) {
-            $method = ShippingCalculator::METHOD_DELIVERY;
-        }
-
         // I totali si ricalcolano qui, lato server, a partire dai prezzi
         // correnti: nulla di cio che arriva dal browser entra nell'importo.
-        $subtotal = $contents->subtotal;
-        $shippingCost = $this->shipping->costFor($subtotal, $method);
-        $total = round($subtotal + $shippingCost, 2);
+        // La spedizione non c'entra: non ha un costo noto adesso e viene
+        // concordata dopo, quando si chiama il cliente per il pagamento.
+        $total = $contents->subtotal;
 
         $items = [];
 
@@ -84,23 +77,18 @@ final class OrderService
             ];
         }
 
-        $isPickup = $method === ShippingCalculator::METHOD_PICKUP;
-
         $orderId = $this->orders->createWithItems([
             'status' => Order::STATUS_NEW,
             'customer_first_name' => (string) $customer['first_name'],
             'customer_last_name' => (string) $customer['last_name'],
             'customer_email' => (string) $customer['email'],
             'customer_phone' => (string) $customer['phone'],
-            'shipping_method' => $method,
-            'shipping_address' => $isPickup ? null : ($customer['address'] ?? null),
-            'shipping_postal_code' => $isPickup ? null : ($customer['postal_code'] ?? null),
-            'shipping_city' => $isPickup ? null : ($customer['city'] ?? null),
-            'shipping_province' => $isPickup ? null : ($customer['province'] ?? null),
+            'shipping_address' => (string) ($customer['address'] ?? ''),
+            'shipping_postal_code' => (string) ($customer['postal_code'] ?? ''),
+            'shipping_city' => (string) ($customer['city'] ?? ''),
+            'shipping_province' => (string) ($customer['province'] ?? ''),
             'shipping_country' => 'IT',
-            'notes' => $customer['notes'] ?? null,
-            'subtotal' => $subtotal,
-            'shipping_cost' => $shippingCost,
+            'subtotal' => $total,
             'total' => $total,
             'items_count' => $contents->totalQuantity,
             'ip' => $request->ip(),

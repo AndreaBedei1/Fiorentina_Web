@@ -3,29 +3,27 @@
 {% block content %}
     {{ include('components/page-hero.twig', {
         eyebrow: 'Ultimo passaggio',
-        title: 'Conferma il tuo ordine',
-        subtitle: 'Compila i tuoi dati: non ti verrà chiesto nessun dato di pagamento.'
+        title: 'Invia il tuo ordine',
+        subtitle: 'Lasciaci i tuoi dati: ti ricontattiamo noi per dirti come procedere con il pagamento.'
     }) }}
 
     <section class="mx-auto max-w-6xl px-4 py-section sm:px-6 lg:px-8">
 
-        {# Dichiarato subito e a chiare lettere: e la cosa che le persone si chiedono per prima. #}
+        {# Dichiarato subito e a chiare lettere: è la cosa che le persone si
+           chiedono per prima davanti a un modulo con dei prezzi. #}
         <div class="mb-8 flex items-start gap-3 rounded-card border border-viola-200 bg-viola-50 px-4 py-4 text-sm text-viola-900">
             <span class="mt-0.5 shrink-0 text-viola-600">{{ include('components/icon.twig', { name: 'shield', class: 'h-5 w-5' }) }}</span>
             <div>
-                <p class="font-semibold">Nessun pagamento online</p>
+                <p class="font-semibold">Nessun pagamento su questo sito</p>
                 <p class="mt-1 leading-relaxed">
-                    Questo modulo invia una richiesta d'ordine. Riceverai una email di riepilogo con
-                    le istruzioni per pagare in sede o con bonifico. Non inserire mai dati di carte di credito.
+                    Qui invii l'ordine e basta. Con i dati che lasci ti contattiamo per
+                    concordare il pagamento e dirti quanto costa la spedizione.
+                    Non inserire mai dati di carte di credito.
                 </p>
             </div>
         </div>
 
-        <form action="{{ route('order.store') }}" method="post" class="grid gap-8 lg:grid-cols-3"
-              x-data="checkoutForm"
-              data-method="{{ selectedMethod }}"
-              data-delivery-cost="{{ shippingCost > 0 ? shippingCost|euro : 'gratuita' }}"
-              data-pickup-cost="gratuita">
+        <form action="{{ route('order.store') }}" method="post" class="grid gap-8 lg:grid-cols-3">
             {{ csrf_field()|raw }}
 
             {# Trappola anti-spam: invisibile alle persone, compilata dai bot. #}
@@ -38,7 +36,11 @@
 
                 {# --- Dati di contatto --- #}
                 <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
-                    <legend class="px-1 font-display text-lg font-bold text-viola-900">I tuoi dati</legend>
+                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Come ricontattarti</legend>
+
+                    <p class="mt-2 text-sm leading-relaxed text-sabbia-700">
+                        Servono a farti sapere come procedere con il pagamento. Sono tutti obbligatori.
+                    </p>
 
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
                         {{ include('components/field.twig', {
@@ -52,80 +54,50 @@
                         {{ include('components/field.twig', {
                             name: 'email', label: 'Email', type: 'email', required: true,
                             autocomplete: 'email', maxlength: 190,
-                            help: 'Ci serve per inviarti il riepilogo e le istruzioni di pagamento.'
+                            help: "Qui arriva il riepilogo dell'ordine."
                         }) }}
                         {{ include('components/field.twig', {
                             name: 'phone', label: 'Telefono', type: 'tel', required: true,
                             autocomplete: 'tel', inputmode: 'tel',
-                            help: 'Ti contattiamo solo se serve un chiarimento sull ordine.'
+                            help: 'Per accordarci sul pagamento e sulla consegna.'
                         }) }}
                     </div>
                 </fieldset>
 
-                {# --- Consegna --- #}
+                {# --- Indirizzo ---
+                   Niente scelta fra consegna e ritiro: il gruppo spedisce e basta,
+                   quindi l'indirizzo serve sempre e per intero. #}
                 <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
-                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Consegna</legend>
+                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Dove spedire</legend>
 
-                    <div class="mt-4 space-y-2">
-                        {% for value, label in shippingMethods %}
-                            <label class="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-sabbia-200 p-3.5 transition has-[:checked]:border-viola-600 has-[:checked]:bg-viola-50">
-                                <input type="radio" name="shipping_method" value="{{ value }}"
-                                       @change="onMethodChange"
-                                       class="campo-radio mt-0.5"
-                                       {{ selectedMethod == value ? 'checked' : '' }}>
-                                <span>
-                                    <span class="block text-sm font-semibold text-viola-900">{{ label }}</span>
-                                    <span class="mt-0.5 block text-sm text-sabbia-600">
-                                        {% if value == 'pickup' %}
-                                            Ritiri il pacco in sede negli orari di apertura. Nessun costo aggiuntivo.
-                                        {% else %}
-                                            Spedizione tramite corriere all'indirizzo che indichi qui sotto.
-                                        {% endif %}
-                                    </span>
-                                </span>
-                            </label>
-                        {% endfor %}
-                    </div>
-
-                    {# L indirizzo compare solo se serve davvero. #}
-                    <div x-show="isDelivery" x-collapse class="mt-5 grid gap-4 sm:grid-cols-6">
+                    <div class="mt-4 grid gap-4 sm:grid-cols-6">
                         <div class="sm:col-span-6">
                             {{ include('components/field.twig', {
-                                name: 'address', label: 'Indirizzo', autocomplete: 'street-address', maxlength: 255,
+                                name: 'address', label: 'Indirizzo', required: true,
+                                autocomplete: 'street-address', maxlength: 255,
                                 placeholder: 'Via, numero civico, eventuale scala o interno'
                             }) }}
                         </div>
                         <div class="sm:col-span-2">
                             {{ include('components/field.twig', {
-                                name: 'postal_code', label: 'CAP', autocomplete: 'postal-code',
+                                name: 'postal_code', label: 'CAP', required: true,
+                                autocomplete: 'postal-code',
                                 inputmode: 'numeric', maxlength: 5, pattern: '[0-9]{5}'
                             }) }}
                         </div>
                         <div class="sm:col-span-3">
                             {{ include('components/field.twig', {
-                                name: 'city', label: 'Citta', autocomplete: 'address-level2', maxlength: 100
+                                name: 'city', label: 'Città', required: true,
+                                autocomplete: 'address-level2', maxlength: 100
                             }) }}
                         </div>
                         <div class="sm:col-span-1">
                             {{ include('components/field.twig', {
-                                name: 'province', label: 'Prov.', autocomplete: 'address-level1',
+                                name: 'province', label: 'Prov.', required: true,
+                                autocomplete: 'address-level1',
                                 maxlength: 2, placeholder: 'FI'
                             }) }}
                         </div>
-                    </div>
-                </fieldset>
-
-                {# --- Note --- #}
-                <fieldset class="rounded-panel bg-white p-5 shadow-card sm:p-6">
-                    <legend class="px-1 font-display text-lg font-bold text-viola-900">Note</legend>
-
-                    <div class="mt-4">
-                        {{ include('components/field.twig', {
-                            name: 'notes', label: 'Vuoi aggiungere qualcosa?', type: 'textarea', rows: 4,
-                            maxlength: 1000,
-                            placeholder: 'Per esempio: sono socio, preferisco ritirare il giovedì sera...',
-                            help: 'Facoltativo.'
-                        }) }}
                     </div>
                 </fieldset>
             </div>
@@ -156,29 +128,22 @@
                         {% endfor %}
                     </ul>
 
-                    <dl class="mt-4 space-y-2.5 text-sm">
+                    <dl class="mt-4 text-sm">
                         <div class="flex justify-between">
-                            <dt class="text-sabbia-700">Subtotale</dt>
-                            <dd class="font-semibold text-viola-900">{{ cart.subtotal|euro }}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sabbia-700">Spedizione</dt>
-                            <dd class="font-semibold text-viola-900" x-text="shippingLabel">
-                                {{ shippingCost > 0 ? shippingCost|euro : 'gratuita' }}
-                            </dd>
-                        </div>
-                        <div class="flex justify-between border-t border-sabbia-200 pt-3">
-                            <dt class="font-display text-base font-bold text-viola-900">Totale</dt>
-                            <dd class="font-display text-lg font-extrabold text-viola-900">{{ total|euro }}</dd>
+                            <dt class="font-display text-base font-bold text-viola-900">
+                                Totale articoli ({{ cart.totalQuantity }})
+                            </dt>
+                            <dd class="font-display text-lg font-extrabold text-viola-900">{{ cart.subtotal|euro }}</dd>
                         </div>
                     </dl>
 
-                    <p class="mt-3 text-xs text-sabbia-600">
-                        Il totale definitivo viene ricalcolato dal server alla conferma.
+                    <p class="mt-3 rounded-lg bg-viola-50 px-3 py-2.5 text-sm leading-relaxed text-viola-900 ring-1 ring-viola-200">
+                        <strong>La spedizione non è inclusa.</strong>
+                        Ti diciamo quanto costa quando ti ricontattiamo.
                     </p>
 
                     <button type="submit" class="btn-accento mt-5 w-full text-base">
-                        Invia la richiesta d'ordine
+                        Invia ordine
                     </button>
 
                     <p class="mt-3 text-center text-xs text-sabbia-600">

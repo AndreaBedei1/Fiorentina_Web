@@ -13,6 +13,10 @@ use DateTimeImmutable;
  * Il sito non incassa nulla: registra la richiesta, avvisa il responsabile e
  * invia al cliente le istruzioni per il pagamento offline. Non esiste, e non
  * deve esistere, alcun campo relativo a carte o pagamenti elettronici.
+ *
+ * Il totale comprende i soli articoli. La spedizione non ha un costo noto al
+ * momento dell'ordine: viene concordata al telefono insieme al pagamento,
+ * quindi qui non compare come importo.
  */
 final class Order
 {
@@ -47,16 +51,13 @@ final class Order
         public readonly string $customerLastName,
         public readonly string $customerEmail,
         public readonly string $customerPhone,
-        public readonly string $shippingMethod,
-        public readonly ?string $shippingAddress,
-        public readonly ?string $shippingPostalCode,
-        public readonly ?string $shippingCity,
-        public readonly ?string $shippingProvince,
+        public readonly string $shippingAddress,
+        public readonly string $shippingPostalCode,
+        public readonly string $shippingCity,
+        public readonly string $shippingProvince,
         public readonly string $shippingCountry,
-        public readonly ?string $notes,
         public readonly ?string $adminNotes,
         public readonly float $subtotal,
-        public readonly float $shippingCost,
         public readonly float $total,
         public readonly int $itemsCount,
         public readonly array $items,
@@ -79,16 +80,13 @@ final class Order
             customerLastName: self::castString($row, 'customer_last_name'),
             customerEmail: self::castString($row, 'customer_email'),
             customerPhone: self::castString($row, 'customer_phone'),
-            shippingMethod: self::castString($row, 'shipping_method', 'delivery'),
-            shippingAddress: self::castNullableString($row, 'shipping_address'),
-            shippingPostalCode: self::castNullableString($row, 'shipping_postal_code'),
-            shippingCity: self::castNullableString($row, 'shipping_city'),
-            shippingProvince: self::castNullableString($row, 'shipping_province'),
+            shippingAddress: self::castString($row, 'shipping_address'),
+            shippingPostalCode: self::castString($row, 'shipping_postal_code'),
+            shippingCity: self::castString($row, 'shipping_city'),
+            shippingProvince: self::castString($row, 'shipping_province'),
             shippingCountry: self::castString($row, 'shipping_country', 'IT'),
-            notes: self::castNullableString($row, 'notes'),
             adminNotes: self::castNullableString($row, 'admin_notes'),
             subtotal: self::castFloat($row, 'subtotal'),
-            shippingCost: self::castFloat($row, 'shipping_cost'),
             total: self::castFloat($row, 'total'),
             itemsCount: self::castInt($row, 'items_count'),
             items: $items,
@@ -102,21 +100,13 @@ final class Order
         return trim($this->customerFirstName . ' ' . $this->customerLastName);
     }
 
-    public function isPickup(): bool
-    {
-        return $this->shippingMethod === 'pickup';
-    }
-
+    /** Indirizzo di spedizione su una riga sola, per email ed elenchi. */
     public function shippingLine(): string
     {
-        if ($this->isPickup()) {
-            return 'Ritiro in sede';
-        }
-
         $parts = array_filter([
             $this->shippingAddress,
-            trim(($this->shippingPostalCode ?? '') . ' ' . ($this->shippingCity ?? '')),
-            $this->shippingProvince !== null ? '(' . $this->shippingProvince . ')' : null,
+            trim($this->shippingPostalCode . ' ' . $this->shippingCity),
+            $this->shippingProvince !== '' ? '(' . $this->shippingProvince . ')' : null,
         ]);
 
         return implode(', ', array_map('trim', $parts));

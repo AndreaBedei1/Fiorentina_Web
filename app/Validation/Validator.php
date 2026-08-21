@@ -47,10 +47,24 @@ final class Validator
         $value = $this->raw($field);
 
         if ($value === null || (is_string($value) && trim($value) === '') || (is_array($value) && $value === [])) {
-            return $this->addError($field, sprintf('%s e obbligatorio.', $label));
+            return $this->addError($field, $this->messaggioObbligatorio($label));
         }
 
         return $this->keep($field, is_string($value) ? trim($value) : $value);
+    }
+
+    /**
+     * "Il nome è obbligatorio", ma "La città è obbligatoria".
+     *
+     * Le etichette di questo progetto cominciano sempre con l'articolo, ed e
+     * l'unica cosa da guardare per far concordare l'aggettivo: senza, i campi
+     * femminili producevano messaggi sgrammaticati.
+     */
+    private function messaggioObbligatorio(string $label): string
+    {
+        $femminile = preg_match('/^(La|Le)\s/u', $label) === 1;
+
+        return sprintf('%s è %s.', $label, $femminile ? 'obbligatoria' : 'obbligatorio');
     }
 
     /** Campo facoltativo: se assente resta null, se presente viene ripulito. */
@@ -92,7 +106,7 @@ final class Validator
         $value = $this->current($field);
 
         if (is_string($value) && $value !== '' && filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
-            return $this->addError($field, sprintf('%s non e un indirizzo email valido.', $label));
+            return $this->addError($field, sprintf('%s non è un indirizzo email valido.', $label));
         }
 
         if (is_string($value) && $value !== '') {
@@ -129,7 +143,7 @@ final class Validator
         }
 
         if (preg_match('/^\+?[0-9 ().\/-]{6,25}$/', $value) !== 1) {
-            return $this->addError($field, sprintf('%s non e un numero di telefono valido.', $label));
+            return $this->addError($field, sprintf('%s non è un numero di telefono valido.', $label));
         }
 
         return $this;
@@ -224,7 +238,7 @@ final class Validator
 
         if ($value === null || $value === '') {
             if ($required) {
-                return $this->addError($field, sprintf('%s e obbligatoria.', $label));
+                return $this->addError($field, $this->messaggioObbligatorio($label));
             }
 
             return $this->keep($field, null);
@@ -233,7 +247,7 @@ final class Validator
         $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', (string) $value);
 
         if ($parsed === false || $parsed->format('Y-m-d') !== (string) $value) {
-            return $this->addError($field, sprintf('%s non e una data valida.', $label));
+            return $this->addError($field, sprintf('%s non è una data valida.', $label));
         }
 
         return $this->keep($field, (string) $value);
@@ -249,7 +263,7 @@ final class Validator
         }
 
         if (preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string) $value) !== 1) {
-            return $this->addError($field, sprintf('%s non e un orario valido.', $label));
+            return $this->addError($field, sprintf('%s non è un orario valido.', $label));
         }
 
         return $this->keep($field, (string) $value);
@@ -302,7 +316,7 @@ final class Validator
         $value = $this->raw($field);
 
         if (! is_string($value) || $value === '') {
-            return $this->addError($field, sprintf('%s e obbligatoria.', $label));
+            return $this->addError($field, $this->messaggioObbligatorio($label));
         }
 
         // Le regole vivono in PasswordPolicy: le condivide con lo script di

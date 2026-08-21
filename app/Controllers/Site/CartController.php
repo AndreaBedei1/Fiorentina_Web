@@ -14,7 +14,6 @@ use App\Core\View\ViewRenderer;
 use App\Services\AuthService;
 use App\Services\SettingsService;
 use App\Services\Shop\CartService;
-use App\Services\Shop\ShippingCalculator;
 
 /**
  * Carrello.
@@ -32,7 +31,6 @@ final class CartController extends Controller
         AuthService $auth,
         Config $config,
         private readonly CartService $cart,
-        private readonly ShippingCalculator $shipping,
         private readonly SettingsService $settings,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
@@ -46,8 +44,6 @@ final class CartController extends Controller
             $this->warning($notice);
         }
 
-        $shippingCost = $this->shipping->costFor($contents->subtotal, ShippingCalculator::METHOD_DELIVERY);
-
         $seo = $this->seo('Carrello')
             // Il carrello e personale e mutevole: non ha senso indicizzarlo.
             ->withNoindex()
@@ -60,9 +56,6 @@ final class CartController extends Controller
         return $this->render('site/shop/cart.twig', [
             'seo' => $seo,
             'cart' => $contents,
-            'shippingCost' => $shippingCost,
-            'total' => round($contents->subtotal + $shippingCost, 2),
-            'amountToFreeShipping' => $this->shipping->amountToFreeShipping($contents->subtotal),
             'shopEnabled' => $this->settings->bool('shop_enabled', true),
         ]);
     }

@@ -46,17 +46,10 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" class="text-right text-sm text-sabbia-700">Subtotale</td>
-                                <td class="text-sm">{{ order.subtotal|euro }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="text-right text-sm text-sabbia-700">
-                                    {{ order.isPickup ? 'Ritiro in sede' : 'Spedizione' }}
+                                <td colspan="3" class="text-right font-display text-base font-bold text-viola-900">
+                                    Totale articoli
+                                    <span class="block text-2xs font-normal normal-case text-sabbia-500">spedizione esclusa, da concordare</span>
                                 </td>
-                                <td class="text-sm">{{ order.shippingCost|euro }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="text-right font-display text-base font-bold text-viola-900">Totale</td>
                                 <td class="font-display text-base font-extrabold text-viola-900">{{ order.total|euro }}</td>
                             </tr>
                         </tfoot>
@@ -102,7 +95,7 @@
                     {{ csrf_field()|raw }}
                     <label for="campo-admin-notes" class="sr-only">Note interne sull'ordine</label>
                     <textarea id="campo-admin-notes" name="admin_notes" rows="4" class="campo-textarea"
-                              placeholder="Annotazioni per il gruppo: chi segue l ordine, quando e stato pagato...">{{ order.adminNotes }}</textarea>
+                              placeholder="Annotazioni per il gruppo: chi segue l'ordine, quando è stato pagato...">{{ order.adminNotes }}</textarea>
                     <button type="submit" class="btn-secondario mt-3">Salva note</button>
                 </form>
             </section>
@@ -166,17 +159,9 @@
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">
-                                {{ order.isPickup ? 'Ritiro' : 'Spedizione' }}
-                            </dt>
+                            <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Spedire a</dt>
                             <dd class="mt-0.5 text-sabbia-800">{{ order.shippingLine }}</dd>
                         </div>
-                        {% if order.notes %}
-                            <div>
-                                <dt class="text-2xs font-bold uppercase tracking-[0.12em] text-sabbia-500">Note del cliente</dt>
-                                <dd class="mt-0.5 whitespace-pre-line text-sabbia-800">{{ order.notes }}</dd>
-                            </div>
-                        {% endif %}
                     </dl>
                 </div>
             </section>

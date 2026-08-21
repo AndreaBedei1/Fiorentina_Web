@@ -16,16 +16,19 @@ use App\Services\RateLimiter;
 use App\Services\SettingsService;
 use App\Services\Shop\CartService;
 use App\Services\Shop\OrderService;
-use App\Services\Shop\ShippingCalculator;
 use App\Validation\Validator;
 
 /**
- * Invio della richiesta d'ordine.
+ * Invio dell'ordine.
  *
- * Nessun pagamento online, in nessuna forma: il modulo raccoglie i dati per la
- * consegna e le note, poi l'ordine viene registrato e le istruzioni di
- * pagamento arrivano via email. Non esiste alcun campo relativo a carte,
- * circuiti o gateway, e non deve essere aggiunto in futuro.
+ * Nessun pagamento online, in nessuna forma: il modulo raccoglie il nome, i
+ * recapiti e l'indirizzo, poi l'ordine viene registrato, il responsabile
+ * merchandising riceve la notifica e ricontatta il cliente per concordare
+ * pagamento e spedizione. Non esiste alcun campo relativo a carte, circuiti o
+ * gateway, e non deve essere aggiunto in futuro.
+ *
+ * Tutti i campi sono obbligatori: senza recapito non si puo richiamare
+ * nessuno, e senza indirizzo completo non si puo spedire niente.
  */
 final class OrderController extends Controller
 {
@@ -37,7 +40,6 @@ final class OrderController extends Controller
         Config $config,
         private readonly CartService $cart,
         private readonly OrderService $orders,
-        private readonly ShippingCalculator $shipping,
         private readonly SettingsService $settings,
         private readonly RateLimiter $limiter,
     ) {
@@ -61,31 +63,18 @@ final class OrderController extends Controller
             return $this->redirectToRoute('cart.show');
         }
 
-        $method = $request->string('consegna', ShippingCalculator::METHOD_DELIVERY);
-
-        if (! $this->shipping->isValidMethod($method)) {
-            $method = ShippingCalculator::METHOD_DELIVERY;
-        }
-
-        $shippingCost = $this->shipping->costFor($contents->subtotal, $method);
-
-        $seo = $this->seo('Conferma ordine')
+        $seo = $this->seo('Invia ordine')
             ->withNoindex()
             ->withBreadcrumbs([
                 ['name' => 'Home', 'url' => '/'],
                 ['name' => 'Merchandising', 'url' => $this->url->route('shop.index')],
                 ['name' => 'Carrello', 'url' => $this->url->route('cart.show')],
-                ['name' => 'Conferma ordine', 'url' => $this->url->route('order.create')],
+                ['name' => 'Invia ordine', 'url' => $this->url->route('order.create')],
             ]);
 
         return $this->render('site/shop/checkout.twig', [
             'seo' => $seo,
             'cart' => $contents,
-            'shippingMethods' => $this->shipping->availableMethods(),
-            'selectedMethod' => $method,
-            'shippingCost' => $shippingCost,
-            'total' => round($contents->subtotal + $shippingCost, 2),
-            'paymentInstructions' => $this->settings->string('shop_payment_instructions'),
         ]);
     }
 
@@ -108,32 +97,19 @@ final class OrderController extends Controller
             return $this->redirectToRoute('cart.show');
         }
 
-        $method = $request->string('shipping_method', ShippingCalculator::METHOD_DELIVERY);
-
-        if (! $this->shipping->isValidMethod($method)) {
-            $method = ShippingCalculator::METHOD_DELIVERY;
-        }
-
+        // Ogni campo e obbligatorio: il gruppo spedisce e basta, quindi senza
+        // indirizzo completo l'ordine non e evadibile, e senza telefono ed
+        // email non si puo richiamare nessuno per il pagamento.
         $validator = Validator::make($request->all())
             ->honeypot('website')
             ->required('first_name', 'Il nome')->max('first_name', 80, 'Il nome')
             ->required('last_name', 'Il cognome')->max('last_name', 80, 'Il cognome')
-            ->required('email', 'L\'indirizzo email')->email('email', 'L\'indirizzo email')->max('email', 190, 'L\'indirizzo email')
+            ->required('email', "L'indirizzo email")->email('email', "L'indirizzo email")->max('email', 190, "L'indirizzo email")
             ->required('phone', 'Il telefono')->phone('phone', 'Il telefono')
-            ->optional('notes')->max('notes', 1000, 'Le note')
-            ->in('shipping_method', array_keys($this->shipping->availableMethods()), 'Il metodo di consegna');
-
-        // L'indirizzo serve solo se il pacco va spedito: per il ritiro in sede
-        // chiederlo sarebbe un ostacolo inutile.
-        if ($method === ShippingCalculator::METHOD_DELIVERY) {
-            $validator
-                ->required('address', 'L indirizzo')->max('address', 255, 'L indirizzo')
-                ->required('postal_code', 'Il CAP')->postalCode('postal_code', 'Il CAP')
-                ->required('city', 'La citta')->max('city', 100, 'La citta')
-                ->required('province', 'La provincia')->province('province', 'La provincia');
-        } else {
-            $validator->optional('address')->optional('postal_code')->optional('city')->optional('province');
-        }
+            ->required('address', "L'indirizzo")->max('address', 255, "L'indirizzo")
+            ->required('postal_code', 'Il CAP')->postalCode('postal_code', 'Il CAP')
+            ->required('city', 'La città')->max('city', 100, 'La città')
+            ->required('province', 'La provincia')->province('province', 'La provincia');
 
         if ($validator->fails()) {
             return $this->backWithErrors(
@@ -145,7 +121,6 @@ final class OrderController extends Controller
         }
 
         $data = $validator->validatedData();
-        $data['shipping_method'] = $method;
 
         $this->limiter->hit('order', $request->ip(), $decay);
 
