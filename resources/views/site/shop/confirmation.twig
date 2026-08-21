@@ -10,7 +10,7 @@
             <h1 class="mt-5 font-display text-display-sm font-extrabold text-viola-900">Ordine ricevuto</h1>
 
             <p class="mt-3 text-base leading-relaxed text-sabbia-700">
-                Grazie: la tua richiesta è stata registrata. Il numero d'ordine è
+                Grazie: il tuo ordine è stato registrato. Il numero d'ordine è
             </p>
 
             <p class="mt-4 inline-block rounded-lg bg-viola-50 px-5 py-3 font-display text-2xl font-extrabold tracking-wide text-viola-900 ring-1 ring-viola-200">
@@ -21,8 +21,13 @@
                 {% if customerNotified %}
                     Ti abbiamo inviato una email con il riepilogo. Se non la trovi, controlla anche la posta indesiderata.
                 {% else %}
-                    Conserva questo numero: non siamo riusciti a inviarti l'email di riepilogo, ma la tua richiesta è comunque registrata.
+                    Conserva questo numero: non siamo riusciti a inviarti l'email di riepilogo, ma il tuo ordine è comunque registrato.
                 {% endif %}
+            </p>
+
+            <p class="mx-auto mt-5 max-w-xl rounded-lg bg-viola-50 px-4 py-3 text-sm leading-relaxed text-viola-900 ring-1 ring-viola-200">
+                Adesso tocca a noi: ti contattiamo ai recapiti che hai lasciato per dirti
+                come pagare e quanto costa la spedizione, che non è compresa nel totale.
             </p>
 
             {% if paymentInstructions %}
