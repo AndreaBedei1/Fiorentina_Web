@@ -173,7 +173,7 @@
                         <figure class="overflow-hidden rounded-card bg-sabbia-100">
                             {{ include('components/responsive-image.twig', {
                                 key: event.imageKey, collection: 'events',
-                                alt: event.imageAlt ?? event.title, size: 'medium',
+                                alt: event.imageAlt, size: 'medium',
                                 class: 'aspect-[16/10] w-full object-cover', sizes: '400px'
                             }) }}
                         </figure>
@@ -190,12 +190,6 @@
                             accept: 'image/jpeg,image/png,image/webp'
                         }) }}
 
-                        {{ include('components/field.twig', {
-                            name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
-                            required: not isNew and event.imageKey,
-                            value: old('image_alt', isNew ? '' : event.imageAlt),
-                            help: 'Come descriveresti la fotografia a chi non puo vederla. Compare al posto dell immagine quando questa non si carica.'
-                        }) }}
                     </div>
                 </div>
             </section>

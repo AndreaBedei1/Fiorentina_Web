@@ -18,7 +18,7 @@ final class NewsRepository extends BaseRepository
      * `content` e volutamente escluso: e una MEDIUMTEXT che non serve alle card
      * e che, moltiplicata per una pagina di risultati, pesa parecchio.
      */
-    private const LIST_COLUMNS = 'n.id, n.title, n.excerpt, n.image_key, n.image_alt,
+    private const LIST_COLUMNS = 'n.id, n.title, n.excerpt, n.image_key,
         n.author_id, n.published_at,
         n.created_at, n.updated_at';
 

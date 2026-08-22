@@ -28,7 +28,6 @@ final class Event
         public readonly ?string $meetingPoint,
         public readonly ?DateTimeImmutable $meetingAt,
         public readonly ?string $imageKey,
-        public readonly ?string $imageAlt,
         public readonly ?float $cost,
         public readonly ?string $costNote,
         public readonly ?string $info,
@@ -70,7 +69,6 @@ final class Event
             meetingPoint: self::castNullableString($row, 'meeting_point'),
             meetingAt: self::castDate($row, 'meeting_at'),
             imageKey: self::castNullableString($row, 'image_key'),
-            imageAlt: self::castNullableString($row, 'image_alt'),
             cost: self::castNullableFloat($row, 'cost'),
             costNote: self::castNullableString($row, 'cost_note'),
             info: self::castNullableString($row, 'info'),
@@ -132,6 +130,12 @@ final class Event
         }
 
         return Str::money($this->cost) . ($this->costNote !== null ? ' - ' . $this->costNote : '');
+    }
+
+    /** Come si annuncia la fotografia a chi non la vede: il titolo dell'evento. */
+    public function imageAlt(): string
+    {
+        return $this->title;
     }
 
     public function seoTitle(): string

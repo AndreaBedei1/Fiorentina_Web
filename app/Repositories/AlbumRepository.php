@@ -21,7 +21,7 @@ final class AlbumRepository extends BaseRepository
     private const COVER_JOIN = 'LEFT JOIN photos cp ON cp.id = a.cover_photo_id';
 
     private const COVER_COLUMNS = 'cp.storage_key AS cover_storage_key, cp.extension AS cover_extension,
-        cp.alt_text AS cover_alt_text, cp.width AS cover_width, cp.height AS cover_height';
+        cp.width AS cover_width, cp.height AS cover_height';
 
     /*
      * Un album si vede quando ha qualcosa da mostrare.

@@ -139,7 +139,7 @@
                             <figure class="mb-6 overflow-hidden rounded-card">
                                 {{ include('components/responsive-image.twig', {
                                     key: event.imageKey, collection: 'events',
-                                    alt: event.imageAlt ?? event.title,
+                                    alt: event.imageAlt,
                                     class: 'w-full object-cover',
                                     sizes: '(min-width: 1024px) 42rem, 100vw'
                                 }) }}

@@ -74,7 +74,6 @@ final class PhotoService
                     'storage_key' => $processed->key,
                     'extension' => $processed->extension,
                     'original_name' => $file->sanitizedClientName(),
-                    'alt_text' => $this->defaultAltText($album->title),
                     'width' => $processed->width,
                     'height' => $processed->height,
                     'filesize' => $processed->filesize,
@@ -186,14 +185,4 @@ final class PhotoService
         return ['processed' => $processed, 'failed' => $failed];
     }
 
-    /**
-     * Testo alternativo predefinito.
-     *
-     * Meglio una descrizione generica ma pertinente che un attributo vuoto: chi
-     * naviga con uno screen reader deve almeno sapere di cosa si tratta.
-     */
-    private function defaultAltText(string $albumTitle): string
-    {
-        return sprintf('Fotografia di Baraonda Fiorentina - %s', $albumTitle);
-    }
 }

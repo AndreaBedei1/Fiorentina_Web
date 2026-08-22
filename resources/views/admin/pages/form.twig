@@ -85,10 +85,6 @@
                         accept: 'image/jpeg,image/png,image/webp'
                     }) }}
 
-                    {{ include('components/field.twig', {
-                        name: 'hero_image_alt', label: 'Testo alternativo', maxlength: 200,
-                        value: old('hero_image_alt', page.heroImageAlt)
-                    }) }}
 
                     <div class="border-t border-sabbia-200 pt-4">
                         <button type="submit" class="btn-primario">Salva pagina</button>

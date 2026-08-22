@@ -1,0 +1,31 @@
+{#
+  Lo stemma della Fiorentina come decorazione di fondo.
+
+  Sta a destra, grande, appena accennato e tagliato dal bordo: e un segno di
+  appartenenza, non un'informazione, e non deve mai competere con il segno del
+  gruppo che sta a sinistra. Per lo stesso motivo porta aria-hidden: chi
+  ascolta la pagina non ha niente da guadagnare a sentirselo annunciare, e
+  chiunque legga "Baraonda Fiorentina" due righe sotto sa gia di che squadra
+  si parla.
+
+  Compare solo se il file esiste (resources/static/stemma-fiorentina.svg, poi
+  compilato in public/assets/). Finche non c'e, questo componente non disegna
+  niente: la sezione resta esattamente com'era.
+
+  Parametri:
+    opacita   classe di opacita (default 'opacity-[0.06]')
+    class     misura e posizione dell'immagine
+    wrapper   posizionamento del contenitore
+#}
+{% set stemma = stemma_fiorentina() %}
+
+{% if stemma %}
+    <div class="pointer-events-none absolute select-none {{ wrapper|default('-right-16 top-1/2 -translate-y-1/2') }}"
+         aria-hidden="true">
+        <img src="{{ stemma }}"
+             alt=""
+             loading="lazy"
+             decoding="async"
+             class="{{ opacita|default('opacity-[0.06]') }} {{ class|default('h-72 w-auto') }}">
+    </div>
+{% endif %}

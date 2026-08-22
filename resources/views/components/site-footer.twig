@@ -1,4 +1,12 @@
-<footer class="mt-section bg-viola-950 text-viola-200">
+<footer class="relative isolate mt-section overflow-hidden bg-viola-950 text-viola-200">
+    {# Anche qui il segno del gruppo sta a sinistra e quello della squadra a
+       destra, appena visibile: chiude la pagina come l'ha aperta. #}
+    {{ include('components/stemma-fiorentina.twig', {
+        wrapper: '-right-12 top-1/2 hidden -translate-y-1/2 lg:block',
+        class: 'h-80 w-auto',
+        opacita: 'opacity-[0.04]'
+    }) }}
+
     <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
 

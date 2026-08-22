@@ -107,7 +107,6 @@ final class PageController extends Controller
             'subtitle' => $validated['subtitle'] ?? null,
             'intro' => $validated['intro'] ?? null,
             'content' => $this->sanitizer->clean((string) $request->post('content', '')),
-            'hero_image_alt' => $request->nullableString('hero_image_alt'),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'status' => (string) ($validated['status'] ?? 'published'),

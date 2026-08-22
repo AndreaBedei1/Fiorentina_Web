@@ -128,7 +128,7 @@ final class NewsController extends Controller
             $this->notFound('Notizia non trovata.');
         }
 
-        $validated = $this->validateInput($request, $article);
+        $validated = $this->validateInput($request);
 
         if ($validated === null) {
             return $this->back($request, $this->url->route('admin.news.edit', ['id' => $id]));
@@ -203,25 +203,12 @@ final class NewsController extends Controller
     // -----------------------------------------------------------------------
 
     /** @return array<string, mixed>|null Dati validati, oppure null in caso di errori. */
-    private function validateInput(Request $request, ?News $article = null): ?array
+    private function validateInput(Request $request): ?array
     {
         $validator = Validator::make($request->all())
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
-            ->optional('excerpt')->max('excerpt', 400, 'L estratto')
-            ->optional('image_alt')->max('image_alt', 200, 'Il testo alternativo');
+            ->optional('excerpt')->max('excerpt', 400, 'L estratto');
 
-        // Una fotografia senza descrizione, per chi non la vede, non esiste.
-        // La descrizione si chiede quindi ogni volta che una fotografia c'è:
-        // appena caricata, oppure gia presente e non rimossa adesso.
-        $restaQuellaDiPrima = $article !== null
-            && $article->imageKey !== null
-            && ! $request->bool('remove_image');
-
-        if (($request->hasFile('image') || $restaQuellaDiPrima)
-            && trim((string) $request->post('image_alt', '')) === ''
-        ) {
-            $validator->addError('image_alt', 'Descrivi la fotografia: serve a chi non può vederla.');
-        }
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -247,7 +234,6 @@ final class NewsController extends Controller
             'title' => (string) $validated['title'],
             'excerpt' => $validated['excerpt'] ?? null,
             'content' => $this->sanitizer->clean((string) $request->post('content', '')),
-            'image_alt' => $request->nullableString('image_alt'),
         ];
     }
 

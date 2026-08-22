@@ -39,7 +39,7 @@
                     {{ include('components/responsive-image.twig', {
                         key: article.imageKey,
                         collection: 'news',
-                        alt: article.imageAlt ?? article.title,
+                        alt: article.imageAlt,
                         eager: true,
                         class: 'w-full object-cover',
                         sizes: '(min-width: 1024px) 56rem, 100vw'

@@ -111,7 +111,7 @@
                         <figure class="overflow-hidden rounded-card bg-sabbia-100">
                             {{ include('components/responsive-image.twig', {
                                 key: article.imageKey, collection: 'news',
-                                alt: article.imageAlt ?? article.title, size: 'medium',
+                                alt: article.imageAlt, size: 'medium',
                                 class: 'aspect-[16/10] w-full object-cover', sizes: '400px'
                             }) }}
                         </figure>
@@ -130,12 +130,6 @@
                             help: 'Formati accettati: JPG, PNG, WebP. Consigliato almeno 1200 pixel di larghezza.'
                         }) }}
 
-                        {{ include('components/field.twig', {
-                            name: 'image_alt', label: 'Testo alternativo', maxlength: 200,
-                            required: not isNew and article.imageKey,
-                            value: old('image_alt', isNew ? '' : article.imageAlt),
-                            help: 'Come descriveresti la fotografia a chi non puo vederla. Compare al posto dell immagine quando questa non si carica.'
-                        }) }}
                     </div>
                 </div>
             </section>

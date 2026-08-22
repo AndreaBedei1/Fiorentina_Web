@@ -80,6 +80,7 @@ final class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('media_srcset', $this->mediaSrcset(...)),
             new TwigFunction('social_thumb', $this->socialThumb(...)),
             new TwigFunction('cart_count', $this->cartCount(...)),
+            new TwigFunction('stemma_fiorentina', $this->stemmaFiorentina(...)),
         ];
     }
 
@@ -266,6 +267,31 @@ final class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /** Numero di articoli nel carrello, per il contatore nell'intestazione. */
+    /**
+     * Indirizzo dello stemma della Fiorentina, se il file c'è.
+     *
+     * Lo stemma non sta nel repository: è un marchio registrato, e il
+     * permesso di usarlo appartiene al gruppo, non al codice. Il file si
+     * appoggia in resources/static/ e da li finisce in public/assets/ alla
+     * prima compilazione.
+     *
+     * Finche non c'è, questa funzione restituisce null e le sezioni che lo
+     * userebbero non lo disegnano affatto: nessun riquadro vuoto, nessuna
+     * immagine rotta, nessuna decisione da prendere.
+     */
+    public function stemmaFiorentina(): ?string
+    {
+        foreach (['svg', 'png', 'webp'] as $estensione) {
+            $nome = 'stemma-fiorentina.' . $estensione;
+
+            if (is_file($this->app->basePath('public/assets/' . $nome))) {
+                return '/assets/' . $nome;
+            }
+        }
+
+        return null;
+    }
+
     public function cartCount(): int
     {
         try {

@@ -37,7 +37,6 @@ final class Album
                 'album_id' => $row['id'] ?? 0,
                 'storage_key' => $row['cover_storage_key'],
                 'extension' => $row['cover_extension'] ?? 'jpg',
-                'alt_text' => $row['cover_alt_text'] ?? null,
                 'width' => $row['cover_width'] ?? null,
                 'height' => $row['cover_height'] ?? null,
             ]);

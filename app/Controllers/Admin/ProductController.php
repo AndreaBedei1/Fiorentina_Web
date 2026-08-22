@@ -309,7 +309,6 @@ final class ProductController extends Controller
                 'product_id' => $productId,
                 'storage_key' => (string) $result['key'],
                 'extension' => (string) $result['extension'],
-                'alt_text' => $request->nullableString('image_alt'),
                 'sort_order' => $position++,
                 // La prima immagine caricata diventa automaticamente la principale.
                 'is_primary' => $hasPrimary ? 0 : 1,

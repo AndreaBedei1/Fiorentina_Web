@@ -27,7 +27,6 @@ final class Photo
         public readonly string $storageKey,
         public readonly string $extension,
         public readonly ?string $originalName,
-        public readonly ?string $altText,
         public readonly ?int $width,
         public readonly ?int $height,
         public readonly ?int $filesize,
@@ -48,7 +47,6 @@ final class Photo
             storageKey: self::castString($row, 'storage_key'),
             extension: self::castString($row, 'extension', 'jpg'),
             originalName: self::castNullableString($row, 'original_name'),
-            altText: self::castNullableString($row, 'alt_text'),
             width: self::castNullableInt($row, 'width'),
             height: self::castNullableInt($row, 'height'),
             filesize: self::castNullableInt($row, 'filesize'),
@@ -68,15 +66,12 @@ final class Photo
     /**
      * Testo alternativo effettivo.
      *
-     * Nessuna immagine resta senza alt: se l'amministratore non lo compila
-     * ricadiamo sul nome dell'album, che almeno dice dove siamo.
+     * Nessuno lo scrive a mano: una fotografia di album si annuncia col nome
+     * dell'album, che e quello che la descrive davvero - "Trasferta di
+     * Milano" dice molto piu di "foto_1234.jpg".
      */
     public function alt(): string
     {
-        if ($this->altText !== null && trim($this->altText) !== '') {
-            return $this->altText;
-        }
-
         return $this->albumTitle !== null
             ? 'Fotografia dell\'album ' . $this->albumTitle
             : 'Fotografia di Baraonda Fiorentina';

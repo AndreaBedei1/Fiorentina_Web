@@ -41,7 +41,6 @@ final class ContentSeeder extends Seeder
                 'title' => $item['title'],
                 'excerpt' => $item['excerpt'],
                 'content' => $item['content'],
-                'image_alt' => null,
                 'author_id' => $authorId === null ? null : (int) $authorId,
                 'published_at' => $this->daysFromNow(-$item['daysAgo'], '10:30'),
                 'created_at' => $this->daysFromNow(-$item['daysAgo'] - 1, '18:00'),

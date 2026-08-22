@@ -21,7 +21,7 @@ final class EventRepository extends BaseRepository
     /** Il campo `description` resta fuori dagli elenchi: serve solo nel dettaglio. */
     private const LIST_COLUMNS = 'e.id, e.title, e.short_description, e.category_id,
         e.starts_at, e.ends_at, e.location_name, e.city, e.address, e.meeting_point, e.meeting_at,
-        e.image_key, e.image_alt, e.cost, e.cost_note, e.limited_seats, e.seats,
+        e.image_key, e.cost, e.cost_note, e.limited_seats, e.seats,
         e.created_at, e.updated_at, ' . self::CATEGORY_COLUMNS;
 
     // Un evento in calendario e un evento che si vede: non c'e uno stato

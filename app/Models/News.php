@@ -21,7 +21,6 @@ final class News
         /** HTML già sanificato in scrittura: nei template va stampato con |raw. */
         public readonly ?string $content,
         public readonly ?string $imageKey,
-        public readonly ?string $imageAlt,
         public readonly ?int $authorId,
         public readonly DateTimeImmutable $publishedAt,
         public readonly DateTimeImmutable $createdAt,
@@ -38,7 +37,6 @@ final class News
             excerpt: self::castNullableString($row, 'excerpt'),
             content: self::castNullableString($row, 'content'),
             imageKey: self::castNullableString($row, 'image_key'),
-            imageAlt: self::castNullableString($row, 'image_alt'),
             authorId: self::castNullableInt($row, 'author_id'),
             publishedAt: self::castDate($row, 'published_at') ?? new DateTimeImmutable(),
             createdAt: self::castDate($row, 'created_at') ?? new DateTimeImmutable(),
@@ -69,6 +67,18 @@ final class News
         $coda = Str::slug($this->title);
 
         return $coda === '' ? (string) $this->id : $this->id . '-' . $coda;
+    }
+
+    /**
+     * Come si annuncia la fotografia a chi non la vede.
+     *
+     * Non si chiede a nessuno di scriverlo: il titolo dell'articolo e la cosa
+     * che meglio descrive la sua fotografia fra quelle che il sito conosce
+     * gia con certezza.
+     */
+    public function imageAlt(): string
+    {
+        return $this->title;
     }
 
     public function seoTitle(): string

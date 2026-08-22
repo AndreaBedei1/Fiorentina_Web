@@ -16,7 +16,6 @@ final class ProductImage
         public readonly int $productId,
         public readonly string $storageKey,
         public readonly string $extension,
-        public readonly ?string $altText,
         public readonly ?int $width,
         public readonly ?int $height,
         public readonly int $sortOrder,
@@ -32,7 +31,6 @@ final class ProductImage
             productId: self::castInt($row, 'product_id'),
             storageKey: self::castString($row, 'storage_key'),
             extension: self::castString($row, 'extension', 'jpg'),
-            altText: self::castNullableString($row, 'alt_text'),
             width: self::castNullableInt($row, 'width'),
             height: self::castNullableInt($row, 'height'),
             sortOrder: self::castInt($row, 'sort_order'),
@@ -40,10 +38,9 @@ final class ProductImage
         );
     }
 
+    /** Come si annuncia la fotografia a chi non la vede: il nome del prodotto. */
     public function alt(string $productName): string
     {
-        return $this->altText !== null && trim($this->altText) !== ''
-            ? $this->altText
-            : $productName . ' - merchandising Baraonda Fiorentina';
+        return $productName;
     }
 }

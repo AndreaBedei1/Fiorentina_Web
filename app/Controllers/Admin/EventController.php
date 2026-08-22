@@ -278,7 +278,6 @@ final class EventController extends Controller
             'city' => $validated['city'] ?? null,
             'meeting_point' => $validated['meeting_point'] ?? null,
             'meeting_at' => Dates::combineToDatabase($validated['start_date'] ?? null, $validated['meeting_time'] ?? null),
-            'image_alt' => $request->nullableString('image_alt'),
             'cost' => $validated['cost'] ?? null,
             'cost_note' => $validated['cost_note'] ?? null,
             'info' => $request->nullableString('info'),

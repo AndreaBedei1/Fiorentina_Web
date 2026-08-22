@@ -516,12 +516,34 @@ Dopo un aggiornamento dei template, svuota la cache: cancella il contenuto di
 | `resources/static/hero.svg` | immagine di apertura della homepage |
 | `resources/images/watermark.png` | filigrana applicata alle fotografie (PNG con trasparenza) |
 | `resources/views/components/giglio.twig` | giglio fiorentino usato come decorazione di sfondo |
+| `resources/static/stemma-fiorentina.svg` | stemma della ACF Fiorentina, decorazione delle fasce viola |
 
-> Il giglio non e un segnaposto: e un disegno originale dello stemma civico di
-> Firenze, simbolo araldico di pubblico dominio. Lo stemma della ACF Fiorentina
-> e invece un marchio registrato e non puo essere usato senza autorizzazione
-> della societa. Se un giorno il gruppo la ottenesse, quel componente e il punto
-> in cui sostituirlo.
+> Il giglio non è un segnaposto: è un disegno originale dello stemma civico di
+> Firenze, simbolo araldico di pubblico dominio.
+
+#### Lo stemma della Fiorentina
+
+Lo stemma della ACF Fiorentina è un marchio registrato e **non fa parte del
+repository**: il permesso di usarlo appartiene al gruppo, non al codice. Va
+quindi aggiunto a mano, una volta sola:
+
+1. si appoggia il file in `resources/static/` chiamandolo
+   `stemma-fiorentina.svg` (vanno bene anche `.png` e `.webp`; con piu formati
+   presenti vince l'svg, che resta nitido a ogni ingrandimento);
+2. si lancia `npm run build`, che lo copia in `public/assets/`;
+3. si carica `public/assets/` sul server.
+
+Compare in tre punti, sempre a destra e sempre in trasparenza: l'apertura
+della homepage, il richiamo *Entra nella Baraonda* e il piede di pagina. è
+una decorazione di sfondo, non un'immagine di contenuto: sta dietro al testo,
+non si puo selezionare e i lettori di schermo la saltano, perche a chi ascolta
+la pagina non aggiunge niente.
+
+**Finche il file non c'è, il sito non lo disegna affatto**: nessun riquadro
+vuoto, nessuna immagine rotta. Le stesse fasce viola restano esattamente come
+sono oggi. Un `.svg` a un solo colore bianco è la scelta migliore: lo stemma si
+appoggia sempre su fondo viola, e a quell'opacité i colori originali si
+perderebbero comunque.
 
 Dopo aver sostituito logo e immagine di apertura serve `npm run build` e un
 nuovo caricamento di `public/assets/`. La filigrana invece si applica alle

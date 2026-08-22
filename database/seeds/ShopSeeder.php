@@ -129,7 +129,6 @@ final class ShopSeeder extends Seeder
                         'product_id' => $productId,
                         'storage_key' => (string) $result['key'],
                         'extension' => (string) $result['extension'],
-                        'alt_text' => $item['name'] . ' - merchandising Baraonda Fiorentina',
                         'sort_order' => 0,
                         'is_primary' => 1,
                     ]);
