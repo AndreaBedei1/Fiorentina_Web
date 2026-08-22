@@ -180,8 +180,12 @@ final class NewsController extends Controller
 
         $this->news->delete($id);
 
-        // I file dell'immagine restano su disco: il soft delete e reversibile
-        // direttamente a database, e senza immagine il ripristino sarebbe monco.
+        // Prima i file restavano su disco "per un eventuale ripristino" che
+        // nessuna pagina permetteva di fare: erano solo copie dimenticate.
+        if ($article->imageKey !== null) {
+            $this->images->delete(MediaPaths::COLLECTION_NEWS, $article->imageKey);
+        }
+
         $this->audit->log(
             AuditLogger::CONTENT_DELETED,
             'news',

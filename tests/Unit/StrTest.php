@@ -92,9 +92,9 @@ final class StrTest extends TestCase
     #[Test]
     public function gli_importi_seguono_la_convenzione_italiana(): void
     {
-        $this->assertSame('1.234,50 euro', Str::money(1234.5));
-        $this->assertSame('18,00 euro', Str::money(18));
-        $this->assertSame('0,00 euro', Str::money(0));
+        $this->assertSame('1.234,50 €', Str::money(1234.5));
+        $this->assertSame('18,00 €', Str::money(18));
+        $this->assertSame('0,00 €', Str::money(0));
         $this->assertSame('7,00', Str::money(7, withSymbol: false));
     }
 

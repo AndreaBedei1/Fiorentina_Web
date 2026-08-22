@@ -88,12 +88,19 @@ final class Str
         return $initials !== '' ? $initials : '?';
     }
 
-    /** Formatta un importo in euro secondo la convenzione italiana. */
+    /**
+     * Formatta un importo secondo la convenzione italiana: 1.234,50 €.
+     *
+     * Il simbolo va dopo la cifra e con uno spazio, come si scrive in Italia
+     * e come lo scrivono i cartellini dei negozi. Prima qui c'era la parola
+     * "euro" per esteso: si legge bene ad alta voce, ma su una card di
+     * prodotto occupa il triplo dello spazio di quello che dice.
+     */
     public static function money(float|int|string $amount, bool $withSymbol = true): string
     {
         $formatted = number_format((float) $amount, 2, ',', '.');
 
-        return $withSymbol ? $formatted . ' euro' : $formatted;
+        return $withSymbol ? $formatted . ' €' : $formatted;
     }
 
     /** Genera una stringa casuale sicura (identificativi di file, chiavi di cache). */

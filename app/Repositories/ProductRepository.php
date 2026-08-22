@@ -230,9 +230,25 @@ final class ProductRepository extends BaseRepository
         return $this->db->updateWhereId('products', $id, $data) >= 0;
     }
 
+    /**
+     * Elimina davvero la riga.
+     *
+     * Prima era un soft delete: la riga restava a database con una data di
+     * cancellazione, invisibile ovunque ma presente per sempre, e i file
+     * delle immagini restavano su disco. Un archivio che cresce di cose che
+     * nessuno rivedra mai, e che nessuna pagina permette di ripescare: il
+     * ripristino esisteva solo in teoria, andando a mano sul database.
+     *
+     * Chi elimina si aspetta che sparisca. Le eccezioni restano dove servono
+     * davvero: gli ordini non si eliminano affatto, e le righe d'ordine
+     * conservano gia una copia di nome e prezzo dell'articolo.
+     */
     public function delete(int $id): bool
     {
-        return $this->softDelete($id);
+        return $this->db->statement(
+            'DELETE FROM products WHERE id = :id',
+            ['id' => $id],
+        ) > 0;
     }
 
     /** @param array<string, mixed> $data */
@@ -271,6 +287,25 @@ final class ProductRepository extends BaseRepository
     }
 
     /** @return list<string> */
+    /**
+     * Chiavi ed estensioni delle immagini, per cancellarne i file.
+     *
+     * @return list<array{storage_key: string, extension: string}>
+     */
+    public function fileImmaginiDi(int $productId): array
+    {
+        return array_map(
+            static fn (array $r): array => [
+                'storage_key' => (string) $r['storage_key'],
+                'extension' => (string) ($r['extension'] ?? 'jpg'),
+            ],
+            $this->db->select(
+                'SELECT storage_key, extension FROM product_images WHERE product_id = :product',
+                ['product' => $productId],
+            ),
+        );
+    }
+
     public function imageKeysFor(int $productId): array
     {
         return array_map('strval', $this->db->column(

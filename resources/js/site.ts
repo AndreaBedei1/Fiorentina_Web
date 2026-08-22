@@ -22,6 +22,7 @@ import { initReveal } from './modules/reveal';
 import { initLightbox } from './modules/lightbox';
 import { siteHeader } from './modules/header';
 import { cartQuantity } from './modules/cart';
+import { galleriaProdotto } from './modules/galleria-prodotto';
 
 declare global {
     interface Window {
@@ -42,6 +43,7 @@ Alpine.plugin(focus);
 // Componenti dichiarati nei template come x-data="nomeComponente" (senza parentesi).
 Alpine.data('siteHeader', siteHeader);
 Alpine.data('cartQuantity', cartQuantity);
+Alpine.data('galleriaProdotto', galleriaProdotto);
 
 window.Alpine = Alpine;
 Alpine.start();

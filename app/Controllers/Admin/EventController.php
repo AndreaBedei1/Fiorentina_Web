@@ -185,6 +185,10 @@ final class EventController extends Controller
 
         $this->events->delete($id);
 
+        if ($event->imageKey !== null) {
+            $this->images->delete(MediaPaths::COLLECTION_EVENTS, $event->imageKey);
+        }
+
         $this->audit->log(
             AuditLogger::CONTENT_DELETED,
             'event',

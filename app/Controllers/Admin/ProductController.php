@@ -161,9 +161,22 @@ final class ProductController extends Controller
             $this->notFound('Prodotto non trovato.');
         }
 
-        // Soft delete: gli ordini già registrati continuano a puntare al
-        // prodotto, e il loro storico resta consultabile.
+        /*
+         * Eliminazione vera, immagini comprese.
+         *
+         * Gli ordini gia registrati non ne soffrono: la riga d'ordine tiene
+         * la propria copia di nome e prezzo, e il riferimento al prodotto
+         * diventa nullo da solo (ON DELETE SET NULL). Quello che sparisce e
+         * l'articolo dal catalogo, che e esattamente quello che si chiede
+         * premendo "elimina".
+         */
+        $immagini = $this->products->fileImmaginiDi($id);
+
         $this->products->delete($id);
+
+        foreach ($immagini as $immagine) {
+            $this->images->delete(MediaPaths::COLLECTION_PRODUCTS, $immagine['storage_key'], $immagine['extension']);
+        }
 
         $this->audit->log(
             AuditLogger::CONTENT_DELETED,
@@ -172,7 +185,7 @@ final class ProductController extends Controller
             sprintf('Prodotto eliminato: %s', $product->name),
         );
 
-        $this->success('Prodotto eliminato. Gli ordini già ricevuti restano invariati.');
+        $this->success('Prodotto eliminato con le sue fotografie. Gli ordini già ricevuti restano invariati.');
 
         return $this->redirectToRoute('admin.products.index');
     }

@@ -352,6 +352,12 @@ Da configurare nel pannello Aruba (dettagli e orari consigliati in
 |---|---|---|
 | `scripts/sync-football.php` | 2 volte al giorno | aggiorna il calendario partite |
 | `scripts/sync-social.php` | ogni 6 ore | aggiorna i contenuti social |
+
+Un comando di manutenzione, da lanciare a mano quando serve:
+
+| Comando | Cosa fa |
+| --- | --- |
+| `composer media:clean` | elenca le immagini su disco che nessuna riga del database rivendica; con `--elimina` le toglie |
 | `scripts/cleanup-tokens.php` | 1 volta al giorno | rimuove token e contatori scaduti |
 | `scripts/cleanup-temp-files.php` | 1 volta a settimana | pulisce cache, log e temporanei |
 
