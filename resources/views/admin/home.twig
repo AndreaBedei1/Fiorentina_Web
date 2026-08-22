@@ -35,30 +35,5 @@
                 Scegli dal menu a sinistra la sezione su cui vuoi intervenire.
             </span>
         </p>
-
-        {# Le tre porte da cui si entra quasi sempre. Non sono un riassunto del
-           menu: sono le cose che si vengono a fare qui dentro. #}
-        <div class="mt-8 flex flex-wrap justify-center gap-2">
-            {% if can('news.manage') %}
-                <a href="{{ route('admin.news.create') }}" class="btn-secondario">
-                    {{ include('components/icon.twig', { name: 'news', class: 'h-4 w-4' }) }}
-                    Scrivi una notizia
-                </a>
-            {% endif %}
-
-            {% if can('events.manage') %}
-                <a href="{{ route('admin.events.create') }}" class="btn-secondario">
-                    {{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4' }) }}
-                    Crea un evento
-                </a>
-            {% endif %}
-
-            {% if can('gallery.manage') %}
-                <a href="{{ route('admin.gallery.index') }}" class="btn-secondario">
-                    {{ include('components/icon.twig', { name: 'image', class: 'h-4 w-4' }) }}
-                    Carica fotografie
-                </a>
-            {% endif %}
-        </div>
     </div>
 {% endblock %}
