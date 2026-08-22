@@ -8,7 +8,6 @@ use App\Core\Http\UploadedFile;
 use App\Models\User;
 use App\Repositories\AlbumRepository;
 use App\Repositories\PhotoRepository;
-use App\Services\AuditLogger;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -27,7 +26,6 @@ final class PhotoService
         private readonly UploadValidator $validator,
         private readonly ImageProcessor $processor,
         private readonly MediaPaths $paths,
-        private readonly AuditLogger $audit,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -105,15 +103,6 @@ final class PhotoService
 
         if ($uploaded !== []) {
             $this->albums->refreshCounters($albumId);
-
-            $this->audit->log(
-                AuditLogger::PHOTOS_UPLOADED,
-                'album',
-                $albumId,
-                sprintf('%d fotografie caricate in "%s"', count($uploaded), $album->title),
-                ['count' => count($uploaded), 'errors' => count($errors)],
-                $uploader,
-            );
         }
 
         return new PhotoUploadReport(count($uploaded), $errors, $uploaded);
@@ -131,15 +120,6 @@ final class PhotoService
         $this->photos->delete($photoId);
         $this->paths->deleteAll(MediaPaths::COLLECTION_GALLERY, $photo->storageKey, $photo->extension);
         $this->albums->refreshCounters($photo->albumId);
-
-        $this->audit->log(
-            AuditLogger::PHOTO_DELETED,
-            'photo',
-            $photoId,
-            sprintf('Fotografia eliminata dall album "%s"', $photo->albumTitle ?? '?'),
-            [],
-            $actor,
-        );
 
         return true;
     }
@@ -184,5 +164,4 @@ final class PhotoService
 
         return ['processed' => $processed, 'failed' => $failed];
     }
-
 }

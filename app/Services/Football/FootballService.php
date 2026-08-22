@@ -9,7 +9,6 @@ use App\Core\Support\HttpClient;
 use App\DTO\FootballMatchData;
 use App\Models\FootballMatch;
 use App\Repositories\FootballMatchRepository;
-use App\Services\AuditLogger;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -31,7 +30,6 @@ final class FootballService
         private readonly Config $config,
         private readonly HttpClient $http,
         private readonly LoggerInterface $logger,
-        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -138,12 +136,6 @@ final class FootballService
             $errors[] = $provider->lastError()
                 ?? 'il fornitore non ha restituito alcuna partita (il dettaglio e in storage/logs)';
         }
-
-        $this->audit->logSystem(
-            AuditLogger::SYNC_RUN,
-            sprintf('Sincronizzazione calcio (%s): %d partite, %d risultati', $provider->name(), $upcoming, $results),
-            ['provider' => $provider->name(), 'upcoming' => $upcoming, 'results' => $results, 'errors' => count($errors)],
-        );
 
         return new FootballSyncReport($provider->name(), $upcoming, $results, $errors);
     }

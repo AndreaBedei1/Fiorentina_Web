@@ -14,7 +14,6 @@ use App\Core\View\ViewRenderer;
 use App\Models\Product;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\HtmlSanitizer;
 use App\Services\Media\MediaPaths;
@@ -34,7 +33,6 @@ final class ProductController extends Controller
         private readonly ProductCategoryRepository $categories,
         private readonly HtmlSanitizer $sanitizer,
         private readonly SimpleImageService $images,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -100,14 +98,6 @@ final class ProductController extends Controller
         $this->products->replaceVariants($id, $this->parseVariants($request));
         $this->attaccaImmagini($id, $caricate);
 
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'product',
-            $id,
-            sprintf('Prodotto creato: %s', $validated['name']),
-            ['price' => $validated['price'] ?? 0],
-        );
-
         $this->success('Prodotto creato.');
 
         return $this->redirectToRoute('admin.products.edit', ['id' => $id]);
@@ -150,7 +140,6 @@ final class ProductController extends Controller
 
         $data = $this->buildData($request, $validated);
 
-
         $caricate = $this->caricaImmagini($request);
 
         /*
@@ -165,14 +154,6 @@ final class ProductController extends Controller
         $this->products->update($id, $data);
         $this->products->replaceVariants($id, $this->parseVariants($request));
         $this->attaccaImmagini($id, $caricate);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_UPDATED,
-            'product',
-            $id,
-            sprintf('Prodotto aggiornato: %s', $validated['name']),
-            ['price' => $validated['price'] ?? 0],
-        );
 
         $this->success('Prodotto aggiornato.');
 
@@ -206,13 +187,6 @@ final class ProductController extends Controller
         foreach ($immagini as $immagine) {
             $this->images->delete(MediaPaths::COLLECTION_PRODUCTS, $immagine['storage_key'], $immagine['extension']);
         }
-
-        $this->audit->log(
-            AuditLogger::CONTENT_DELETED,
-            'product',
-            $id,
-            sprintf('Prodotto eliminato: %s', $product->name),
-        );
 
         $this->success('Prodotto eliminato con le sue fotografie. Gli ordini già ricevuti restano invariati.');
 
@@ -396,6 +370,4 @@ final class ProductController extends Controller
 
         return $this->back($request, $ritorno);
     }
-
-
 }

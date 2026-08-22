@@ -111,7 +111,7 @@ richieste asincrone.
 | **Galleria** | `Album`, `Photo`, `Services/Media` | album, upload multiplo, elaborazione, filigrana |
 | **Merchandising** | `Product`, `Order`, `Services/Shop` | catalogo, varianti, carrello, ordini |
 | **Organizzazione** | `OrganizationRole`, `OrganizationMember` | organigramma del direttivo |
-| **Amministrazione** | `User`, `AdminUserService`, `AuditLogger` | account, inviti, permessi, registro |
+| **Amministrazione** | `User`, `AdminUserService` | account, inviti, permessi |
 | **Integrazioni** | `Services/Football`, `Services/Social` | dati esterni, sempre dietro interfaccia |
 | **Posta** | `Services/Mail` | email transazionali |
 
@@ -167,7 +167,7 @@ rappresentazioni dello stesso schema, e prima o poi si disallineerebbero.
 ```text
 AUTENTICAZIONE
   users, admin_invites, password_reset_tokens,
-  login_attempts, rate_limits, audit_logs
+  login_attempts, rate_limits
 
 CONTENUTI
   news, events, event_categories, pages, page_blocks
@@ -189,7 +189,7 @@ ORGANIZZAZIONE E SISTEMA
 **Soft delete** su contenuti importanti (`users`, `news`, `events`, `albums`,
 `products`, `orders`): la riga resta, con `deleted_at` valorizzato. Un ordine
 non deve poter sparire per un clic sbagliato, e un amministratore rimosso deve
-restare referenziabile dal registro attivita.
+restare referenziabile da cio che ha creato.
 
 **Snapshot negli ordini**: `order_items` copia nome, variante e prezzo al
 momento della conferma. Se domani il prodotto cambia prezzo o viene eliminato,
@@ -231,10 +231,8 @@ nessun commento. Gli unici account sono quelli degli amministratori.
 
 | | ADMIN | SUPER_ADMIN |
 |---|:---:|:---:|
-| Contenuti, galleria, prodotti, ordini, pagine | si | si |
-| Creare e bloccare amministratori | no | si |
-| Impostazioni | no | si |
-| Registro attivita | no | si |
+| Contenuti, galleria, prodotti, ordini, organigramma | si | si |
+| Invitare, bloccare e promuovere amministratori | no | si |
 
 Due ruoli e una mappa di permessi in `AuthService`: un sistema di ruoli
 configurabili a database sarebbe sovradimensionato per un gruppo che avra tre o
@@ -344,11 +342,15 @@ messaggio d'errore possa dire cosa manca - "manca una lettera maiuscola" si
 corregge subito, "combina almeno tre categorie" no. Nessun simbolo
 obbligatorio: spinge solo verso password prevedibili del tipo "Password1!".
 
-### Registro attivita
+### Che cosa non viene registrato
 
-`audit_logs` registra accessi, tentativi falliti, creazione e blocco di
-amministratori, cambi di ruolo, operazioni sui contenuti, cambi di stato degli
-ordini, modifiche alle impostazioni.
+Non esiste un registro delle attivita: nessuna tabella tiene traccia di chi ha
+creato, modificato o eliminato cosa. C'era, e stato tolto perche nessuno lo
+guardava. La conseguenza è esplicita: se sparisce un contenuto e nessuno si
+ricorda di averlo eliminato, non c'è modo di risalire a chi è stato.
+
+Restano i tentativi di accesso in `login_attempts`, che non sono un registro
+ma il meccanismo che blocca chi prova mille password di fila.
 
 Email e ruolo dell'autore sono **duplicati nella riga**: il registro deve restare
 leggibile anche dopo che l'account e stato rimosso. I metadati passano da un
@@ -404,7 +406,7 @@ tutte* rigenera un album intero.
 
 Semitrasparente, proporzionale al lato lungo, non applicata alle miniature (dove
 coprirebbe il soggetto) ne alle immagini sotto i 600 pixel. Posizione, opacita e
-dimensione si regolano dal pannello *Impostazioni*.
+dimensione stanno in `site_settings` e si cambiano a database.
 
 ### Caricamento multiplo
 

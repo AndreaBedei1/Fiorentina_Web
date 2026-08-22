@@ -43,8 +43,6 @@ final class AuthService
     /** Permessi riservati al SUPER_ADMIN. */
     private const SUPER_ADMIN_PERMISSIONS = [
         'admins.manage',
-        'settings.manage',
-        'audit.view',
     ];
 
     private ?User $cachedUser = null;
@@ -151,7 +149,6 @@ final class AuthService
 
         // Nuovo token CSRF a ogni cambio di privilegio.
         $this->csrf->regenerate();
-
 
         $this->cachedUser = $user;
         $this->resolved = true;

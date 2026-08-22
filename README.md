@@ -49,9 +49,8 @@ richiede alcuna registrazione ai visitatori.
 | `/sitemap.xml`, `/robots.txt` | Generati dinamicamente dai contenuti pubblicati |
 
 **Area riservata** (`/admin`) — accessibile ai soli amministratori invitati:
-dashboard, notizie, eventi, categorie, calendario partite, galleria con
-caricamento multiplo, prodotti, ordini, pagine editoriali, organigramma,
-messaggi, amministratori, impostazioni e registro attivita.
+notizie, eventi, calendario partite, galleria con caricamento multiplo,
+contenuti social, prodotti, ordini, organigramma e amministratori.
 
 ---
 

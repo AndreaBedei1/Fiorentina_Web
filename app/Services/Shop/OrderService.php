@@ -9,7 +9,6 @@ use App\Core\Http\Request;
 use App\Models\Order;
 use App\Models\User;
 use App\Repositories\OrderRepository;
-use App\Services\AuditLogger;
 use App\Services\Mail\MailService;
 use App\Services\SettingsService;
 
@@ -31,7 +30,6 @@ final class OrderService
         private readonly CartService $cart,
         private readonly MailService $mail,
         private readonly SettingsService $settings,
-        private readonly AuditLogger $audit,
         private readonly Config $config,
     ) {
     }
@@ -106,12 +104,6 @@ final class OrderService
         $notifications = $this->sendNotifications($order);
         $this->orders->markNotified($orderId, $notifications['manager'], $notifications['customer']);
 
-        $this->audit->logSystem(
-            AuditLogger::ORDER_RECEIVED,
-            sprintf('Nuovo ordine %s da %s', $order->orderNumber, $order->customerName()),
-            ['order_number' => $order->orderNumber, 'total' => $total, 'items' => $contents->totalQuantity],
-        );
-
         return OrderPlacementResult::success($order, $notifications['customer']);
     }
 
@@ -172,18 +164,6 @@ final class OrderService
         $aggiornato = $this->orders->setCompleted($orderId, $completed);
 
         if ($aggiornato) {
-            $this->audit->log(
-                AuditLogger::ORDER_STATUS_CHANGED,
-                'order',
-                $orderId,
-                sprintf(
-                    'Ordine %s segnato come "%s"',
-                    $order->orderNumber,
-                    Order::statusLabelFor($nuovo),
-                ),
-                ['from' => $order->status, 'to' => $nuovo],
-                $actor,
-            );
         }
 
         return $aggiornato;

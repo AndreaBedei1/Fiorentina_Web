@@ -14,7 +14,6 @@ use App\Core\Support\Dates;
 use App\Core\View\ViewRenderer;
 use App\Models\SocialPost;
 use App\Repositories\SocialPostRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\Media\MediaPaths;
 use App\Services\Media\SimpleImageService;
@@ -48,7 +47,6 @@ final class SocialController extends Controller
         private readonly SocialPostRepository $posts,
         private readonly SocialService $social,
         private readonly SimpleImageService $images,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -105,13 +103,6 @@ final class SocialController extends Controller
         $data['local_thumb_key'] = $immagine['key'];
 
         $id = $this->posts->createManual($data);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'social_post',
-            $id,
-            sprintf('Contenuto social aggiunto a mano (%s)', $data['provider']),
-        );
 
         $this->success('Contenuto aggiunto. Lo trovi in homepage.');
 
@@ -182,7 +173,6 @@ final class SocialController extends Controller
 
         $this->posts->updateManual($id, $data);
 
-        $this->audit->log(AuditLogger::CONTENT_UPDATED, 'social_post', $id, 'Contenuto social aggiornato');
         $this->success('Contenuto aggiornato.');
 
         return $this->redirectToRoute('admin.social.index');
@@ -205,7 +195,6 @@ final class SocialController extends Controller
             $this->images->delete(MediaPaths::COLLECTION_SOCIAL, $chiave);
         }
 
-        $this->audit->log(AuditLogger::CONTENT_DELETED, 'social_post', $id, 'Contenuto social rimosso');
         $this->success('Contenuto rimosso.');
 
         return $this->redirectToRoute('admin.social.index');

@@ -40,8 +40,6 @@ final class AuthorizationTest extends IntegrationTestCase
 
         // Amministrazione: no.
         $this->assertFalse($auth->can('admins.manage'));
-        $this->assertFalse($auth->can('settings.manage'));
-        $this->assertFalse($auth->can('audit.view'));
     }
 
     #[Test]

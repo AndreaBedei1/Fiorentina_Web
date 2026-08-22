@@ -188,8 +188,7 @@ final class Application extends Container
 
         /*
          * La richiesta corrente e un servizio come gli altri: diversi service
-         * (autenticazione, audit, rate limiting) hanno bisogno di IP e user
-         * agent. In HTTP viene sostituita da handle() con quella reale; qui
+         * (autenticazione, rate limiting) hanno bisogno di IP e user agent. In HTTP viene sostituita da handle() con quella reale; qui
          * registriamo una versione pigra che serve alla CLI e ai test.
          */
         $this->singleton(Request::class, static fn (): Request => Request::capture());

@@ -27,7 +27,6 @@ final class PasswordResetService
         private readonly Hash $hash,
         private readonly TokenGenerator $tokenGenerator,
         private readonly MailService $mail,
-        private readonly AuditLogger $audit,
         private readonly RateLimiter $limiter,
         private readonly UrlGenerator $url,
         private readonly Config $config,
@@ -76,15 +75,6 @@ final class PasswordResetService
             ],
         );
 
-        $this->audit->log(
-            AuditLogger::PASSWORD_RESET_REQUESTED,
-            'user',
-            $user->id,
-            'Richiesta di reimpostazione password',
-            ['ip' => $ip],
-            $user,
-        );
-
         return true;
     }
 
@@ -115,15 +105,6 @@ final class PasswordResetService
         $this->users->updatePassword($user->id, $this->hash->make($newPassword));
         $this->tokens->markPasswordResetUsed((int) $record['id']);
 
-        $this->audit->log(
-            AuditLogger::PASSWORD_RESET_COMPLETED,
-            'user',
-            $user->id,
-            'Password reimpostata tramite link di recupero',
-            [],
-            $user,
-        );
-
         return AdminActionResult::success('Password aggiornata. Ora puoi accedere con le nuove credenziali.');
     }
 
@@ -141,8 +122,6 @@ final class PasswordResetService
         }
 
         $this->users->updatePassword($userId, $this->hash->make($newPassword));
-
-        $this->audit->log(AuditLogger::PASSWORD_CHANGED, 'user', $userId, 'Password modificata dall area riservata');
 
         return AdminActionResult::success('Password aggiornata.');
     }

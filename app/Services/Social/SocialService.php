@@ -9,7 +9,6 @@ use App\Core\Support\HttpClient;
 use App\DTO\SocialPostData;
 use App\Models\SocialPost;
 use App\Repositories\SocialPostRepository;
-use App\Services\AuditLogger;
 use App\Services\Media\ImageProcessor;
 use App\Services\Media\MediaPaths;
 use App\Services\SettingsService;
@@ -39,7 +38,6 @@ final class SocialService
         private readonly MediaPaths $paths,
         private readonly ImageProcessor $images,
         private readonly LoggerInterface $logger,
-        private readonly AuditLogger $audit,
         private readonly SettingsService $settings,
     ) {
     }
@@ -144,12 +142,6 @@ final class SocialService
                 ]);
             }
         }
-
-        $this->audit->logSystem(
-            AuditLogger::SYNC_RUN,
-            'Sincronizzazione social: ' . $report->summary(),
-            ['counts' => $report->counts(), 'errors' => count($report->errors())],
-        );
 
         return $report;
     }

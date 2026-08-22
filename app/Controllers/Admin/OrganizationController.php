@@ -12,7 +12,6 @@ use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Repositories\OrganizationRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\Media\MediaPaths;
 use App\Services\Media\SimpleImageService;
@@ -36,7 +35,6 @@ final class OrganizationController extends Controller
         Config $config,
         private readonly OrganizationRepository $organization,
         private readonly SimpleImageService $images,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -75,13 +73,6 @@ final class OrganizationController extends Controller
         $data += $this->fotografiaCaricata($request);
 
         $id = $this->organization->createMember($data);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'member',
-            $id,
-            sprintf('Persona aggiunta: %s %s', $data['first_name'], $data['last_name']),
-        );
 
         $this->success('Persona aggiunta.');
 
@@ -173,13 +164,6 @@ final class OrganizationController extends Controller
         if ($photoKey !== null) {
             $this->images->delete(MediaPaths::COLLECTION_MEMBERS, $photoKey, $member->photoExtension);
         }
-
-        $this->audit->log(
-            AuditLogger::CONTENT_DELETED,
-            'member',
-            $id,
-            sprintf('Persona rimossa: %s', $member->fullName()),
-        );
 
         $this->success('Persona rimossa.');
 

@@ -11,11 +11,6 @@
         </p>
     </div>
 
-    <p class="mt-4 text-sm leading-relaxed text-sabbia-600">
-        Scegli una password personale. Nessun altro la conoscera: viene salvata solo
-        in forma cifrata e non è recuperabile in chiaro.
-    </p>
-
     <form action="{{ route('admin.invite.submit', { token: token }) }}" method="post" class="mt-6 space-y-5">
         {{ csrf_field()|raw }}
 

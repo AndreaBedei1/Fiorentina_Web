@@ -74,9 +74,8 @@
                 {
                     label: 'Amministrazione',
                     items: [
-                        { label: 'Amministratori',   url: route('admin.users.index'),    icon: 'shield',   permission: 'admins.manage' },
-                        { label: 'Impostazioni',     url: route('admin.settings.index'), icon: 'settings', permission: 'settings.manage' },
-                        { label: 'Registro attività',url: route('admin.audit.index'),    icon: 'file',     permission: 'audit.view' }
+                        { label: 'Amministratori', url: route('admin.users.index'),    icon: 'shield',   permission: 'admins.manage' },
+                        { label: 'Il mio profilo', url: route('admin.profile'),        icon: 'users' }
                     ]
                 }
             ] %}
@@ -84,8 +83,12 @@
             <nav class="px-3 py-4" aria-label="Menu del pannello">
                 {% for section in sections %}
                     {% set visible = [] %}
+                    {# Una voce senza permesso la vede chiunque abbia un account: e il caso
+                       del proprio profilo, che non e un privilegio ma una pagina di casa. #}
                     {% for item in section.items %}
-                        {% if can(item.permission) %}{% set visible = visible|merge([item]) %}{% endif %}
+                        {% if item.permission is not defined or can(item.permission) %}
+                            {% set visible = visible|merge([item]) %}
+                        {% endif %}
                     {% endfor %}
 
                     {% if visible is not empty %}

@@ -9,8 +9,8 @@ use App\Models\User;
 /**
  * Esito di un tentativo di accesso.
  *
- * Il motivo del fallimento serve internamente (per l'audit log e per il
- * messaggio di attesa), ma cio che l'utente legge resta generico: solo il caso
+ * Il motivo del fallimento serve internamente (per il messaggio di attesa),
+ * ma cio che l'utente legge resta generico: solo il caso
  * "troppi tentativi" viene esplicitato, perché altrimenti sembrerebbe un guasto.
  */
 final readonly class AuthResult

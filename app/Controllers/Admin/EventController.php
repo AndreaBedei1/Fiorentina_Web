@@ -14,7 +14,6 @@ use App\Core\Support\Dates;
 use App\Core\View\ViewRenderer;
 use App\Repositories\EventCategoryRepository;
 use App\Repositories\EventRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\HtmlSanitizer;
 use App\Services\Media\MediaPaths;
@@ -34,7 +33,6 @@ final class EventController extends Controller
         private readonly EventCategoryRepository $categories,
         private readonly HtmlSanitizer $sanitizer,
         private readonly SimpleImageService $images,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -91,14 +89,6 @@ final class EventController extends Controller
         $data['created_by'] = $this->currentUser()->id;
 
         $id = $this->events->create($data);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'event',
-            $id,
-            sprintf('Evento creato: %s', $data['title']),
-            ['starts_at' => $data['starts_at']],
-        );
 
         $this->success('Evento creato.');
 
@@ -160,13 +150,6 @@ final class EventController extends Controller
 
         $this->events->update($id, $data);
 
-        $this->audit->log(
-            AuditLogger::CONTENT_UPDATED,
-            'event',
-            $id,
-            sprintf('Evento aggiornato: %s', $data['title']),
-        );
-
         $this->success('Evento aggiornato.');
 
         return $this->redirectToRoute('admin.events.edit', ['id' => $id]);
@@ -188,13 +171,6 @@ final class EventController extends Controller
         if ($event->imageKey !== null) {
             $this->images->delete(MediaPaths::COLLECTION_EVENTS, $event->imageKey);
         }
-
-        $this->audit->log(
-            AuditLogger::CONTENT_DELETED,
-            'event',
-            $id,
-            sprintf('Evento eliminato: %s', $event->title),
-        );
 
         $this->success('Evento eliminato.');
 
@@ -307,5 +283,4 @@ final class EventController extends Controller
 
         return ['key' => $result['key'], 'error' => $result['error']];
     }
-
 }

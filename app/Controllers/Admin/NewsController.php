@@ -13,7 +13,6 @@ use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Models\News;
 use App\Repositories\NewsRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\HtmlSanitizer;
 use App\Services\Media\MediaPaths;
@@ -32,7 +31,6 @@ final class NewsController extends Controller
         private readonly NewsRepository $news,
         private readonly HtmlSanitizer $sanitizer,
         private readonly SimpleImageService $images,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -88,13 +86,6 @@ final class NewsController extends Controller
         $data['author_id'] = $this->currentUser()->id;
 
         $id = $this->news->create($data);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'news',
-            $id,
-            sprintf('Notizia creata: %s', $data['title']),
-        );
 
         $this->success('Notizia creata.');
 
@@ -155,13 +146,6 @@ final class NewsController extends Controller
 
         $this->news->update($id, $data);
 
-        $this->audit->log(
-            AuditLogger::CONTENT_UPDATED,
-            'news',
-            $id,
-            sprintf('Notizia aggiornata: %s', $data['title']),
-        );
-
         $this->success('Notizia aggiornata.');
 
         return $this->redirectToRoute('admin.news.edit', ['id' => $id]);
@@ -186,13 +170,6 @@ final class NewsController extends Controller
             $this->images->delete(MediaPaths::COLLECTION_NEWS, $article->imageKey);
         }
 
-        $this->audit->log(
-            AuditLogger::CONTENT_DELETED,
-            'news',
-            $id,
-            sprintf('Notizia eliminata: %s', $article->title),
-        );
-
         $this->success('Notizia eliminata.');
 
         return $this->redirectToRoute('admin.news.index');
@@ -208,7 +185,6 @@ final class NewsController extends Controller
         $validator = Validator::make($request->all())
             ->required('title', 'Il titolo')->max('title', 200, 'Il titolo')
             ->optional('excerpt')->max('excerpt', 400, 'L estratto');
-
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -254,5 +230,4 @@ final class NewsController extends Controller
 
         return ['key' => $result['key'], 'error' => $result['error']];
     }
-
 }

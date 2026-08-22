@@ -14,7 +14,6 @@ use App\Core\View\ViewRenderer;
 use App\Models\Album;
 use App\Repositories\AlbumRepository;
 use App\Repositories\PhotoRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\Media\PhotoService;
 use App\Validation\Validator;
@@ -37,7 +36,6 @@ final class GalleryController extends Controller
         private readonly AlbumRepository $albums,
         private readonly PhotoRepository $photos,
         private readonly PhotoService $photoService,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -85,13 +83,6 @@ final class GalleryController extends Controller
             'created_by' => $this->currentUser()->id,
         ]);
 
-        $this->audit->log(
-            AuditLogger::CONTENT_CREATED,
-            'album',
-            $id,
-            sprintf('Album creato: %s', $validated['title']),
-        );
-
         $this->success('Album creato. Ora puoi caricare le fotografie.');
 
         return $this->redirectToRoute('admin.gallery.edit', ['id' => $id]);
@@ -137,13 +128,6 @@ final class GalleryController extends Controller
 
         $this->albums->update($id, $data);
 
-        $this->audit->log(
-            AuditLogger::CONTENT_UPDATED,
-            'album',
-            $id,
-            sprintf('Album aggiornato: %s', $validated['title']),
-        );
-
         $this->success('Album aggiornato.');
 
         return $this->redirectToRoute('admin.gallery.edit', ['id' => $id]);
@@ -164,14 +148,6 @@ final class GalleryController extends Controller
         // eliminato non deve lasciare centinaia di immagini orfane su disco.
         $deletedPhotos = $this->photoService->deleteAllForAlbum($id);
         $this->albums->delete($id);
-
-        $this->audit->log(
-            AuditLogger::CONTENT_DELETED,
-            'album',
-            $id,
-            sprintf('Album eliminato: %s', $album->title),
-            ['photos_deleted' => $deletedPhotos],
-        );
 
         $this->success(sprintf('Album eliminato insieme a %d fotografie.', $deletedPhotos));
 
@@ -348,5 +324,4 @@ final class GalleryController extends Controller
             'altro' => 'Altro',
         ];
     }
-
 }

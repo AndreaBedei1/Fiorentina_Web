@@ -38,26 +38,6 @@ final class SettingsRepository extends BaseRepository
         return $this->cache = $cache;
     }
 
-    /** @return list<array<string, mixed>> Impostazioni complete, per il form del pannello. */
-    public function allForAdmin(): array
-    {
-        return $this->db->select(
-            'SELECT * FROM site_settings ORDER BY group_name ASC, sort_order ASC, label ASC'
-        );
-    }
-
-    /** @return array<string, list<array<string, mixed>>> Impostazioni raggruppate per sezione. */
-    public function groupedForAdmin(): array
-    {
-        $grouped = [];
-
-        foreach ($this->allForAdmin() as $row) {
-            $grouped[(string) $row['group_name']][] = $row;
-        }
-
-        return $grouped;
-    }
-
     public function put(string $key, ?string $value, ?int $updatedBy = null): void
     {
         $this->db->statement(

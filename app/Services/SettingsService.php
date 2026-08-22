@@ -248,12 +248,6 @@ final class SettingsService
         $this->resolved = [];
     }
 
-    /** @return array<string, list<array<string, mixed>>> */
-    public function groupedForAdmin(): array
-    {
-        return $this->repository->groupedForAdmin();
-    }
-
     /** Crea a database le impostazioni mancanti, senza toccare quelle esistenti. */
     public function ensureDefaults(): int
     {

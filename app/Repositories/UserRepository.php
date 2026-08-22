@@ -12,7 +12,8 @@ use App\Models\User;
  *
  * Tutte le letture escludono per default gli account soft-deleted: un
  * amministratore rimosso non deve poter accedere ne comparire negli elenchi,
- * ma resta nel database perché l'audit log continui ad avere senso.
+ * ma resta nel database perche le cose che ha creato lo indicano ancora come
+ * autore, e una riga sparita lascerebbe quei riferimenti nel vuoto.
  */
 final class UserRepository extends BaseRepository
 {
@@ -32,7 +33,7 @@ final class UserRepository extends BaseRepository
         return $row === null ? null : User::fromRow($row);
     }
 
-    /** Include gli account eliminati: serve all'audit log per risolvere i nomi. */
+    /** Include gli account eliminati: serve a risolvere il nome di chi ha creato qualcosa. */
     public function findEvenIfDeleted(int $id): ?User
     {
         $row = $this->db->selectOne(

@@ -21,13 +21,14 @@ accesso SSH necessario.
 8. [Import dello schema del database](#8-import-dello-schema-del-database)
 9. [Permessi delle cartelle](#9-permessi-delle-cartelle)
 10. [HTTPS](#10-https)
-11. [Posta elettronica](#11-posta-elettronica)
-12. [Primo amministratore](#12-primo-amministratore)
-13. [Cron](#13-cron)
-14. [Verifica finale](#14-verifica-finale)
-15. [Aggiornamenti successivi](#15-aggiornamenti-successivi)
-16. [Backup](#16-backup)
-17. [Problemi frequenti](#17-problemi-frequenti)
+11. [Impostazioni del sito](#11-impostazioni-del-sito)
+12. [Posta elettronica](#12-posta-elettronica)
+13. [Primo amministratore](#13-primo-amministratore)
+14. [Cron](#14-cron)
+15. [Verifica finale](#15-verifica-finale)
+16. [Aggiornamenti successivi](#16-aggiornamenti-successivi)
+17. [Backup](#17-backup)
+18. [Problemi frequenti](#18-problemi-frequenti)
 
 ---
 
@@ -295,8 +296,7 @@ php scripts/seed.php --only=organization  # ruoli del direttivo, senza nomi real
 L'elenco completo dei seeder e in `php scripts/seed.php --list`.
 
 Senza riga di comando, apri temporaneamente il sito: le impostazioni mancanti
-usano automaticamente i valori predefiniti, e potrai crearle salvando una volta
-dal pannello *Impostazioni*.
+usano automaticamente i valori predefiniti.
 
 > **Non lanciare `php scripts/seed.php` senza `--only`** in produzione: creerebbe
 > anche notizie, eventi e prodotti dimostrativi da cancellare a mano.
@@ -356,12 +356,54 @@ browser rifiuterebbero di aprire il sito e non ci sarebbe modo di aggirarli.
 
 ---
 
-## 11. Posta elettronica
+## 11. Impostazioni del sito
+
+Nome del gruppo, email e telefono, indirizzo della sede, orari, collegamenti
+social, testo del piede di pagina, istruzioni di pagamento, interruttore del
+catalogo e regolazioni della filigrana stanno tutti nella tabella
+`site_settings`. **Non c'è una pagina del pannello per cambiarli**: sono cose
+che si scrivono una volta all'inizio, e l'amministratore di turno non deve
+poterle spostare per sbaglio.
+
+Si cambiano da phpMyAdmin, oppure con una query:
+
+```sql
+UPDATE site_settings SET value = 'info@tuodominio.it' WHERE key_name = 'contact_email';
+```
+
+Per vedere tutto quello che si puo cambiare, con il valore attuale:
+
+```sql
+SELECT group_name, key_name, label, value FROM site_settings ORDER BY group_name, sort_order;
+```
+
+Le chiavi che servono piu spesso:
+
+| Chiave | Cosa è |
+|---|---|
+| `site_group_name` | nome del gruppo, in testata e nelle email |
+| `contact_email` | indirizzo a cui arrivano i messaggi dal modulo contatti |
+| `contact_phone`, `contact_address`, `contact_opening_hours` | i dati della pagina Contatti |
+| `contact_merchandising_email` | dove arrivano gli ordini |
+| `shop_payment_instructions` | il testo che il cliente riceve per pagare |
+| `shop_enabled` | `1` o `0`: sospende gli ordini lasciando il catalogo visibile |
+| `social_instagram_url`, `social_facebook_url`, `social_youtube_url`, `social_telegram_url` | i collegamenti ai profili |
+| `social_behold_feed_id` | il feed Behold per i post di Instagram in homepage |
+| `footer_association_details` | i dati dell'associazione nel piede di pagina |
+
+**Dopo ogni modifica svuota la cache** dei template: cancella il contenuto di
+`storage/cache/twig/`. I valori vengono riletti da soli, ma le pagine gia
+compilate no.
+
+---
+
+## 12. Posta elettronica
 
 1. crea dal pannello Aruba una casella `noreply@tuodominio.it`;
 2. inserisci le credenziali nel `.env` (punto 7);
 3. crea anche `merchandising@` e `info@`, oppure usa indirizzi esistenti;
-4. imposta i destinatari operativi dal pannello del sito, voce **Impostazioni**.
+4. imposta i destinatari operativi in `site_settings` (si veda la sezione
+   *Impostazioni del sito* qui sotto).
 
 **Verifica**: dal sito pubblico invia un messaggio dal modulo contatti e
 controlla che arrivi. Se non arriva, guarda `storage/logs/app-*.log`: l'errore
@@ -375,7 +417,7 @@ ha scritto, ma il messaggio resta comunque non recapitato.
 
 ---
 
-## 12. Primo amministratore
+## 13. Primo amministratore
 
 **Con riga di comando:**
 
@@ -417,7 +459,7 @@ voce *Amministratori*.
 
 ---
 
-## 13. Cron
+## 14. Cron
 
 Dal pannello Aruba, sezione **Cron Job**. Il percorso assoluto e visibile nel
 pannello (qualcosa come `/web/htdocs/www.tuodominio.it/home`).
@@ -444,7 +486,7 @@ Note pratiche:
 
 ---
 
-## 14. Verifica finale
+## 15. Verifica finale
 
 Da spuntare prima di considerare il sito pubblicato:
 
@@ -473,18 +515,18 @@ Da spuntare prima di considerare il sito pubblicato:
 
 **Contenuti da completare** (cerca i testi marcati `DA COMPLETARE`)
 
-- [ ] Impostazioni: indirizzo della sede, telefono, orari
-- [ ] Impostazioni: istruzioni di pagamento del merchandising
-- [ ] Impostazioni: dati dell'associazione nel piede di pagina
-- [ ] Impostazioni: quota associativa
-- [ ] Pagine: *Chi siamo*, con la storia reale del gruppo
-- [ ] Pagine: *Privacy policy* e *Cookie policy*, fatte verificare
+- [ ] `site_settings`: indirizzo della sede, telefono, orari
+- [ ] `site_settings`: istruzioni di pagamento del merchandising
+- [ ] `site_settings`: dati dell'associazione nel piede di pagina
+- [ ] `site_settings`: collegamenti ai profili social
+- [ ] Pagina *Chi siamo*: la storia reale del gruppo (si scrive a database, tabella `pages`)
+- [ ] Pagine *Privacy policy* e *Cookie policy*, fatte verificare da chi di dovere
 - [ ] Organizzazione: nomi e ruoli reali del direttivo
-- [ ] Logo ufficiale al posto dei segnaposto (vedi punto 15)
+- [ ] Logo ufficiale al posto dei segnaposto (vedi punto 16)
 
 ---
 
-## 15. Aggiornamenti successivi
+## 16. Aggiornamenti successivi
 
 Per pubblicare una modifica al codice:
 
@@ -560,7 +602,7 @@ il pulsante *Rielabora tutte* nella pagina dell'album.
 
 ---
 
-## 16. Backup
+## 17. Backup
 
 **Cosa salvare**, in ordine di importanza:
 
@@ -590,7 +632,7 @@ Serve solo un hosting con PHP 8.2+, MySQL 8 e Apache con `mod_rewrite`.
 
 ---
 
-## 17. Problemi frequenti
+## 18. Problemi frequenti
 
 **Errore 500 su tutte le pagine**
 Imposta temporaneamente `APP_DEBUG=true` nel `.env` e ricarica: comparira il
@@ -634,5 +676,5 @@ non lo e, ogni pagina ricompila i template da zero.
 
 **Ho perso la password di amministratore**
 Usa "Password dimenticata" nella pagina di accesso. Se anche la casella email
-non e raggiungibile, ripeti la procedura manuale del punto 12 aggiornando la
+non e raggiungibile, ripeti la procedura manuale del punto 13 aggiornando la
 riga esistente invece di inserirne una nuova.

@@ -12,7 +12,6 @@ use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Services\AdminUserService;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\PasswordResetService;
 use App\Validation\PasswordPolicy;
@@ -35,7 +34,6 @@ final class AuthController extends Controller
         Config $config,
         private readonly PasswordResetService $passwordReset,
         private readonly AdminUserService $adminUsers,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -70,28 +68,17 @@ final class AuthController extends Controller
         $result = $this->auth->attempt($email, $password);
 
         if ($result->failed()) {
-            $this->audit->log(
-                $result->isThrottled() ? AuditLogger::LOGIN_BLOCKED : AuditLogger::LOGIN_FAILED,
-                'user',
-                null,
-                sprintf('Tentativo di accesso non riuscito per %s', \App\Core\Support\Str::maskEmail($email)),
-                ['reason' => $result->reason],
-            );
-
             $this->error($result->message());
             $this->session->flashInput(['email' => $email]);
 
             return $this->redirectToRoute('admin.login');
         }
 
-        $this->audit->log(AuditLogger::LOGIN, 'user', $result->user?->id, 'Accesso effettuato');
-
         return $this->redirect($this->intendedUrl());
     }
 
     public function logout(Request $request): Response
     {
-        $this->audit->log(AuditLogger::LOGOUT, 'user', $this->auth->id(), 'Disconnessione');
         $this->auth->logout();
         $this->success('Sessione chiusa.');
 

@@ -14,7 +14,6 @@ declare(strict_types=1);
  */
 
 use App\Controllers\Admin\AdminUserController;
-use App\Controllers\Admin\AuditController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CalendarController;
 use App\Controllers\Admin\PanelController;
@@ -24,7 +23,6 @@ use App\Controllers\Admin\NewsController;
 use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\OrganizationController;
 use App\Controllers\Admin\ProductController;
-use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\SocialController;
 use App\Core\Routing\Router;
 
@@ -142,9 +140,6 @@ return static function (Router $router): void {
         $router->post('/amministratori/{id:\d+}/ruolo', [AdminUserController::class, 'changeRole'])->name('users.role');
         $router->post('/amministratori/{id:\d+}/elimina', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
-        $router->get('/impostazioni', [SettingsController::class, 'index'])->name('settings.index');
-        $router->post('/impostazioni', [SettingsController::class, 'update'])->name('settings.update');
 
-        $router->get('/registro-attivita', [AuditController::class, 'index'])->name('audit.index');
     });
 };

@@ -29,7 +29,6 @@ final class AdminUserService
         private readonly Hash $hash,
         private readonly TokenGenerator $tokenGenerator,
         private readonly MailService $mail,
-        private readonly AuditLogger $audit,
         private readonly UrlGenerator $url,
         private readonly Config $config,
         private readonly SettingsService $settings,
@@ -88,14 +87,6 @@ final class AdminUserService
             ],
         );
 
-        $this->audit->log(
-            AuditLogger::ADMIN_INVITED,
-            'user',
-            $userId,
-            sprintf('Invito inviato a %s (%s)', $name, $email),
-            ['role' => $role, 'email_sent' => $sent],
-        );
-
         return AdminActionResult::success(
             $sent
                 ? 'Invito inviato correttamente a ' . $email . '.'
@@ -133,15 +124,6 @@ final class AdminUserService
         ]);
 
         $this->tokens->markInviteAccepted((int) $invite['id']);
-
-        $this->audit->log(
-            AuditLogger::ADMIN_ACTIVATED,
-            'user',
-            $userId,
-            sprintf('%s ha completato l\'attivazione dell\'account', $user->name),
-            [],
-            $user,
-        );
 
         return AdminActionResult::success('Account attivato. Ora puoi accedere.', ['user_id' => $userId]);
     }
@@ -184,14 +166,6 @@ final class AdminUserService
         $target = $this->users->find($targetId);
         $this->users->block($targetId);
 
-        $this->audit->log(
-            AuditLogger::ADMIN_BLOCKED,
-            'user',
-            $targetId,
-            sprintf('Account di %s bloccato', $target?->name ?? '?'),
-            ['target_email' => $target?->email],
-        );
-
         return AdminActionResult::success('Account bloccato. Le sue sessioni attive sono state chiuse.');
     }
 
@@ -213,13 +187,6 @@ final class AdminUserService
         $this->users->update($targetId, [
             'status' => $target->passwordHash === null ? User::STATUS_PENDING : User::STATUS_ACTIVE,
         ]);
-
-        $this->audit->log(
-            AuditLogger::ADMIN_UNBLOCKED,
-            'user',
-            $targetId,
-            sprintf('Account di %s sbloccato', $target->name),
-        );
 
         return AdminActionResult::success('Account sbloccato.');
     }
@@ -254,14 +221,6 @@ final class AdminUserService
 
         $this->users->changeRole($targetId, $newRole);
 
-        $this->audit->log(
-            AuditLogger::ADMIN_ROLE_CHANGED,
-            'user',
-            $targetId,
-            sprintf('Ruolo di %s modificato da %s a %s', $target->name, $target->role, $newRole),
-            ['from' => $target->role, 'to' => $newRole],
-        );
-
         return AdminActionResult::success('Ruolo aggiornato.');
     }
 
@@ -283,14 +242,6 @@ final class AdminUserService
         $this->users->softDeleteUser($targetId);
         $this->tokens->revokeInvitesForUser($targetId);
 
-        $this->audit->log(
-            AuditLogger::ADMIN_DELETED,
-            'user',
-            $targetId,
-            sprintf('Account di %s disattivato', $target?->name ?? '?'),
-            ['target_email' => $target?->email],
-        );
-
         return AdminActionResult::success(
             'Account disattivato. Resta nel registro delle attività, come richiesto dalla tracciabilita.'
         );
@@ -310,8 +261,6 @@ final class AdminUserService
         }
 
         $this->users->update($targetId, ['name' => $name, 'email' => $email]);
-
-        $this->audit->log(AuditLogger::ADMIN_UPDATED, 'user', $targetId, sprintf('Dati di %s aggiornati', $name));
 
         return AdminActionResult::success('Dati aggiornati.');
     }
