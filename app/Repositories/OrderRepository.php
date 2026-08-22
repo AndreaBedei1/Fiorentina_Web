@@ -88,16 +88,6 @@ final class OrderRepository extends BaseRepository
         );
     }
 
-    /** @return list<Order> */
-    public function recent(int $limit = 5): array
-    {
-        $rows = $this->db->select(
-            'SELECT * FROM orders WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ' . max(1, min(20, $limit)),
-        );
-
-        return array_map(static fn (array $row): Order => Order::fromRow($row), $rows);
-    }
-
     /**
      * Crea l'ordine e le sue righe in un'unica transazione.
      *
@@ -124,15 +114,6 @@ final class OrderRepository extends BaseRepository
                 $item['created_at'] = $now;
                 $this->db->insertInto('order_items', $item);
             }
-
-            $this->db->insertInto('order_status_history', [
-                'order_id' => $orderId,
-                'from_status' => null,
-                'to_status' => Order::STATUS_NEW,
-                'note' => 'Ordine ricevuto dal sito',
-                'changed_by' => null,
-                'created_at' => $now,
-            ]);
 
             return $orderId;
         });
@@ -172,60 +153,17 @@ final class OrderRepository extends BaseRepository
         return sprintf('%s-%d-%06d', $prefix, $year, $next);
     }
 
-    /** Aggiorna lo stato registrandone il passaggio nello storico. */
-    public function updateStatus(int $orderId, string $newStatus, ?int $changedBy, ?string $note = null): bool
-    {
-        if (! in_array($newStatus, Order::allStatuses(), true)) {
-            return false;
-        }
-
-        return $this->db->transaction(function () use ($orderId, $newStatus, $changedBy, $note): bool {
-            $current = $this->db->selectOne('SELECT status FROM orders WHERE id = :id', ['id' => $orderId]);
-
-            if ($current === null) {
-                return false;
-            }
-
-            $from = (string) $current['status'];
-
-            if ($from === $newStatus) {
-                return true;
-            }
-
-            $this->db->updateWhereId('orders', $orderId, [
-                'status' => $newStatus,
-                'updated_at' => $this->now(),
-            ]);
-
-            $this->db->insertInto('order_status_history', [
-                'order_id' => $orderId,
-                'from_status' => $from,
-                'to_status' => $newStatus,
-                'note' => $note,
-                'changed_by' => $changedBy,
-                'created_at' => $this->now(),
-            ]);
-
-            return true;
-        });
-    }
-
-    /** @return list<array<string, mixed>> */
-    public function statusHistory(int $orderId): array
-    {
-        return $this->db->select(
-            'SELECT h.*, u.name AS changed_by_name
-             FROM order_status_history h
-             LEFT JOIN users u ON u.id = h.changed_by
-             WHERE h.order_id = :order ORDER BY h.created_at ASC, h.id ASC',
-            ['order' => $orderId],
-        );
-    }
-
-    public function updateAdminNotes(int $orderId, ?string $notes): bool
+    /**
+     * Segna l'ordine come completato, o lo riporta fra quelli da gestire.
+     *
+     * Non c'e uno storico da aggiornare: gli stati sono due, e quale sia
+     * quello attuale lo dice la riga stessa. Chi l'ha cambiato e quando resta
+     * comunque scritto nel registro attivita.
+     */
+    public function setCompleted(int $orderId, bool $completed): bool
     {
         return $this->db->updateWhereId('orders', $orderId, [
-            'admin_notes' => $notes,
+            'status' => $completed ? Order::STATUS_COMPLETED : Order::STATUS_NEW,
             'updated_at' => $this->now(),
         ]) >= 0;
     }
@@ -243,33 +181,6 @@ final class OrderRepository extends BaseRepository
         }
 
         $this->db->updateWhereId('orders', $orderId, $data);
-    }
-
-    /** Archiviazione: un ordine non viene mai cancellato fisicamente. */
-    public function delete(int $id): bool
-    {
-        return $this->softDelete($id);
-    }
-
-    /** @return array{total: int, new: int, open: int, month_total: float} */
-    public function statistics(): array
-    {
-        $row = $this->db->selectOne(
-            "SELECT COUNT(*) AS total,
-                    SUM(status = 'NEW') AS new_orders,
-                    SUM(status NOT IN ('COMPLETED', 'CANCELLED')) AS open_orders,
-                    COALESCE(SUM(CASE
-                        WHEN status <> 'CANCELLED' AND created_at >= DATE_FORMAT(NOW(), '%Y-%m-01')
-                        THEN total ELSE 0 END), 0) AS month_total
-             FROM orders WHERE deleted_at IS NULL"
-        ) ?? [];
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'new' => (int) ($row['new_orders'] ?? 0),
-            'open' => (int) ($row['open_orders'] ?? 0),
-            'month_total' => (float) ($row['month_total'] ?? 0),
-        ];
     }
 
     /** @return array<string, int> Conteggio ordini per stato, per i filtri rapidi. */

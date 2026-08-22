@@ -295,8 +295,15 @@ final class CartAndOrderTest extends IntegrationTestCase
         $this->assertTrue($this->cart->isEmpty());
     }
 
+    /**
+     * Segnare completato, e poter tornare indietro.
+     *
+     * Gli stati sono due e il pulsante e uno solo: se il ritorno non
+     * funzionasse, un clic sbagliato lascerebbe per sempre "completato" un
+     * ordine che nessuno ha consegnato.
+     */
     #[Test]
-    public function il_cambio_di_stato_viene_registrato_nello_storico(): void
+    public function un_ordine_si_segna_completato_e_si_puo_riportare_indietro(): void
     {
         $id = $this->createProduct(18.00);
         $this->cart->add($id, null, 1);
@@ -312,63 +319,15 @@ final class CartAndOrderTest extends IntegrationTestCase
         $orderId = (int) $result->order?->id;
         $admin = $this->createUser();
 
-        $this->assertTrue($orders->updateStatus($orderId, Order::STATUS_PAID_OFFLINE, $admin, 'Bonifico ricevuto'));
-
-        $history = self::app()->get(OrderRepository::class)->statusHistory($orderId);
-
-        // Prima voce: creazione. Seconda: il cambio appena effettuato.
-        $this->assertCount(2, $history);
-        $this->assertSame(Order::STATUS_PAID_OFFLINE, $history[1]['to_status']);
-        $this->assertSame('Bonifico ricevuto', $history[1]['note']);
-    }
-
-    #[Test]
-    public function uno_stato_non_previsto_viene_rifiutato(): void
-    {
-        $id = $this->createProduct(18.00);
-        $this->cart->add($id, null, 1);
-
-        $orders = self::app()->make(OrderService::class);
-        $result = $orders->placeOrder([
-            'first_name' => 'Marco', 'last_name' => 'Bianchi',
-            'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'address' => 'Via del Campo 12', 'postal_code' => '50100',
-            'city' => 'Firenze', 'province' => 'FI',
-        ], $this->fakeRequest('POST', '/ordine'));
-
-        $admin = $this->createUser();
-
-        $this->assertFalse(
-            $orders->updateStatus((int) $result->order?->id, 'STATO_INVENTATO', $admin),
-        );
-    }
-
-    #[Test]
-    public function un_ordine_archiviato_resta_nel_database(): void
-    {
-        $id = $this->createProduct(18.00);
-        $this->cart->add($id, null, 1);
-
-        $result = self::app()->make(OrderService::class)->placeOrder([
-            'first_name' => 'Marco', 'last_name' => 'Bianchi',
-            'email' => 'marco@example.test', 'phone' => '055 1234567',
-            'address' => 'Via del Campo 12', 'postal_code' => '50100',
-            'city' => 'Firenze', 'province' => 'FI',
-        ], $this->fakeRequest('POST', '/ordine'));
-
-        $orderId = (int) $result->order?->id;
         $repository = self::app()->get(OrderRepository::class);
 
-        $repository->delete($orderId);
+        $this->assertSame(Order::STATUS_NEW, $repository->find($orderId)?->status);
 
-        // Sparisce dagli elenchi...
-        $this->assertNull($repository->find($orderId));
+        $this->assertTrue($orders->setCompleted($orderId, true, $admin));
+        $this->assertTrue($repository->find($orderId)?->isCompleted());
 
-        // ...ma la riga c e ancora: un ordine non si perde per un clic.
-        $this->assertSame(1, (int) $this->db->scalar(
-            'SELECT COUNT(*) FROM orders WHERE id = ? AND deleted_at IS NOT NULL',
-            [$orderId],
-        ));
+        $this->assertTrue($orders->setCompleted($orderId, false, $admin));
+        $this->assertSame(Order::STATUS_NEW, $repository->find($orderId)?->status);
     }
 
     #[Test]

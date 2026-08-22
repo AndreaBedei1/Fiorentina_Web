@@ -13,16 +13,16 @@ use App\Core\Session\Session;
 use App\Core\View\ViewRenderer;
 use App\Models\Order;
 use App\Repositories\OrderRepository;
-use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\Shop\OrderService;
 
 /**
  * Gestione degli ordini ricevuti.
  *
- * Gli ordini non si eliminano: si archiviano. Un ordine sparito per un clic
- * sbagliato significherebbe un socio che ha pagato e nessuna traccia di cosa
- * avesse chiesto.
+ * Si guardano e si segnano come completati: nient'altro. Non si eliminano -
+ * un ordine sparito per un clic sbagliato significherebbe un socio che ha
+ * pagato e nessuna traccia di cosa avesse chiesto - e non si scrivono note,
+ * perche chi segue un ordine lo segue al telefono.
  */
 final class OrderController extends Controller
 {
@@ -34,7 +34,6 @@ final class OrderController extends Controller
         Config $config,
         private readonly OrderRepository $orders,
         private readonly OrderService $orderService,
-        private readonly AuditLogger $audit,
     ) {
         parent::__construct($view, $session, $url, $auth, $config);
     }
@@ -74,88 +73,36 @@ final class OrderController extends Controller
         return $this->render('admin/orders/show.twig', [
             'seo' => $this->seo('Ordine ' . $order->orderNumber)->withNoindex(),
             'order' => $order,
-            'history' => $this->orders->statusHistory($order->id),
-            'statuses' => $this->statusOptions(),
         ]);
     }
 
-    public function updateStatus(Request $request): Response
+    /**
+     * Segna l'ordine come completato, o lo riporta fra quelli da gestire.
+     *
+     * Il modulo dice in quale dei due versi si sta andando: cosi il pulsante
+     * resta uno, e premerlo due volte non fa avanti e indietro a sorpresa.
+     */
+    public function setCompleted(Request $request): Response
     {
         $this->authorize('orders.manage');
 
         $id = $request->routeInt('id');
-        $status = $request->string('status');
+        $completato = $request->bool('completato');
 
-        if (! in_array($status, Order::allStatuses(), true)) {
-            $this->error('Stato non valido.');
-
-            return $this->redirectToRoute('admin.orders.show', ['id' => $id]);
-        }
-
-        $updated = $this->orderService->updateStatus(
-            $id,
-            $status,
-            $this->currentUser(),
-            $request->nullableString('note'),
-        );
-
-        $updated
-            ? $this->success('Stato aggiornato a: ' . Order::statusLabelFor($status))
-            : $this->error('Non è stato possibile aggiornare lo stato.');
+        $this->orderService->setCompleted($id, $completato, $this->currentUser())
+            ? $this->success($completato
+                ? 'Ordine segnato come completato.'
+                : 'Ordine riportato fra quelli da gestire.')
+            : $this->error('Non è stato possibile aggiornare l\'ordine.');
 
         return $this->redirectToRoute('admin.orders.show', ['id' => $id]);
     }
 
-    public function updateNotes(Request $request): Response
-    {
-        $this->authorize('orders.manage');
-
-        $id = $request->routeInt('id');
-        $this->orders->updateAdminNotes($id, $request->nullableString('admin_notes'));
-        $this->success('Note interne salvate.');
-
-        return $this->redirectToRoute('admin.orders.show', ['id' => $id]);
-    }
-
-    public function resendEmail(Request $request): Response
-    {
-        $this->authorize('orders.manage');
-
-        $id = $request->routeInt('id');
-
-        $this->orderService->resendCustomerEmail($id)
-            ? $this->success('Email di riepilogo inviata nuovamente al cliente.')
-            : $this->error('Invio non riuscito. Controlla la configurazione della posta.');
-
-        return $this->redirectToRoute('admin.orders.show', ['id' => $id]);
-    }
-
-    public function archive(Request $request): Response
-    {
-        $this->authorize('orders.manage');
-
-        $id = $request->routeInt('id');
-        $order = $this->orders->find($id, withItems: false);
-
-        if ($order === null) {
-            $this->notFound('Ordine non trovato.');
-        }
-
-        $this->orders->delete($id);
-
-        $this->audit->log(
-            AuditLogger::ORDER_ARCHIVED,
-            'order',
-            $id,
-            sprintf('Ordine %s archiviato', $order->orderNumber),
-        );
-
-        $this->success('Ordine archiviato. Resta nel database e può essere recuperato.');
-
-        return $this->redirectToRoute('admin.orders.index');
-    }
-
-    /** @return array<string, string> */
+    /**
+     * Le due caselle dei filtri rapidi.
+     *
+     * @return array<string, string>
+     */
     private function statusOptions(): array
     {
         $options = [];

@@ -49,7 +49,6 @@ final class AuditLogger
     // --- Negozio ---
     public const ORDER_RECEIVED = 'ORDER_RECEIVED';
     public const ORDER_STATUS_CHANGED = 'ORDER_STATUS_CHANGED';
-    public const ORDER_ARCHIVED = 'ORDER_ARCHIVED';
 
     // --- Sistema ---
     public const SETTINGS_UPDATED = 'SETTINGS_UPDATED';

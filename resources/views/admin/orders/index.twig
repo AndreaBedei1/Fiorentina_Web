@@ -67,10 +67,10 @@
                     </thead>
                     <tbody>
                         {% for order in paginator.items %}
-                            <tr>
+                            <tr class="riga-apribile">
                                 <td>
                                     <a href="{{ route('admin.orders.show', { id: order.id }) }}"
-                                       class="font-mono text-sm font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
+                                       class="apre-la-riga font-mono text-sm font-semibold text-viola-900 hover:text-viola-700 focus-ring rounded">
                                         {{ order.orderNumber }}
                                     </a>
                                 </td>
@@ -82,7 +82,9 @@
                                 <td><span class="badge {{ order.statusClasses }}">{{ order.statusLabel }}</span></td>
                                 <td class="text-sm text-sabbia-600">{{ order.createdAt|data_numerica }}</td>
                                 <td class="text-right">
-                                    <a href="{{ route('admin.orders.show', { id: order.id }) }}" class="btn-secondario btn-piccolo">
+                                    <a href="{{ route('admin.orders.show', { id: order.id }) }}"
+                                       class="sopra-il-velo btn-secondario btn-piccolo"
+                                       tabindex="-1" aria-hidden="true">
                                         Apri
                                     </a>
                                 </td>

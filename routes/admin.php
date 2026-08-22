@@ -114,10 +114,7 @@ return static function (Router $router): void {
         // --- Ordini --------------------------------------------------------
         $router->get('/ordini', [OrderController::class, 'index'])->name('orders.index');
         $router->get('/ordini/{id:\d+}', [OrderController::class, 'show'])->name('orders.show');
-        $router->post('/ordini/{id:\d+}/stato', [OrderController::class, 'updateStatus'])->name('orders.status');
-        $router->post('/ordini/{id:\d+}/note', [OrderController::class, 'updateNotes'])->name('orders.notes');
-        $router->post('/ordini/{id:\d+}/reinvia', [OrderController::class, 'resendEmail'])->name('orders.resend');
-        $router->post('/ordini/{id:\d+}/archivia', [OrderController::class, 'archive'])->name('orders.archive');
+        $router->post('/ordini/{id:\d+}/completato', [OrderController::class, 'setCompleted'])->name('orders.completed');
 
         // --- Organizzazione -------------------------------------------------
         $router->get('/organizzazione', [OrganizationController::class, 'index'])->name('organization.index');

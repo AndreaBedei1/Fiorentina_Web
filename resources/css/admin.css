@@ -206,6 +206,36 @@
     }
 
     /*
+     * Riga che si apre premendola in qualunque punto.
+     *
+     * Nessun JavaScript: il collegamento e uno vero, quello sul numero
+     * d'ordine, e un suo ::after trasparente si allarga fino a coprire tutta
+     * la riga. Si guadagna il bersaglio grande senza perdere niente di quello
+     * che un collegamento sa fare: tastiera, tasto centrale, "apri in una
+     * nuova scheda", e il nome che un lettore di schermo annuncia resta il
+     * numero dell'ordine.
+     *
+     * Il prezzo e che il testo della riga non si puo piu selezionare col
+     * mouse. In un elenco che si guarda e si apre, e un prezzo basso.
+     */
+    .riga-apribile {
+        position: relative;
+        @apply cursor-pointer;
+    }
+
+    .riga-apribile .apre-la-riga::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+    }
+
+    /* Quello che resta premibile per conto suo va tenuto piu in alto del velo. */
+    .riga-apribile .sopra-il-velo {
+        position: relative;
+        z-index: 1;
+    }
+
+    /*
      * Su schermi stretti la tabella scorre orizzontalmente dentro il proprio
      * contenitore. Le tabelle amministrative hanno molte colonne: comprimerle
      * le renderebbe illeggibili, mentre lo scorrimento mantiene tutto usabile.

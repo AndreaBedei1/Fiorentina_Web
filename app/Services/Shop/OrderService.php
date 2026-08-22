@@ -148,8 +148,14 @@ final class OrderService
         return ['manager' => $managerSent, 'customer' => $customerSent];
     }
 
-    /** Aggiorna lo stato di un ordine dal pannello amministrativo. */
-    public function updateStatus(int $orderId, string $newStatus, User $actor, ?string $note = null): bool
+    /**
+     * Segna un ordine come completato, o lo riporta fra quelli da gestire.
+     *
+     * Il ritorno indietro esiste perche il pulsante e uno solo e si preme in
+     * fretta: senza, un clic sbagliato lascerebbe per sempre "completato" un
+     * ordine che nessuno ha ancora consegnato.
+     */
+    public function setCompleted(int $orderId, bool $completed, User $actor): bool
     {
         $order = $this->orders->find($orderId, withItems: false);
 
@@ -157,62 +163,29 @@ final class OrderService
             return false;
         }
 
-        $updated = $this->orders->updateStatus($orderId, $newStatus, $actor->id, $note);
+        $nuovo = $completed ? Order::STATUS_COMPLETED : Order::STATUS_NEW;
 
-        if ($updated) {
+        if ($order->status === $nuovo) {
+            return true;
+        }
+
+        $aggiornato = $this->orders->setCompleted($orderId, $completed);
+
+        if ($aggiornato) {
             $this->audit->log(
                 AuditLogger::ORDER_STATUS_CHANGED,
                 'order',
                 $orderId,
                 sprintf(
-                    'Ordine %s: stato da "%s" a "%s"',
+                    'Ordine %s segnato come "%s"',
                     $order->orderNumber,
-                    Order::statusLabelFor($order->status),
-                    Order::statusLabelFor($newStatus),
+                    Order::statusLabelFor($nuovo),
                 ),
-                ['from' => $order->status, 'to' => $newStatus],
+                ['from' => $order->status, 'to' => $nuovo],
                 $actor,
             );
         }
 
-        return $updated;
-    }
-
-    /**
-     * Reinvia al cliente il riepilogo dell'ordine.
-     * Utile quando la prima email non e arrivata o il cliente l'ha persa.
-     */
-    public function resendCustomerEmail(int $orderId): bool
-    {
-        $order = $this->orders->find($orderId);
-
-        if ($order === null) {
-            return false;
-        }
-
-        $managerEmail = $this->settings->string(
-            'contact_merchandising_email',
-            $this->config->string('mail.to.orders'),
-        );
-
-        $sent = $this->mail->send(
-            $order->customerEmail,
-            sprintf('Riepilogo del tuo ordine %s', $order->orderNumber),
-            'emails/order-customer.twig',
-            [
-                'order' => $order,
-                'items' => $order->items,
-                'payment_instructions' => $this->settings->string('shop_payment_instructions'),
-                'contact_email' => $managerEmail,
-                'group_name' => $this->settings->string('site_group_name', 'Baraonda Fiorentina'),
-            ],
-            replyTo: $managerEmail,
-        );
-
-        if ($sent) {
-            $this->orders->markNotified($orderId, false, true);
-        }
-
-        return $sent;
+        return $aggiornato;
     }
 }

@@ -22,25 +22,17 @@ final class Order
 {
     use CastsRowValues;
 
+    /*
+     * Due stati soli: c'e ancora da fare qualcosa, oppure no.
+     *
+     * Prima erano otto e descrivevano il lavoro di un negozio con magazzino e
+     * corriere. Qui arriva una richiesta, qualcuno telefona, ci si accorda, e
+     * quando la roba e nelle mani della persona l'ordine e chiuso: le caselle
+     * in mezzo nessuno le avrebbe aggiornate, e uno stato non aggiornato dice
+     * il falso.
+     */
     public const STATUS_NEW = 'NEW';
-    public const STATUS_CONTACTED = 'CONTACTED';
-    public const STATUS_WAITING_PAYMENT = 'WAITING_PAYMENT';
-    public const STATUS_PAID_OFFLINE = 'PAID_OFFLINE';
-    public const STATUS_PREPARING = 'PREPARING';
-    public const STATUS_SHIPPED = 'SHIPPED';
     public const STATUS_COMPLETED = 'COMPLETED';
-    public const STATUS_CANCELLED = 'CANCELLED';
-
-    /** Ordine di avanzamento tipico, usato per la timeline nel pannello. */
-    public const STATUS_FLOW = [
-        self::STATUS_NEW,
-        self::STATUS_CONTACTED,
-        self::STATUS_WAITING_PAYMENT,
-        self::STATUS_PAID_OFFLINE,
-        self::STATUS_PREPARING,
-        self::STATUS_SHIPPED,
-        self::STATUS_COMPLETED,
-    ];
 
     /** @param list<OrderItem> $items */
     public function __construct(
@@ -56,7 +48,6 @@ final class Order
         public readonly string $shippingCity,
         public readonly string $shippingProvince,
         public readonly string $shippingCountry,
-        public readonly ?string $adminNotes,
         public readonly float $subtotal,
         public readonly float $total,
         public readonly int $itemsCount,
@@ -85,7 +76,6 @@ final class Order
             shippingCity: self::castString($row, 'shipping_city'),
             shippingProvince: self::castString($row, 'shipping_province'),
             shippingCountry: self::castString($row, 'shipping_country', 'IT'),
-            adminNotes: self::castNullableString($row, 'admin_notes'),
             subtotal: self::castFloat($row, 'subtotal'),
             total: self::castFloat($row, 'total'),
             itemsCount: self::castInt($row, 'items_count'),
@@ -115,15 +105,8 @@ final class Order
     public static function statusLabelFor(string $status): string
     {
         return match ($status) {
-            self::STATUS_NEW => 'Nuovo',
-            self::STATUS_CONTACTED => 'Cliente contattato',
-            self::STATUS_WAITING_PAYMENT => 'In attesa di pagamento',
-            self::STATUS_PAID_OFFLINE => 'Pagato',
-            self::STATUS_PREPARING => 'In preparazione',
-            self::STATUS_SHIPPED => 'Spedito',
             self::STATUS_COMPLETED => 'Completato',
-            self::STATUS_CANCELLED => 'Annullato',
-            default => $status,
+            default => 'Da gestire',
         };
     }
 
@@ -135,20 +118,9 @@ final class Order
     /** Classi del badge di stato. Mappa esplicita: Tailwind non genera classi dinamiche. */
     public function statusClasses(): string
     {
-        return match ($this->status) {
-            self::STATUS_NEW => 'bg-rosso-100 text-rosso-800 ring-rosso-200',
-            self::STATUS_CONTACTED, self::STATUS_WAITING_PAYMENT => 'bg-amber-100 text-amber-900 ring-amber-200',
-            self::STATUS_PAID_OFFLINE, self::STATUS_PREPARING => 'bg-sky-100 text-sky-900 ring-sky-200',
-            self::STATUS_SHIPPED => 'bg-viola-100 text-viola-800 ring-viola-200',
-            self::STATUS_COMPLETED => 'bg-emerald-100 text-emerald-900 ring-emerald-200',
-            self::STATUS_CANCELLED => 'bg-sabbia-200 text-sabbia-800 ring-sabbia-300',
-            default => 'bg-sabbia-100 text-sabbia-800 ring-sabbia-200',
-        };
-    }
-
-    public function isCancelled(): bool
-    {
-        return $this->status === self::STATUS_CANCELLED;
+        return $this->isCompleted()
+            ? 'bg-emerald-100 text-emerald-900 ring-emerald-200'
+            : 'bg-rosso-100 text-rosso-800 ring-rosso-200';
     }
 
     public function isCompleted(): bool
@@ -159,6 +131,6 @@ final class Order
     /** @return list<string> */
     public static function allStatuses(): array
     {
-        return [...self::STATUS_FLOW, self::STATUS_CANCELLED];
+        return [self::STATUS_NEW, self::STATUS_COMPLETED];
     }
 }
