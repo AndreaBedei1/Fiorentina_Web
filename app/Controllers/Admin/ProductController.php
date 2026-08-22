@@ -75,12 +75,30 @@ final class ProductController extends Controller
             return $this->back($request, $this->url->route('admin.products.create'));
         }
 
+        /*
+         * Le fotografie si caricano prima di creare il prodotto.
+         *
+         * Un prodotto senza fotografia non e un prodotto: in negozio sarebbe
+         * uno scaffale con un cartellino e niente sopra. E siccome un
+         * caricamento puo fallire anche dopo che il file e stato scelto (un
+         * .exe rinominato .jpg, un file troppo grande), non basta guardare
+         * cosa ha scelto l'amministratore: bisogna guardare cosa e arrivato
+         * davvero a destinazione. Se non e arrivato niente, il prodotto non
+         * nasce - meglio un modulo da ricompilare che una riga a catalogo da
+         * andare a correggere.
+         */
+        $caricate = $this->caricaImmagini($request);
+
+        if ($caricate === []) {
+            return $this->mancaLaFotografia($request, $this->url->route('admin.products.create'));
+        }
+
         $id = $this->products->create($this->buildData($request, $validated) + [
             'created_by' => $this->currentUser()->id,
         ]);
 
         $this->products->replaceVariants($id, $this->parseVariants($request));
-        $this->storeImages($request, $id);
+        $this->attaccaImmagini($id, $caricate);
 
         $this->audit->log(
             AuditLogger::CONTENT_CREATED,
@@ -133,9 +151,20 @@ final class ProductController extends Controller
         $data = $this->buildData($request, $validated);
 
 
+        $caricate = $this->caricaImmagini($request);
+
+        /*
+         * Rete di sicurezza per i prodotti nati prima di questa regola: se uno
+         * si ritrovasse senza fotografie, la modifica non si chiude finche non
+         * gliene si da una.
+         */
+        if ($caricate === [] && $this->products->countImages($id) === 0) {
+            return $this->mancaLaFotografia($request, $this->url->route('admin.products.edit', ['id' => $id]));
+        }
+
         $this->products->update($id, $data);
         $this->products->replaceVariants($id, $this->parseVariants($request));
-        $this->storeImages($request, $id);
+        $this->attaccaImmagini($id, $caricate);
 
         $this->audit->log(
             AuditLogger::CONTENT_UPDATED,
@@ -197,7 +226,21 @@ final class ProductController extends Controller
         $productId = $request->routeInt('id');
         $imageId = $request->routeInt('imageId');
 
-        $key = $this->products->deleteImage($imageId);
+        /*
+         * L'ultima fotografia non si elimina.
+         *
+         * Il pannello nasconde gia il pulsante quando ne resta una sola, ma il
+         * pulsante non e la regola: la regola sta qui, dove arriva anche chi
+         * preme due volte prima che la pagina si ricarichi, o chi si scrive
+         * l'indirizzo a mano.
+         */
+        if ($this->products->countImages($productId) <= 1) {
+            $this->error('Questa e l\'unica fotografia del prodotto: caricane un\'altra prima di toglierla.');
+
+            return $this->redirectToRoute('admin.products.edit', ['id' => $productId]);
+        }
+
+        $key = $this->products->deleteImage($productId, $imageId);
 
         if ($key !== null) {
             $this->images->delete(MediaPaths::COLLECTION_PRODUCTS, $key);
@@ -285,37 +328,73 @@ final class ProductController extends Controller
         ));
     }
 
-    private function storeImages(Request $request, int $productId): void
+    /**
+     * Porta i file su disco e riferisce quali ce l'hanno fatta.
+     *
+     * Separata dall'aggancio a database perche i due momenti servono in ordini
+     * diversi: creando un prodotto bisogna sapere se almeno una fotografia e
+     * arrivata prima di scrivere la riga, modificandolo il prodotto c'e gia.
+     *
+     * @return list<array{key: string, extension: string}>
+     */
+    private function caricaImmagini(Request $request): array
     {
-        $files = $request->fileList('images');
+        $riuscite = [];
 
-        if ($files === []) {
-            return;
-        }
+        foreach ($request->fileList('images') as $file) {
+            $esito = $this->images->store($file, MediaPaths::COLLECTION_PRODUCTS);
 
-        $hasPrimary = $this->products->imageKeysFor($productId) !== [];
-        $position = count($this->products->imageKeysFor($productId));
-
-        foreach ($files as $file) {
-            $result = $this->images->store($file, MediaPaths::COLLECTION_PRODUCTS);
-
-            if ($result['error'] !== null) {
-                $this->warning($result['error']);
+            if ($esito['error'] !== null) {
+                $this->warning($esito['error']);
 
                 continue;
             }
 
+            $riuscite[] = [
+                'key' => (string) $esito['key'],
+                'extension' => (string) $esito['extension'],
+            ];
+        }
+
+        return $riuscite;
+    }
+
+    /**
+     * Aggancia al prodotto le fotografie gia salvate su disco.
+     *
+     * @param list<array{key: string, extension: string}> $immagini
+     */
+    private function attaccaImmagini(int $productId, array $immagini): void
+    {
+        if ($immagini === []) {
+            return;
+        }
+
+        $posizione = $this->products->countImages($productId);
+        $haPrincipale = $posizione > 0;
+
+        foreach ($immagini as $immagine) {
             $this->products->addImage([
                 'product_id' => $productId,
-                'storage_key' => (string) $result['key'],
-                'extension' => (string) $result['extension'],
-                'sort_order' => $position++,
+                'storage_key' => $immagine['key'],
+                'extension' => $immagine['extension'],
+                'sort_order' => $posizione++,
                 // La prima immagine caricata diventa automaticamente la principale.
-                'is_primary' => $hasPrimary ? 0 : 1,
+                'is_primary' => $haPrincipale ? 0 : 1,
             ]);
 
-            $hasPrimary = true;
+            $haPrincipale = true;
         }
+    }
+
+    /** Il modulo torna indietro con il campo delle immagini segnalato. */
+    private function mancaLaFotografia(Request $request, string $ritorno): Response
+    {
+        $this->session->flashInput($request->all());
+        $this->session->flashErrors(['images' => 'Serve almeno una fotografia del prodotto.']);
+        $this->error('Il prodotto ha bisogno di almeno una fotografia.');
+
+        return $this->back($request, $ritorno);
     }
 
 

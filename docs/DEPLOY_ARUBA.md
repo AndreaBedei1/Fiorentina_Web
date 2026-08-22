@@ -541,9 +541,17 @@ la pagina non aggiunge niente.
 
 **Finche il file non c'è, il sito non lo disegna affatto**: nessun riquadro
 vuoto, nessuna immagine rotta. Le stesse fasce viola restano esattamente come
-sono oggi. Un `.svg` a un solo colore bianco è la scelta migliore: lo stemma si
-appoggia sempre su fondo viola, e a quell'opacité i colori originali si
-perderebbero comunque.
+sono oggi.
+
+Le trasparenze sono tarate sullo stemma a colori oggi in uso: 16%
+nell'apertura, 12% nel richiamo, 9% nel piede di pagina. Sembrano valori
+alti rispetto al giglio, che sta al 7-9%, ma il giglio è bianco su viola
+mentre lo stemma è quasi dello stesso viola del fondo, e sotto il 10%
+sparirebbe del tutto. Se un giorno arrivasse una versione monocromatica
+bianca, quei tre valori vanno riportati intorno al 5-7%: si cambiano in
+`resources/views/site/home.twig` e
+`resources/views/components/site-footer.twig`, dove il componente viene
+richiamato.
 
 Dopo aver sostituito logo e immagine di apertura serve `npm run build` e un
 nuovo caricamento di `public/assets/`. La filigrana invece si applica alle

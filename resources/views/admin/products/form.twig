@@ -153,25 +153,47 @@
                                             </span>
                                         {% endif %}
 
-                                        <form action="{{ route('admin.products.image.destroy', { id: product.id, imageId: image.id }) }}" method="post">
-                                            {{ csrf_field()|raw }}
-                                            <button type="submit"
-                                                    class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
-                                                <span class="sr-only">Elimina immagine</span>
-                                                {{ include('components/icon.twig', { name: 'trash', class: 'h-3.5 w-3.5' }) }}
-                                            </button>
-                                        </form>
+                                        {# L'ultima non si elimina: un prodotto senza fotografia
+                                           non si puo mostrare a nessuno. #}
+                                        {% if product.images|length > 1 %}
+                                            <form action="{{ route('admin.products.image.destroy', { id: product.id, imageId: image.id }) }}" method="post">
+                                                {{ csrf_field()|raw }}
+                                                <button type="submit"
+                                                        class="flex h-7 w-7 items-center justify-center rounded text-sabbia-600 hover:bg-rosso-50 hover:text-rosso-700 focus-ring">
+                                                    <span class="sr-only">Elimina immagine</span>
+                                                    {{ include('components/icon.twig', { name: 'trash', class: 'h-3.5 w-3.5' }) }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
                                     </div>
                                 </li>
                             {% endfor %}
                         </ul>
                     {% endif %}
 
+                    {#
+                      In creazione la fotografia e obbligatoria: required qui serve
+                      a dirlo prima, non a garantirlo - la garanzia sta nel
+                      controller, che e l'unico posto dove nessuno puo passare
+                      oltre. In modifica invece il campo serve solo ad aggiungere,
+                      e il prodotto una fotografia ce l'ha gia.
+                    #}
                     {{ include('components/field.twig', {
-                        name: 'images[]', label: 'Aggiungi immagini', type: 'file', multiple: true,
+                        name: 'images[]', error: error('images'),
+                        label: isNew ? 'Fotografie del prodotto' : 'Aggiungi fotografie',
+                        type: 'file', multiple: true, required: isNew,
                         accept: 'image/jpeg,image/png,image/webp',
-                        help: 'Puoi selezionarne più di una. La prima caricata diventa l immagine principale.'
+                        help: isNew
+                            ? 'Serve almeno una fotografia. Puoi selezionarne più di una: la prima diventa quella di copertina.'
+                            : 'Puoi selezionarne più di una. Si aggiungono a quelle già caricate.'
                     }) }}
+
+                    {% if not isNew and product.images|length == 1 %}
+                        <p class="text-xs text-sabbia-600">
+                            Questa è l'unica fotografia del prodotto, per questo non si può togliere.
+                            Caricane un'altra se vuoi sostituirla.
+                        </p>
+                    {% endif %}
 
                 </div>
             </section>

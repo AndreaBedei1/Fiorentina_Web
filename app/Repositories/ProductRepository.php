@@ -259,15 +259,51 @@ final class ProductRepository extends BaseRepository
         return $this->db->insertInto('product_images', $data);
     }
 
-    public function deleteImage(int $imageId): ?string
+    /** Quante fotografie ha un prodotto in questo momento. */
+    public function countImages(int $productId): int
     {
-        $row = $this->db->selectOne('SELECT storage_key FROM product_images WHERE id = :id', ['id' => $imageId]);
+        return (int) $this->db->scalar(
+            'SELECT COUNT(*) FROM product_images WHERE product_id = :product',
+            ['product' => $productId],
+        );
+    }
+
+    /**
+     * Toglie una fotografia dal prodotto.
+     *
+     * L'immagine deve appartenere davvero a quel prodotto: l'id arriva
+     * dall'indirizzo, e un indirizzo si puo scrivere a mano.
+     *
+     * Se quella eliminata era la principale, la principale diventa la prima
+     * rimasta. Senza, il prodotto resterebbe con delle fotografie ma senza
+     * nessuna eletta a copertina, e nel pannello sparirebbe la stellina.
+     */
+    public function deleteImage(int $productId, int $imageId): ?string
+    {
+        $row = $this->db->selectOne(
+            'SELECT storage_key, is_primary FROM product_images WHERE id = :id AND product_id = :product',
+            ['id' => $imageId, 'product' => $productId],
+        );
 
         if ($row === null) {
             return null;
         }
 
-        $this->db->statement('DELETE FROM product_images WHERE id = :id', ['id' => $imageId]);
+        $this->db->transaction(function () use ($productId, $imageId, $row): void {
+            $this->db->statement('DELETE FROM product_images WHERE id = :id', ['id' => $imageId]);
+
+            if ((int) $row['is_primary'] !== 1) {
+                return;
+            }
+
+            $this->db->statement(
+                'UPDATE product_images SET is_primary = 1
+                   WHERE product_id = :product
+                   ORDER BY sort_order ASC, id ASC
+                   LIMIT 1',
+                ['product' => $productId],
+            );
+        });
 
         return (string) $row['storage_key'];
     }
@@ -304,14 +340,6 @@ final class ProductRepository extends BaseRepository
                 ['product' => $productId],
             ),
         );
-    }
-
-    public function imageKeysFor(int $productId): array
-    {
-        return array_map('strval', $this->db->column(
-            'SELECT storage_key FROM product_images WHERE product_id = :product',
-            ['product' => $productId],
-        ));
     }
 
     /**
