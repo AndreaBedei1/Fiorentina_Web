@@ -7,25 +7,25 @@ namespace App\Models;
 use App\Core\Support\Str;
 use App\Models\Concerns\CastsRowValues;
 
-/** Persona del direttivo mostrata nell'organigramma di "Chi siamo". */
+/**
+ * Persona del direttivo mostrata nell'organigramma di "Chi siamo".
+ *
+ * Quattro cose: nome, cognome, ruolo e - se c'e - una fotografia. Il ruolo e
+ * una scritta e basta: prima era una riga di una tabella da scegliere in una
+ * tendina, con accanto un campo di testo libero per quando la tendina non
+ * bastava, e vinceva sempre il testo libero.
+ */
 final class OrganizationMember
 {
     use CastsRowValues;
 
     public function __construct(
         public readonly int $id,
-        public readonly ?int $roleId,
-        public readonly ?string $roleName,
-        public readonly string $fullName,
-        public readonly ?string $roleTitle,
-        public readonly ?string $bio,
+        public readonly string $firstName,
+        public readonly string $lastName,
+        public readonly ?string $role,
         public readonly ?string $photoKey,
         public readonly ?string $photoExtension,
-        public readonly ?string $email,
-        public readonly ?string $phone,
-        public readonly ?int $memberSince,
-        public readonly int $sortOrder,
-        public readonly bool $isVisible,
     ) {
     }
 
@@ -34,31 +34,23 @@ final class OrganizationMember
     {
         return new self(
             id: self::castInt($row, 'id'),
-            roleId: self::castNullableInt($row, 'role_id'),
-            roleName: self::castNullableString($row, 'role_name'),
-            fullName: self::castString($row, 'full_name'),
-            roleTitle: self::castNullableString($row, 'role_title'),
-            bio: self::castNullableString($row, 'bio'),
+            firstName: self::castString($row, 'first_name'),
+            lastName: self::castString($row, 'last_name'),
+            role: self::castNullableString($row, 'role'),
             photoKey: self::castNullableString($row, 'photo_key'),
             photoExtension: self::castNullableString($row, 'photo_extension'),
-            email: self::castNullableString($row, 'email'),
-            phone: self::castNullableString($row, 'phone'),
-            memberSince: self::castNullableInt($row, 'member_since'),
-            sortOrder: self::castInt($row, 'sort_order'),
-            isVisible: self::castBool($row, 'is_visible', true),
         );
     }
 
-    /** Titolo mostrato: quello specifico se presente, altrimenti il ruolo. */
-    public function displayRole(): string
+    public function fullName(): string
     {
-        return $this->roleTitle ?? $this->roleName ?? '';
+        return trim($this->firstName . ' ' . $this->lastName);
     }
 
     /** Iniziali per l'avatar segnaposto quando manca la fotografia. */
     public function initials(): string
     {
-        return Str::initials($this->fullName);
+        return Str::initials($this->fullName());
     }
 
     public function hasPhoto(): bool

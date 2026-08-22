@@ -1,0 +1,67 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+    {% set isNew = member is null %}
+
+    {{ include('components/admin-page-header.twig', {
+        title: isNew ? 'Aggiungi persona' : 'Modifica persona',
+        back: { url: route('admin.organization.index'), label: 'Torna all\'organizzazione' }
+    }) }}
+
+    <form action="{{ isNew ? route('admin.organization.store') : route('admin.organization.update', { id: member.id }) }}"
+          method="post" enctype="multipart/form-data" class="mx-auto max-w-2xl">
+        {{ csrf_field()|raw }}
+
+        <section class="pannello">
+            <div class="pannello-corpo space-y-4">
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    {{ include('components/field.twig', {
+                        name: 'first_name', label: 'Nome', required: true, maxlength: 60,
+                        value: isNew ? null : member.firstName, autocomplete: 'off'
+                    }) }}
+                    {{ include('components/field.twig', {
+                        name: 'last_name', label: 'Cognome', required: true, maxlength: 60,
+                        value: isNew ? null : member.lastName, autocomplete: 'off'
+                    }) }}
+                </div>
+
+                {{ include('components/field.twig', {
+                    name: 'role', label: 'Ruolo', required: true, maxlength: 120,
+                    value: isNew ? null : member.role,
+                    placeholder: 'Es. Presidente, Responsabile trasferte'
+                }) }}
+
+                {% if not isNew and member.hasPhoto %}
+                    <div class="flex items-center gap-4 rounded-card border border-sabbia-200 p-3">
+                        <span class="block h-16 w-16 shrink-0 overflow-hidden rounded-full bg-sabbia-100">
+                            {{ include('components/responsive-image.twig', {
+                                key: member.photoKey, collection: 'members', alt: '', size: 'thumb',
+                                class: 'h-full w-full object-cover', sizes: '64px'
+                            }) }}
+                        </span>
+                        <label class="flex items-center gap-2 text-sm text-sabbia-700">
+                            <input type="checkbox" name="remove_photo" value="1" class="campo-checkbox">
+                            <span>Togli questa fotografia</span>
+                        </label>
+                    </div>
+                {% endif %}
+
+                {{ include('components/field.twig', {
+                    name: 'photo', label: 'Fotografia', type: 'file',
+                    accept: 'image/jpeg,image/png,image/webp',
+                    help: isNew
+                        ? 'Facoltativa. Senza, compaiono le iniziali.'
+                        : 'Facoltativa. Caricandone una nuova sostituisce quella attuale.'
+                }) }}
+
+            </div>
+
+            <div class="border-t border-sabbia-200 p-5">
+                <button type="submit" class="btn-primario w-full sm:w-auto">
+                    {{ isNew ? 'Aggiungi la persona' : 'Salva le modifiche' }}
+                </button>
+            </div>
+        </section>
+    </form>
+{% endblock %}

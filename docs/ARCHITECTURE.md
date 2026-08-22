@@ -180,7 +180,7 @@ MERCHANDISING
   orders, order_items, order_status_history, order_sequences
 
 ORGANIZZAZIONE E SISTEMA
-  organization_roles, organization_members, site_settings,
+  organization_members, site_settings,
   football_matches, social_posts
 ```
 

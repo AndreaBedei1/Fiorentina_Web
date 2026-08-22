@@ -33,7 +33,19 @@
                             {% for item in order.items %}
                                 <tr>
                                     <td>
-                                        <span class="font-semibold text-viola-900">{{ item.productName }}</span>
+                                        {# Il nome porta alla scheda pubblica: fra due magliette
+                                           con nomi simili si fa presto a prendere lo scatolone
+                                           sbagliato. Se il prodotto non c'e piu, resta scritto. #}
+                                        {% if item.productUrlKey %}
+                                            <a href="{{ route('shop.show', { riferimento: item.productUrlKey }) }}"
+                                               target="_blank" rel="noopener"
+                                               class="font-semibold text-viola-900 underline underline-offset-2 hover:text-viola-700 focus-ring rounded">
+                                                {{ item.productName }}
+                                                <span class="sr-only">(si apre in una nuova scheda)</span>
+                                            </a>
+                                        {% else %}
+                                            <span class="font-semibold text-viola-900">{{ item.productName }}</span>
+                                        {% endif %}
                                         {% if item.variantLabel %}
                                             <span class="mt-0.5 block text-xs text-sabbia-500">{{ item.choiceLabel }}</span>
                                         {% endif %}

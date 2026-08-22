@@ -10,7 +10,6 @@ use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Core\Routing\UrlGenerator;
 use App\Core\Session\Session;
-use App\Core\Support\Str;
 use App\Core\View\ViewRenderer;
 use App\Repositories\OrganizationRepository;
 use App\Services\AuditLogger;
@@ -20,10 +19,12 @@ use App\Services\Media\SimpleImageService;
 use App\Validation\Validator;
 
 /**
- * Organigramma: ruoli e persone del direttivo.
+ * Il direttivo: chi c'e e cosa fa.
  *
- * Tutto modificabile senza toccare il codice, come richiesto: quando cambia il
- * consiglio, il gruppo aggiorna la pagina da solo.
+ * Di ogni persona si chiedono quattro cose - nome, cognome, ruolo e una
+ * fotografia facoltativa - perche sono le quattro che compaiono in "Chi
+ * siamo". Il ruolo si scrive: era una tendina da riempire prima di poter
+ * aggiungere qualcuno, cioe un lavoro da fare per poterne fare un altro.
  */
 final class OrganizationController extends Controller
 {
@@ -46,115 +47,68 @@ final class OrganizationController extends Controller
 
         return $this->render('admin/organization/index.twig', [
             'seo' => $this->seo('Organizzazione')->withNoindex(),
-            'roles' => $this->organization->roles(),
             'members' => $this->organization->allMembers(),
-            'roleOptions' => $this->organization->roleOptions(),
         ]);
     }
 
-    // --- Ruoli ------------------------------------------------------------
-
-    public function storeRole(Request $request): Response
+    public function create(Request $request): Response
     {
         $this->authorize('organization.manage');
 
-        $validator = Validator::make($request->all())
-            ->required('name', 'Il nome del ruolo')->max('name', 100, 'Il nome del ruolo')
-            ->optional('description')->max('description', 300, 'La descrizione')
-            ->integer('sort_order', 'L ordinamento', 0, 999);
-
-        if ($validator->fails()) {
-            return $this->backWithErrors($request, $request->all(), $validator->errors(), $this->url->route('admin.organization.index'));
-        }
-
-        $data = $validator->validatedData();
-
-        $this->organization->createRole([
-            'name' => (string) $data['name'],
-            'slug' => Str::slug((string) $data['name']),
-            'description' => $data['description'] ?? null,
-            'sort_order' => (int) ($data['sort_order'] ?? 0),
+        return $this->render('admin/organization/form.twig', [
+            'seo' => $this->seo('Nuova persona')->withNoindex(),
+            'member' => null,
         ]);
-
-        $this->success('Ruolo creato.');
-
-        return $this->redirectToRoute('admin.organization.index');
     }
 
-    public function updateRole(Request $request): Response
-    {
-        $this->authorize('organization.manage');
-
-        $id = $request->routeInt('roleId');
-
-        if ($this->organization->findRole($id) === null) {
-            $this->notFound('Ruolo non trovato.');
-        }
-
-        $this->organization->updateRole($id, [
-            'name' => $request->string('name'),
-            'description' => $request->nullableString('description'),
-            'sort_order' => $request->int('sort_order'),
-        ]);
-
-        $this->success('Ruolo aggiornato.');
-
-        return $this->redirectToRoute('admin.organization.index');
-    }
-
-    public function destroyRole(Request $request): Response
-    {
-        $this->authorize('organization.manage');
-
-        // Le persone collegate restano: perdono solo il riferimento al ruolo.
-        $this->organization->deleteRole($request->routeInt('roleId'));
-        $this->success('Ruolo eliminato. Le persone collegate restano nell\'elenco.');
-
-        return $this->redirectToRoute('admin.organization.index');
-    }
-
-    // --- Persone ----------------------------------------------------------
-
-    public function storeMember(Request $request): Response
+    public function store(Request $request): Response
     {
         $this->authorize('organization.manage');
 
         $validated = $this->validateMember($request);
 
         if ($validated === null) {
-            return $this->back($request, $this->url->route('admin.organization.index'));
+            return $this->back($request, $this->url->route('admin.organization.create'));
         }
 
-        $data = $this->memberData($request, $validated);
-
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-
-            if ($file !== null) {
-                $result = $this->images->store($file, MediaPaths::COLLECTION_MEMBERS);
-
-                if ($result['error'] !== null) {
-                    $this->warning($result['error']);
-                } else {
-                    $data['photo_key'] = $result['key'];
-                    $data['photo_extension'] = $result['extension'];
-                }
-            }
-        }
+        $data = $this->memberData($validated);
+        $data += $this->fotografiaCaricata($request);
 
         $id = $this->organization->createMember($data);
 
-        $this->audit->log(AuditLogger::CONTENT_CREATED, 'member', $id, sprintf('Persona aggiunta: %s', $data['full_name']));
-        $this->success('Persona aggiunta all\'organigramma.');
+        $this->audit->log(
+            AuditLogger::CONTENT_CREATED,
+            'member',
+            $id,
+            sprintf('Persona aggiunta: %s %s', $data['first_name'], $data['last_name']),
+        );
+
+        $this->success('Persona aggiunta.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
 
-    public function updateMember(Request $request): Response
+    public function edit(Request $request): Response
     {
         $this->authorize('organization.manage');
 
-        $id = $request->routeInt('memberId');
+        $member = $this->organization->findMember($request->routeInt('id'));
+
+        if ($member === null) {
+            $this->notFound('Persona non trovata.');
+        }
+
+        return $this->render('admin/organization/form.twig', [
+            'seo' => $this->seo('Modifica persona')->withNoindex(),
+            'member' => $member,
+        ]);
+    }
+
+    public function update(Request $request): Response
+    {
+        $this->authorize('organization.manage');
+
+        $id = $request->routeInt('id');
         $member = $this->organization->findMember($id);
 
         if ($member === null) {
@@ -164,43 +118,33 @@ final class OrganizationController extends Controller
         $validated = $this->validateMember($request);
 
         if ($validated === null) {
-            return $this->back($request, $this->url->route('admin.organization.index'));
+            return $this->back($request, $this->url->route('admin.organization.edit', ['id' => $id]));
         }
 
-        $data = $this->memberData($request, $validated);
+        $data = $this->memberData($validated);
+        $data += $this->fotografiaCaricata($request, $member->photoKey, $member->photoExtension);
 
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-
-            if ($file !== null) {
-                $result = $this->images->store($file, MediaPaths::COLLECTION_MEMBERS, $member->photoKey, $member->photoExtension);
-
-                if ($result['error'] !== null) {
-                    $this->warning($result['error']);
-                } else {
-                    $data['photo_key'] = $result['key'];
-                    $data['photo_extension'] = $result['extension'];
-                }
-            }
-        }
-
-        if ($request->bool('remove_photo') && $member->photoKey !== null) {
+        /*
+         * Togliere la fotografia e una scelta a se: chi non ne carica una
+         * nuova non sta chiedendo di cancellare quella che c'e.
+         */
+        if ($request->bool('remove_photo') && $member->photoKey !== null && ! isset($data['photo_key'])) {
             $this->images->delete(MediaPaths::COLLECTION_MEMBERS, $member->photoKey, $member->photoExtension);
             $data['photo_key'] = null;
             $data['photo_extension'] = null;
         }
 
         $this->organization->updateMember($id, $data);
-        $this->success('Dati aggiornati.');
+        $this->success('Persona aggiornata.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
 
-    public function destroyMember(Request $request): Response
+    public function destroy(Request $request): Response
     {
         $this->authorize('organization.manage');
 
-        $id = $request->routeInt('memberId');
+        $id = $request->routeInt('id');
         $member = $this->organization->findMember($id);
 
         if ($member === null) {
@@ -213,23 +157,29 @@ final class OrganizationController extends Controller
             $this->images->delete(MediaPaths::COLLECTION_MEMBERS, $photoKey, $member->photoExtension);
         }
 
-        $this->audit->log(AuditLogger::CONTENT_DELETED, 'member', $id, sprintf('Persona rimossa: %s', $member->fullName));
-        $this->success('Persona rimossa dall\'organigramma.');
+        $this->audit->log(
+            AuditLogger::CONTENT_DELETED,
+            'member',
+            $id,
+            sprintf('Persona rimossa: %s', $member->fullName()),
+        );
+
+        $this->success('Persona rimossa.');
 
         return $this->redirectToRoute('admin.organization.index');
     }
+
+    // -----------------------------------------------------------------------
+    //  Supporto
+    // -----------------------------------------------------------------------
 
     /** @return array<string, mixed>|null */
     private function validateMember(Request $request): ?array
     {
         $validator = Validator::make($request->all())
-            ->required('full_name', 'Il nome')->max('full_name', 120, 'Il nome')
-            ->optional('role_title')->max('role_title', 120, 'Il titolo')
-            ->optional('bio')->max('bio', 600, 'La biografia')
-            ->optional('email')->email('email', 'L\'indirizzo email')
-            ->optional('phone')->phone('phone', 'Il telefono')
-            ->integer('member_since', 'L\'anno di ingresso', 1900, (int) date('Y'))
-            ->integer('sort_order', 'L ordinamento', 0, 999);
+            ->required('first_name', 'Il nome')->max('first_name', 60, 'Il nome')
+            ->required('last_name', 'Il cognome')->max('last_name', 60, 'Il cognome')
+            ->required('role', 'Il ruolo')->max('role', 120, 'Il ruolo');
 
         if ($validator->fails()) {
             $this->session->flashInput($request->all());
@@ -246,18 +196,46 @@ final class OrganizationController extends Controller
      * @param array<string, mixed> $validated
      * @return array<string, mixed>
      */
-    private function memberData(Request $request, array $validated): array
+    private function memberData(array $validated): array
     {
         return [
-            'role_id' => $request->nullableInt('role_id'),
-            'full_name' => (string) $validated['full_name'],
-            'role_title' => $validated['role_title'] ?? null,
-            'bio' => $validated['bio'] ?? null,
-            'email' => $validated['email'] ?? null,
-            'phone' => $validated['phone'] ?? null,
-            'member_since' => $validated['member_since'] ?? null,
-            'sort_order' => (int) ($validated['sort_order'] ?? 0),
-            'is_visible' => $request->bool('is_visible') ? 1 : 0,
+            'first_name' => (string) $validated['first_name'],
+            'last_name' => (string) $validated['last_name'],
+            'role' => (string) $validated['role'],
+        ];
+    }
+
+    /**
+     * La fotografia appena caricata, se ce n'e una e se e passata.
+     *
+     * @return array<string, mixed> Vuoto quando non c'e niente da cambiare.
+     */
+    private function fotografiaCaricata(
+        Request $request,
+        ?string $chiaveEsistente = null,
+        ?string $estensioneEsistente = null,
+    ): array {
+        if (! $request->hasFile('photo')) {
+            return [];
+        }
+
+        $file = $request->file('photo');
+
+        if ($file === null) {
+            return [];
+        }
+
+        $esito = $this->images->store($file, MediaPaths::COLLECTION_MEMBERS, $chiaveEsistente, $estensioneEsistente);
+
+        if ($esito['error'] !== null) {
+            $this->warning($esito['error']);
+
+            return [];
+        }
+
+        return [
+            'photo_key' => $esito['key'],
+            'photo_extension' => $esito['extension'],
         ];
     }
 }

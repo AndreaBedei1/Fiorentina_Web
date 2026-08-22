@@ -26,16 +26,6 @@ final class TaxonomySeeder extends Seeder
         ['Gadget', 'Adesivi, spille, portachiavi e piccoli oggetti da collezione.', 5],
     ];
 
-    private const ROLES = [
-        ['Presidente', 'Rappresenta il gruppo e coordina il direttivo.', 1],
-        ['Vicepresidente', 'Affianca il presidente e ne fa le veci quando serve.', 2],
-        ['Responsabile contabile', 'Cura la contabilità, le quote associative e il bilancio.', 3],
-        ['Responsabile trasferte', 'Organizza pullman, biglietti e logistica delle trasferte.', 4],
-        ['Responsabile merchandising', 'Segue produzione, magazzino e ordini del materiale.', 5],
-        ['Responsabile comunicazione', 'Gestisce sito, social e rapporti con la stampa.', 6],
-        ['Consigliere', 'Membro del direttivo.', 7],
-    ];
-
     public function name(): string
     {
         return 'Categorie e ruoli';
@@ -80,25 +70,6 @@ final class TaxonomySeeder extends Seeder
                 'description' => $description,
                 'sort_order' => $order,
                 'status' => 'active',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-
-            $created++;
-        }
-
-        foreach (self::ROLES as [$name, $description, $order]) {
-            $slug = Str::slug($name);
-
-            if ($this->tableHasRows('organization_roles', 'slug = ?', [$slug])) {
-                continue;
-            }
-
-            $this->db->insertInto('organization_roles', [
-                'name' => $name,
-                'slug' => $slug,
-                'description' => $description,
-                'sort_order' => $order,
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);

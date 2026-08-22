@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\Support\Str;
 use App\Models\Concerns\CastsRowValues;
 
 /**
@@ -49,6 +50,30 @@ final class OrderItem
             quantity: self::castInt($row, 'quantity', 1),
             lineTotal: self::castFloat($row, 'line_total'),
         );
+    }
+
+    /**
+     * Il pezzo di indirizzo della scheda pubblica del prodotto.
+     *
+     * Serve a chi prepara l'ordine per andare a vedere di che articolo si
+     * tratta senza cercarlo a mano: fra due magliette con nomi simili si fa
+     * presto a sbagliare scatolone.
+     *
+     * Il nome qui e la copia fatta al momento dell'ordine, quindi la coda
+     * dell'indirizzo potrebbe non combaciare piu se il prodotto e stato nel
+     * frattempo rinominato: conta il numero, e il sito reindirizza da solo
+     * alla forma giusta. Se invece il prodotto e stato eliminato non c'e piu
+     * niente da mostrare, e il nome resta scritto senza collegamento.
+     */
+    public function productUrlKey(): ?string
+    {
+        if ($this->productId === null) {
+            return null;
+        }
+
+        $coda = Str::slug($this->productName);
+
+        return $coda === '' ? (string) $this->productId : $this->productId . '-' . $coda;
     }
 
     public function displayName(): string

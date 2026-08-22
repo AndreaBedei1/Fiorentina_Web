@@ -36,7 +36,6 @@ final class AuthService
         'gallery.manage',
         'products.manage',
         'orders.manage',
-        'pages.manage',
         'organization.manage',
         'social.manage',
     ];

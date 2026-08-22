@@ -52,7 +52,7 @@ final class PageController extends Controller
             'page' => $page,
             'testoIniziale' => $testoIniziale,
             'testoFinale' => $testoFinale,
-            'members' => $this->organization->visibleMembers(),
+            'members' => $this->organization->allMembers(),
             'foundedYear' => $this->settings->int('site_founded_year'),
         ]);
     }

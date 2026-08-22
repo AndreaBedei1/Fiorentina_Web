@@ -36,7 +36,7 @@ final class AuthorizationTest extends IntegrationTestCase
         $this->assertTrue($auth->can('gallery.manage'));
         $this->assertTrue($auth->can('products.manage'));
         $this->assertTrue($auth->can('orders.manage'));
-        $this->assertTrue($auth->can('pages.manage'));
+        $this->assertTrue($auth->can('organization.manage'));
 
         // Amministrazione: no.
         $this->assertFalse($auth->can('admins.manage'));

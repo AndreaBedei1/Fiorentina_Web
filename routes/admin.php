@@ -23,7 +23,6 @@ use App\Controllers\Admin\GalleryController;
 use App\Controllers\Admin\NewsController;
 use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\OrganizationController;
-use App\Controllers\Admin\PageController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SettingsController;
 use App\Controllers\Admin\SocialController;
@@ -118,21 +117,12 @@ return static function (Router $router): void {
 
         // --- Organizzazione -------------------------------------------------
         $router->get('/organizzazione', [OrganizationController::class, 'index'])->name('organization.index');
-        $router->post('/organizzazione/ruoli', [OrganizationController::class, 'storeRole'])->name('organization.roles.store');
-        $router->post('/organizzazione/ruoli/{roleId:\d+}', [OrganizationController::class, 'updateRole'])->name('organization.roles.update');
-        $router->post('/organizzazione/ruoli/{roleId:\d+}/elimina', [OrganizationController::class, 'destroyRole'])->name('organization.roles.destroy');
-        $router->post('/organizzazione/persone', [OrganizationController::class, 'storeMember'])->name('organization.members.store');
-        $router->post('/organizzazione/persone/{memberId:\d+}', [OrganizationController::class, 'updateMember'])->name('organization.members.update');
-        $router->post('/organizzazione/persone/{memberId:\d+}/elimina', [OrganizationController::class, 'destroyMember'])->name('organization.members.destroy');
+        $router->get('/organizzazione/nuovo', [OrganizationController::class, 'create'])->name('organization.create');
+        $router->post('/organizzazione', [OrganizationController::class, 'store'])->name('organization.store');
+        $router->get('/organizzazione/{id:\d+}', [OrganizationController::class, 'edit'])->name('organization.edit');
+        $router->post('/organizzazione/{id:\d+}', [OrganizationController::class, 'update'])->name('organization.update');
+        $router->post('/organizzazione/{id:\d+}/elimina', [OrganizationController::class, 'destroy'])->name('organization.destroy');
 
-        // --- Pagine editoriali ----------------------------------------------
-        $router->get('/pagine', [PageController::class, 'index'])->name('pages.index');
-        $router->get('/pagine/{id:\d+}', [PageController::class, 'edit'])->name('pages.edit');
-        $router->post('/pagine/{id:\d+}', [PageController::class, 'update'])->name('pages.update');
-        $router->post('/pagine/{id:\d+}/blocchi', [PageController::class, 'storeBlock'])->name('pages.blocks.store');
-        $router->post('/pagine/{id:\d+}/blocchi/{blockId:\d+}', [PageController::class, 'updateBlock'])->name('pages.blocks.update');
-        $router->post('/pagine/{id:\d+}/blocchi/{blockId:\d+}/elimina', [PageController::class, 'destroyBlock'])->name('pages.blocks.destroy');
-        $router->post('/pagine/{id:\d+}/blocchi/ordina', [PageController::class, 'reorderBlocks'])->name('pages.blocks.reorder');
     });
 
     // -----------------------------------------------------------------------
