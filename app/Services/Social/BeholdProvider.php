@@ -59,7 +59,28 @@ final class BeholdProvider implements SocialProviderInterface
 
     public function isConfigured(): bool
     {
-        return trim($this->feedId) !== '';
+        return $this->identificativo() !== '';
+    }
+
+    /**
+     * L'identificativo del feed, ripulito da quello che ci sta intorno.
+     *
+     * Behold, alla fine della configurazione, consegna un indirizzo intero:
+     * https://feeds.behold.so/AbC123. Chi lo copia incolla quello, ed e la
+     * cosa piu naturale del mondo. Prendere l'ultimo pezzo dell'indirizzo
+     * costa due righe ed evita un feed che non risponde senza dire perche.
+     */
+    private function identificativo(): string
+    {
+        $valore = trim($this->feedId);
+
+        if ($valore === '' || ! str_contains($valore, '/')) {
+            return $valore;
+        }
+
+        $pezzi = array_values(array_filter(explode('/', parse_url($valore, PHP_URL_PATH) ?? $valore)));
+
+        return $pezzi === [] ? '' : (string) end($pezzi);
     }
 
     /** @return list<SocialPostData> */
@@ -69,7 +90,7 @@ final class BeholdProvider implements SocialProviderInterface
             return [];
         }
 
-        $risposta = $this->http->getJson(sprintf(self::FEED_URL, rawurlencode(trim($this->feedId))));
+        $risposta = $this->http->getJson(sprintf(self::FEED_URL, rawurlencode($this->identificativo())));
 
         if ($risposta === null) {
             $this->logger->warning('Feed Behold non raggiungibile.', ['feed' => $this->feedId]);

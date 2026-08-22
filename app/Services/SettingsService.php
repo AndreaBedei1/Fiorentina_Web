@@ -76,9 +76,9 @@ final class SettingsService
         ],
         'social_behold_feed_id' => [
             'group' => 'social', 'type' => 'string', 'sort' => 7,
-            'label' => 'Identificativo del feed Behold (Instagram)',
+            'label' => 'Feed Behold (Instagram)',
             'default' => '',
-            'description' => "Serve a mostrare i post di Instagram in homepage senza gestire token. Si ottiene su behold.so collegando l'account: e l'identificativo del feed, non una password.",
+            'description' => "Incolla qui l'indirizzo che Behold ti da a fine configurazione (https://feeds.behold.so/...) oppure il solo codice finale: vanno bene entrambi. Serve a mostrare i post di Instagram in homepage senza gestire token, e non e una password.",
         ],
         'social_youtube_channel_id' => [
             'group' => 'social', 'type' => 'string', 'sort' => 6,
