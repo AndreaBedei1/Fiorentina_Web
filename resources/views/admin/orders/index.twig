@@ -1,27 +1,31 @@
 {% extends 'layouts/admin.twig' %}
 
 {% block content %}
-    {{ include('components/admin-page-header.twig', {
-        title: 'Ordini',
-        description: 'Richieste ricevute dal sito. Il pagamento avviene sempre fuori dal sito.'
-    }) }}
+    {{ include('components/admin-page-header.twig', { title: 'Ordini' }) }}
 
-    {# --- Filtri rapidi per stato, con contatori --- #}
+    {#
+      Filtri rapidi per stato.
+
+      Senza il pulsante "Tutti" serve comunque una via di ritorno, altrimenti
+      chi sceglie uno stato resta chiuso li dentro. Lo stato acceso si spegne
+      premendolo di nuovo: porta la crocetta per dirlo, e l'indirizzo torna
+      quello dell'elenco intero.
+    #}
     <nav class="mb-4 flex flex-wrap gap-2" aria-label="Filtra per stato">
-        <a href="{{ route('admin.orders.index') }}"
-           class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-ring
-                  {{ activeStatus is empty ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-           {{ activeStatus is empty ? 'aria-current="true"' : '' }}>Tutti</a>
-
         {% for value, label in statuses %}
             {% set count = counts[value]|default(0) %}
-            {% if count > 0 or activeStatus == value %}
-                <a href="{{ route('admin.orders.index') }}?stato={{ value }}"
-                   class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-ring
-                          {{ activeStatus == value ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
-                   {{ activeStatus == value ? 'aria-current="true"' : '' }}>
+            {% set attivo = activeStatus == value %}
+            {% if count > 0 or attivo %}
+                <a href="{{ route('admin.orders.index') }}{{ attivo ? '' : '?stato=' ~ value }}"
+                   class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition focus-ring
+                          {{ attivo ? 'bg-viola-800 text-white' : 'bg-white text-viola-800 ring-1 ring-sabbia-300 hover:bg-viola-50' }}"
+                   {{ attivo ? 'aria-current="true"' : '' }}>
                     {{ label }}
-                    <span class="ml-1 text-2xs opacity-70">{{ count }}</span>
+                    <span class="text-2xs opacity-70">{{ count }}</span>
+                    {% if attivo %}
+                        <span class="sr-only">- premi per togliere il filtro</span>
+                        <span aria-hidden="true" class="text-base leading-none">&times;</span>
+                    {% endif %}
                 </a>
             {% endif %}
         {% endfor %}

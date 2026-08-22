@@ -320,8 +320,19 @@ slug e collisioni, rate limiting, fornitori esterni.
 **Altri controlli utili:**
 
 ```bash
-php scripts/check-contrast.php    # verifica i contrasti WCAG 2.1 AA della palette
+composer lint                     # i due controlli qui sotto, uno dopo l'altro
+composer lint:views               # sintassi di tutti i template Twig
+composer lint:rotte               # collegamenti route() scritti nei template
+php scripts/check-contrast.php    # contrasti WCAG 2.1 AA della palette
 ```
+
+`lint:rotte` esiste per un tipo di errore che nient'altro intercetta:
+`route('shop.show', { slug: ... })` è sintatticamente perfetto, ma se quella
+rotta chiama il suo parametro `riferimento` la pagina esplode - e solo quando
+qualcuno ci arriva davvero. È successo con il carrello, che dopo il passaggio
+agli indirizzi con id continuava a chiedere `slug`: vuoto funzionava, pieno no.
+Il comando confronta i nomi e i parametri delle rotte dichiarate con quelli
+usati nei template, e dice file e riga.
 
 ---
 

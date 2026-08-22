@@ -55,6 +55,8 @@
         "social:sync": "@php scripts/sync-social.php",
         "media:clean": "@php scripts/pulisci-media.php",
         "lint:views": "@php scripts/lint-views.php",
+        "lint:rotte": "@php scripts/lint-rotte.php",
+        "lint": ["@lint:views", "@lint:rotte"],
         "test": "phpunit",
         "test:unit": "phpunit --testsuite=Unit",
         "test:integration": "phpunit --testsuite=Integration",
