@@ -140,6 +140,23 @@ final class OrganizationController extends Controller
         return $this->redirectToRoute('admin.organization.index');
     }
 
+    /**
+     * Sposta una persona di un posto nell'elenco.
+     *
+     * Non c'e niente da confermare e niente che si possa rompere: la freccia
+     * si preme, la riga si muove, e se ci si sbaglia si preme l'altra.
+     */
+    public function sposta(Request $request): Response
+    {
+        $this->authorize('organization.manage');
+
+        $verso = $request->string('verso') === 'su' ? 'su' : 'giu';
+
+        $this->organization->sposta($request->routeInt('id'), $verso);
+
+        return $this->redirectToRoute('admin.organization.index');
+    }
+
     public function destroy(Request $request): Response
     {
         $this->authorize('organization.manage');

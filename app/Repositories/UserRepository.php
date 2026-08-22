@@ -18,7 +18,7 @@ final class UserRepository extends BaseRepository
 {
     protected string $table = 'users';
 
-    private const COLUMNS = 'id, name, email, password_hash, role, status, phone,
+    private const COLUMNS = 'id, name, email, password_hash, role, status,
         password_changed_at, sessions_valid_after,
         created_by, created_at, updated_at, deleted_at';
 
@@ -97,7 +97,7 @@ final class UserRepository extends BaseRepository
 
     /**
      * @param array{name: string, email: string, role: string, status?: string,
-     *              password_hash?: string|null, phone?: string|null, created_by?: int|null} $data
+     *              password_hash?: string|null, created_by?: int|null} $data
      */
     public function create(array $data): int
     {
@@ -109,7 +109,6 @@ final class UserRepository extends BaseRepository
             'password_hash' => $data['password_hash'] ?? null,
             'role' => $data['role'],
             'status' => $data['status'] ?? User::STATUS_PENDING,
-            'phone' => $data['phone'] ?? null,
             'created_by' => $data['created_by'] ?? null,
             'created_at' => $now,
             'updated_at' => $now,
@@ -203,25 +202,5 @@ final class UserRepository extends BaseRepository
         }
 
         return $this->countActiveSuperAdmins($id) === 0;
-    }
-
-    /** @return array{total: int, active: int, blocked: int, pending: int} */
-    public function statistics(): array
-    {
-        $row = $this->db->selectOne(
-            "SELECT
-                COUNT(*) AS total,
-                SUM(status = 'active') AS active,
-                SUM(status = 'blocked') AS blocked,
-                SUM(status = 'pending') AS pending
-             FROM users WHERE deleted_at IS NULL"
-        ) ?? [];
-
-        return [
-            'total' => (int) ($row['total'] ?? 0),
-            'active' => (int) ($row['active'] ?? 0),
-            'blocked' => (int) ($row['blocked'] ?? 0),
-            'pending' => (int) ($row['pending'] ?? 0),
-        ];
     }
 }

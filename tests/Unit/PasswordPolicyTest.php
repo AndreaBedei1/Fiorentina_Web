@@ -9,18 +9,22 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/** Regole di robustezza delle password. */
+/**
+ * Regole di robustezza delle password.
+ *
+ * Almeno otto caratteri, e dentro una minuscola, una maiuscola e una cifra.
+ */
 final class PasswordPolicyTest extends TestCase
 {
     #[Test]
-    public function accetta_una_password_robusta(): void
+    public function accetta_una_password_a_regola(): void
     {
-        // Valore d'esempio, non una credenziale: serve solo a mostrare una
-        // combinazione che soddisfa lunghezza e varieta richieste.
-        $robusta = 'esempio-di-password-lunga-2026';
+        // Valore d'esempio, non una credenziale: mostra solo una combinazione
+        // che soddisfa lunghezza e varieta richieste.
+        $buona = 'Trasferta2026';
 
-        $this->assertNull(PasswordPolicy::check($robusta));
-        $this->assertTrue(PasswordPolicy::isValid($robusta));
+        $this->assertNull(PasswordPolicy::check($buona));
+        $this->assertTrue(PasswordPolicy::isValid($buona));
     }
 
     /** @return list<array{0: string, 1: string}> */
@@ -28,11 +32,12 @@ final class PasswordPolicyTest extends TestCase
     {
         return [
             ['', 'vuota'],
-            ['corta1A!', 'troppo corta'],
-            ['tuttominuscolo', 'una sola categoria'],
-            ['soltantolettereeminuscole', 'nessun numero ne maiuscola'],
+            ['Ab1cde', 'sette caratteri, uno in meno del minimo'],
+            ['tuttominuscolo', 'nessuna maiuscola e nessun numero'],
+            ['TUTTOMAIUSCOLO1', 'nessuna minuscola'],
+            ['Soltantolettere', 'nessun numero'],
             ['12345678901234', 'solo cifre'],
-            ['password1234', 'solo minuscole e cifre'],
+            ['password1234', 'nessuna maiuscola'],
         ];
     }
 
@@ -46,13 +51,32 @@ final class PasswordPolicyTest extends TestCase
         );
     }
 
+    /** Otto caratteri esatti bastano, sette no. */
     #[Test]
-    public function conta_correttamente_le_categorie_di_caratteri(): void
+    public function il_minimo_e_otto_caratteri(): void
     {
-        $this->assertSame(1, PasswordPolicy::countCharacterClasses('soltantominuscole'));
-        $this->assertSame(2, PasswordPolicy::countCharacterClasses('MinuscoleEMaiuscole'));
-        $this->assertSame(3, PasswordPolicy::countCharacterClasses('MinuscoleMaiuscole1'));
-        $this->assertSame(4, PasswordPolicy::countCharacterClasses('MinuscoleMaiuscole1!'));
+        $this->assertNull(PasswordPolicy::check('Curva12a'));
+        $this->assertNotNull(PasswordPolicy::check('Curva1a'));
+    }
+
+    /**
+     * Il messaggio dice cosa manca, non ripete la regola.
+     *
+     * "Combina almeno tre categorie" e vero ma non aiuta: chi sta scrivendo
+     * deve rileggere la regola e confrontarla con quello che ha digitato.
+     * "Manca una lettera maiuscola" si corregge senza pensarci.
+     */
+    #[Test]
+    public function dice_che_cosa_manca(): void
+    {
+        $this->assertSame(['una lettera maiuscola'], PasswordPolicy::mancanti('trasferta2026'));
+        $this->assertSame(['un numero'], PasswordPolicy::mancanti('Trasferta'));
+        $this->assertSame([], PasswordPolicy::mancanti('Trasferta1'));
+
+        $this->assertSame(
+            'Alla password manca una lettera maiuscola e un numero.',
+            PasswordPolicy::check('trasferta'),
+        );
     }
 
     #[Test]

@@ -13,7 +13,7 @@ return [
     ],
 
     'password' => [
-        'min_length' => 12,
+        'min_length' => 8,
         // Durata dei link di reset e di invito, in minuti.
         'reset_token_ttl' => 60,
         'invite_token_ttl' => 60 * 24 * 7,

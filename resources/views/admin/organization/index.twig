@@ -6,6 +6,16 @@
         action: { url: route('admin.organization.create'), label: 'Aggiungi persona' }
     }) }}
 
+    {% if members is not empty %}
+        <div class="mb-4 flex items-start gap-3 rounded-card border border-viola-200 bg-viola-50 px-4 py-3.5 text-sm text-viola-900">
+            <span class="mt-0.5 shrink-0 text-viola-600">{{ include('components/icon.twig', { name: 'info', class: 'h-5 w-5' }) }}</span>
+            <p class="leading-relaxed">
+                Nella pagina <strong>Chi siamo</strong> le persone compaiono in quest'ordine, dall'alto in basso.
+                Con le frecce ▲ ▼ le sposti su e giù: chi è primo qui è il primo che vedono i visitatori.
+            </p>
+        </div>
+    {% endif %}
+
     <div class="pannello overflow-hidden">
         {% if members is empty %}
             {{ include('components/admin-empty.twig', {
@@ -17,18 +27,56 @@
         {% else %}
             <div class="tabella-scroll">
                 <table class="tabella">
-                    <caption class="sr-only">Persone del direttivo</caption>
+                    <caption class="sr-only">Persone del direttivo, nell'ordine in cui compaiono sul sito</caption>
                     <thead>
                         <tr>
+                            <th scope="col" class="w-20"><span class="sr-only">Ordine</span></th>
                             <th scope="col" class="w-16"><span class="sr-only">Fotografia</span></th>
                             <th scope="col">Nome</th>
                             <th scope="col">Ruolo</th>
-                            <th scope="col" class="w-36"><span class="sr-only">Azioni</span></th>
+                            <th scope="col" class="w-56"><span class="sr-only">Azioni</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for member in members %}
                             <tr>
+                                <td>
+                                    {#
+                                      Due moduli, non due collegamenti: spostare cambia i dati,
+                                      e le cose che cambiano i dati si mandano in POST.
+
+                                      Chi e in cima non puo salire e chi e in fondo non puo
+                                      scendere: al posto della freccia sta uno spazio vuoto
+                                      della stessa misura, cosi le righe restano allineate.
+                                    #}
+                                    <div class="flex items-center gap-0.5">
+                                        {% if not loop.first %}
+                                            <form action="{{ route('admin.organization.move', { id: member.id }) }}" method="post">
+                                                {{ csrf_field()|raw }}
+                                                <input type="hidden" name="verso" value="su">
+                                                <button type="submit" class="btn-fantasma btn-piccolo" title="Sposta in alto">
+                                                    <span class="sr-only">Sposta {{ member.fullName }} in alto</span>
+                                                    {{ include('components/icon.twig', { name: 'arrow-up', class: 'h-3.5 w-3.5' }) }}
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="inline-block h-7 w-7" aria-hidden="true"></span>
+                                        {% endif %}
+
+                                        {% if not loop.last %}
+                                            <form action="{{ route('admin.organization.move', { id: member.id }) }}" method="post">
+                                                {{ csrf_field()|raw }}
+                                                <input type="hidden" name="verso" value="giu">
+                                                <button type="submit" class="btn-fantasma btn-piccolo" title="Sposta in basso">
+                                                    <span class="sr-only">Sposta {{ member.fullName }} in basso</span>
+                                                    {{ include('components/icon.twig', { name: 'arrow-down', class: 'h-3.5 w-3.5' }) }}
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span class="inline-block h-7 w-7" aria-hidden="true"></span>
+                                        {% endif %}
+                                    </div>
+                                </td>
                                 <td>
                                     {% if member.hasPhoto %}
                                         <span class="block h-10 w-10 overflow-hidden rounded-full bg-sabbia-100">

@@ -26,6 +26,7 @@ final class OrganizationMember
         public readonly ?string $role,
         public readonly ?string $photoKey,
         public readonly ?string $photoExtension,
+        public readonly int $sortOrder = 0,
     ) {
     }
 
@@ -39,6 +40,7 @@ final class OrganizationMember
             role: self::castNullableString($row, 'role'),
             photoKey: self::castNullableString($row, 'photo_key'),
             photoExtension: self::castNullableString($row, 'photo_extension'),
+            sortOrder: self::castInt($row, 'sort_order'),
         );
     }
 

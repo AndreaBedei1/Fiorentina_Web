@@ -177,7 +177,7 @@ GALLERIA
 
 MERCHANDISING
   product_categories, products, product_images, product_variants,
-  orders, order_items, order_status_history, order_sequences
+  orders, order_items, order_sequences
 
 ORGANIZZAZIONE E SISTEMA
   organization_members, site_settings,
@@ -338,9 +338,11 @@ teorico. `password_needs_rehash()` consente la migrazione trasparente al primo
 accesso utile.
 
 Regole in `PasswordPolicy`, condivise fra validatore dei form e script CLI:
-almeno 12 caratteri e almeno tre categorie fra minuscole, maiuscole, numeri e
-simboli. Nessun requisito barocco di simboli obbligatori, che spinge solo verso
-password prevedibili.
+almeno 8 caratteri, con una minuscola, una maiuscola e una cifra. I tre
+requisiti sono espliciti invece di un conteggio di categorie perche il
+messaggio d'errore possa dire cosa manca - "manca una lettera maiuscola" si
+corregge subito, "combina almeno tre categorie" no. Nessun simbolo
+obbligatorio: spinge solo verso password prevedibili del tipo "Password1!".
 
 ### Registro attivita
 

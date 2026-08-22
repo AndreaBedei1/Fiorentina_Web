@@ -297,7 +297,7 @@ final class AdminUserService
     }
 
     /** Aggiorna nome, email e telefono di un amministratore. */
-    public function updateProfile(int $targetId, string $name, string $email, ?string $phone, User $actor): AdminActionResult
+    public function updateProfile(int $targetId, string $name, string $email, User $actor): AdminActionResult
     {
         $email = mb_strtolower(trim($email));
 
@@ -309,7 +309,7 @@ final class AdminUserService
             return AdminActionResult::failure('Solo un super amministratore può modificare altri account.');
         }
 
-        $this->users->update($targetId, ['name' => $name, 'email' => $email, 'phone' => $phone]);
+        $this->users->update($targetId, ['name' => $name, 'email' => $email]);
 
         $this->audit->log(AuditLogger::ADMIN_UPDATED, 'user', $targetId, sprintf('Dati di %s aggiornati', $name));
 

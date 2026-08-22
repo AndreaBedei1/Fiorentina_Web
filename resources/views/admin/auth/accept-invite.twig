@@ -26,7 +26,7 @@
                    aria-describedby="campo-password-aiuto"
                    {{ has_error('password') ? 'aria-invalid="true"' : '' }}>
             <p id="campo-password-aiuto" class="campo-aiuto">
-                Almeno {{ minLength }} caratteri, combinando almeno tre fra minuscole, maiuscole, numeri e simboli.
+                {{ regolaPassword }}
             </p>
             {% if has_error('password') %}
                 <p class="campo-errore">

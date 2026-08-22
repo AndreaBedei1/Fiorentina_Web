@@ -1,10 +1,24 @@
 {% extends 'layouts/admin.twig' %}
 
 {% block content %}
-    {{ include('components/admin-page-header.twig', {
-        title: 'Amministratori',
-        description: 'Chi può accedere al pannello. Gli account nascono solo da invito: non esiste una registrazione pubblica.'
-    }) }}
+    {{ include('components/admin-page-header.twig', { title: 'Amministratori' }) }}
+
+    {#
+      La differenza fra i due ruoli detta una volta sola, in alto.
+
+      Non e una regola da ricordare: e quello che serve sapere prima di
+      scegliere il ruolo di chi si sta invitando, e prima di premere
+      "promuovi".
+    #}
+    <div class="mb-5 flex items-start gap-3 rounded-card border border-viola-200 bg-viola-50 px-4 py-3.5 text-sm text-viola-900">
+        <span class="mt-0.5 shrink-0 text-viola-600">{{ include('components/icon.twig', { name: 'info', class: 'h-5 w-5' }) }}</span>
+        <p class="leading-relaxed">
+            Tutti gli amministratori possono scrivere e modificare i contenuti del sito: notizie,
+            eventi, fotografie, prodotti, ordini.
+            <strong>Solo il super amministratore</strong> può invitare nuovi amministratori,
+            rimuoverli e cambiarne il ruolo.
+        </p>
+    </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
 
@@ -14,9 +28,6 @@
             <section class="pannello overflow-hidden">
                 <div class="pannello-testata">
                     <h2 class="font-display text-base font-bold text-viola-900">Account</h2>
-                    <span class="text-xs text-sabbia-500">
-                        {{ statistics.active }} attivi, {{ statistics.pending }} in attesa, {{ statistics.blocked }} bloccati
-                    </span>
                 </div>
 
                 <div class="tabella-scroll">
@@ -25,8 +36,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Persona</th>
-                                <th scope="col" class="w-40">Ruolo</th>
-                                <th scope="col" class="w-32">Stato</th>
+                                <th scope="col" class="w-56">Ruolo</th>
                                 <th scope="col" class="w-52"><span class="sr-only">Azioni</span></th>
                             </tr>
                         </thead>
@@ -50,27 +60,31 @@
                                         </div>
                                     </td>
                                     <td>
-                                        {% if user.id == currentUserId %}
+                                        <div class="flex flex-wrap items-center gap-2">
                                             <span class="badge {{ user.isSuperAdmin ? 'badge-info' : 'badge-neutro' }}">{{ user.roleLabel }}</span>
-                                        {% else %}
-                                            <form action="{{ route('admin.users.role', { id: user.id }) }}" method="post" class="flex items-center gap-1">
-                                                {{ csrf_field()|raw }}
-                                                <label for="ruolo-{{ user.id }}" class="sr-only">Ruolo di {{ user.name }}</label>
-                                                <select id="ruolo-{{ user.id }}" name="role" class="campo-select text-xs">
-                                                    <option value="ADMIN" {{ not user.isSuperAdmin ? 'selected' : '' }}>Amministratore</option>
-                                                    <option value="SUPER_ADMIN" {{ user.isSuperAdmin ? 'selected' : '' }}>Super amministratore</option>
-                                                </select>
-                                                <button type="submit" class="btn-fantasma btn-piccolo">
-                                                    <span class="sr-only">Cambia ruolo</span>
-                                                    {{ include('components/icon.twig', { name: 'check', class: 'h-3.5 w-3.5' }) }}
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="badge {{ user.isActive ? 'badge-successo' : (user.isBlocked ? 'badge-errore' : 'badge-attenzione') }}">
-                                            {{ user.statusLabel }}
-                                        </span>
+
+                                            {#
+                                              Il cambio di ruolo e un pulsante, non una tendina da
+                                              confermare: le scelte sono due e si dice quale delle
+                                              due si sta facendo.
+
+                                              Su se stessi non compare: declassarsi da soli
+                                              chiuderebbe la porta dall'interno.
+                                            #}
+                                            {% if user.id != currentUserId %}
+                                                <form action="{{ route('admin.users.role', { id: user.id }) }}" method="post">
+                                                    {{ csrf_field()|raw }}
+                                                    <input type="hidden" name="role" value="{{ user.isSuperAdmin ? 'ADMIN' : 'SUPER_ADMIN' }}">
+                                                    <button type="submit" class="btn-fantasma btn-piccolo">
+                                                        {% if user.isSuperAdmin %}
+                                                            Riporta ad amministratore
+                                                        {% else %}
+                                                            Promuovi a super amministratore
+                                                        {% endif %}
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     <td>
                                         {% if user.id != currentUserId %}
@@ -92,13 +106,13 @@
                                                     {{ include('components/admin-delete-button.twig', {
                                                         action: route('admin.users.block', { id: user.id }),
                                                         label: 'Blocca', icon: 'shield',
-                                                        question: 'Bloccare questo account?'
+                                                        question: 'Bloccare l\'account di ' ~ user.name ~ '?'
                                                     }) }}
                                                 {% endif %}
 
                                                 {{ include('components/admin-delete-button.twig', {
                                                     action: route('admin.users.destroy', { id: user.id }),
-                                                    question: 'Disattivare questo account?'
+                                                    question: 'Eliminare l\'account di ' ~ user.name ~ '?'
                                                 }) }}
                                             </div>
                                         {% else %}
@@ -136,31 +150,6 @@
                     </ul>
                 </section>
             {% endif %}
-
-            {# --- Accessi recenti --- #}
-            <section class="pannello overflow-hidden">
-                <div class="pannello-testata">
-                    <h2 class="font-display text-base font-bold text-viola-900">Tentativi di accesso recenti</h2>
-                </div>
-
-                {% if recentAttempts is empty %}
-                    <p class="px-5 py-6 text-center text-sm text-sabbia-600">Nessun tentativo registrato.</p>
-                {% else %}
-                    <ul class="divide-y divide-sabbia-100" role="list">
-                        {% for attempt in recentAttempts %}
-                            <li class="flex flex-wrap items-center gap-3 px-5 py-2.5 text-sm">
-                                <span class="h-2 w-2 shrink-0 rounded-full {{ attempt.successful ? 'bg-emerald-500' : 'bg-rosso-500' }}" aria-hidden="true"></span>
-                                <span class="min-w-0 flex-1 truncate text-sabbia-800">{{ attempt.email }}</span>
-                                <span class="font-mono text-xs text-sabbia-500">{{ attempt.ip }}</span>
-                                <span class="text-xs text-sabbia-500">{{ attempt.attempted_at|data_ora }}</span>
-                                <span class="badge {{ attempt.successful ? 'badge-successo' : 'badge-errore' }}">
-                                    {{ attempt.successful ? 'riuscito' : 'fallito' }}
-                                </span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </section>
         </div>
 
         {# --- Invito --- #}
@@ -184,8 +173,7 @@
                     {{ include('components/field.twig', {
                         name: 'role', label: 'Ruolo', type: 'select',
                         options: { 'ADMIN': 'Amministratore', 'SUPER_ADMIN': 'Super amministratore' },
-                        value: 'ADMIN',
-                        help: 'Il super amministratore può gestire account, impostazioni e registro attività.'
+                        value: 'ADMIN'
                     }) }}
 
                     <button type="submit" class="btn-primario w-full">
@@ -194,25 +182,10 @@
                     </button>
 
                     <p class="text-xs leading-relaxed text-sabbia-600">
-                        La persona ricevera un collegamento monouso per scegliere la propria password.
+                        La persona riceverà un collegamento monouso per scegliere la propria password.
                         Nessuno, nemmeno tu, potrà conoscerla.
                     </p>
                 </form>
-            </section>
-
-            <section class="pannello mt-5">
-                <div class="pannello-corpo">
-                    <h2 class="flex items-center gap-2 font-display text-sm font-bold text-viola-900">
-                        {{ include('components/icon.twig', { name: 'shield', class: 'h-4 w-4 text-viola-600' }) }}
-                        Salvaguardie attive
-                    </h2>
-                    <ul class="mt-3 space-y-2 text-xs leading-relaxed text-sabbia-600" role="list">
-                        <li>Non è possibile bloccare, declassare o eliminare l'ultimo super amministratore attivo.</li>
-                        <li>Non puoi bloccare o eliminare il tuo stesso account.</li>
-                        <li>Bloccando un account, le sue sessioni aperte vengono chiuse immediatamente.</li>
-                        <li>Un amministratore normale non può modificare i privilegi di nessuno.</li>
-                    </ul>
-                </div>
             </section>
         </div>
     </div>

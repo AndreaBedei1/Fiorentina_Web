@@ -121,6 +121,7 @@ return static function (Router $router): void {
         $router->post('/organizzazione', [OrganizationController::class, 'store'])->name('organization.store');
         $router->get('/organizzazione/{id:\d+}', [OrganizationController::class, 'edit'])->name('organization.edit');
         $router->post('/organizzazione/{id:\d+}', [OrganizationController::class, 'update'])->name('organization.update');
+        $router->post('/organizzazione/{id:\d+}/sposta', [OrganizationController::class, 'sposta'])->name('organization.move');
         $router->post('/organizzazione/{id:\d+}/elimina', [OrganizationController::class, 'destroy'])->name('organization.destroy');
 
     });

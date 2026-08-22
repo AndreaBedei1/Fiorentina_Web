@@ -153,14 +153,6 @@ final class AuthTokenRepository extends BaseRepository
         );
     }
 
-    /** @return list<array<string, mixed>> */
-    public function recentAttempts(int $limit = 20): array
-    {
-        return $this->db->select(
-            'SELECT * FROM login_attempts ORDER BY attempted_at DESC LIMIT ' . max(1, min(100, $limit))
-        );
-    }
-
     // -----------------------------------------------------------------------
     //  Rate limiting generico
     // -----------------------------------------------------------------------

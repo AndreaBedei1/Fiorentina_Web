@@ -17,6 +17,7 @@ use App\Repositories\UserRepository;
 use App\Services\AdminUserService;
 use App\Services\AuthService;
 use App\Services\PasswordResetService;
+use App\Validation\PasswordPolicy;
 use App\Validation\Validator;
 
 /**
@@ -50,8 +51,6 @@ final class AdminUserController extends Controller
             'seo' => $this->seo('Amministratori')->withNoindex(),
             'users' => $this->users->all(),
             'pendingInvites' => $this->tokens->pendingInvites(),
-            'recentAttempts' => $this->tokens->recentAttempts(10),
-            'statistics' => $this->users->statistics(),
             'currentUserId' => $this->currentUser()->id,
         ]);
     }
@@ -163,7 +162,9 @@ final class AdminUserController extends Controller
         return $this->render('admin/users/profile.twig', [
             'seo' => $this->seo('Il mio profilo')->withNoindex(),
             'user' => $this->currentUser(),
-            'minLength' => $this->config->int('security.password.min_length', 12),
+            'regolaPassword' => PasswordPolicy::description(
+                $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH),
+            ),
         ]);
     }
 
@@ -173,8 +174,7 @@ final class AdminUserController extends Controller
 
         $validator = Validator::make($request->all())
             ->required('name', 'Il nome')->max('name', 120, 'Il nome')
-            ->required('email', 'L indirizzo email')->email('email', 'L indirizzo email')
-            ->optional('phone')->phone('phone', 'Il telefono');
+            ->required('email', 'L indirizzo email')->email('email', 'L indirizzo email');
 
         if ($validator->fails()) {
             return $this->backWithErrors($request, $request->all(), $validator->errors(), $this->url->route('admin.profile'));
@@ -186,7 +186,6 @@ final class AdminUserController extends Controller
             $user->id,
             (string) $data['name'],
             (string) $data['email'],
-            $data['phone'] ?? null,
             $user,
         );
 
@@ -198,7 +197,7 @@ final class AdminUserController extends Controller
     public function changePassword(Request $request): Response
     {
         $user = $this->currentUser();
-        $minLength = $this->config->int('security.password.min_length', 12);
+        $minLength = $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH);
 
         $validator = Validator::make($request->all())
             ->required('current_password', 'La password attuale')

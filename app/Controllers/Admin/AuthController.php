@@ -15,6 +15,7 @@ use App\Services\AdminUserService;
 use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\PasswordResetService;
+use App\Validation\PasswordPolicy;
 use App\Validation\Validator;
 
 /**
@@ -137,13 +138,16 @@ final class AuthController extends Controller
         return $this->render('admin/auth/reset-password.twig', [
             'seo' => $this->seo('Nuova password')->withNoindex(),
             'token' => $token,
+            'regolaPassword' => PasswordPolicy::description(
+                $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH),
+            ),
         ]);
     }
 
     public function resetPassword(Request $request): Response
     {
         $token = (string) $request->route('token');
-        $minLength = $this->config->int('security.password.min_length', 12);
+        $minLength = $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH);
 
         $validator = Validator::make($request->all())
             ->password('password', 'La nuova password', $minLength)
@@ -188,14 +192,16 @@ final class AuthController extends Controller
             'seo' => $this->seo('Attiva il tuo account')->withNoindex(),
             'token' => $token,
             'invite' => $invite,
-            'minLength' => $this->config->int('security.password.min_length', 12),
+            'regolaPassword' => PasswordPolicy::description(
+                $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH),
+            ),
         ]);
     }
 
     public function acceptInvite(Request $request): Response
     {
         $token = (string) $request->route('token');
-        $minLength = $this->config->int('security.password.min_length', 12);
+        $minLength = $this->config->int('security.password.min_length', PasswordPolicy::MIN_LENGTH);
 
         $validator = Validator::make($request->all())
             ->password('password', 'La password', $minLength)
