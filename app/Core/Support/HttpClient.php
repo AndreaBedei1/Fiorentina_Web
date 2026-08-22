@@ -87,12 +87,17 @@ class HttpClient
         $body = curl_exec($handle);
         $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
         $error = curl_error($handle);
+        $codiceErrore = curl_errno($handle);
 
         curl_close($handle);
 
         if ($body === false || $error !== '') {
-            $this->logger->warning('Chiamata HTTP non riuscita.', ['url' => $url, 'error' => $error]);
-            $this->ultimoErrore = 'il server non ha risposto (rete assente o tempo scaduto)';
+            $this->logger->warning('Chiamata HTTP non riuscita.', [
+                'url' => $url,
+                'errno' => $codiceErrore,
+                'error' => $error,
+            ]);
+            $this->ultimoErrore = $this->spiegaGuasto($codiceErrore, $error);
 
             return null;
         }
@@ -115,6 +120,48 @@ class HttpClient
     public function lastFailure(): ?string
     {
         return $this->ultimoErrore;
+    }
+
+    /**
+     * Dichiara riuscita l'ultima chiamata.
+     *
+     * Serve alle sottoclassi che rispondono senza uscire in rete - i test, in
+     * pratica - perche altrimenti il motivo della chiamata precedente
+     * resterebbe appeso e sembrerebbe riferito a questa.
+     */
+    protected function azzeraErrore(): void
+    {
+        $this->ultimoErrore = null;
+    }
+
+    /**
+     * Traduce il guasto di cURL in una frase che dica cosa e successo.
+     *
+     * Prima erano tutti la stessa frase: "il server non ha risposto (rete
+     * assente o tempo scaduto)". Ma un certificato che non si riesce a
+     * verificare non e una rete assente, e chi legge quel messaggio va a
+     * controllare la connessione invece del certificato - che e esattamente
+     * quello che e successo la prima volta che il calendario non si e
+     * sincronizzato.
+     *
+     * I codici sono quelli che si incontrano davvero: DNS che non risolve,
+     * connessione rifiutata, tempo scaduto, certificato non verificabile.
+     */
+    private function spiegaGuasto(int $codice, string $messaggio): string
+    {
+        $frase = match ($codice) {
+            CURLE_COULDNT_RESOLVE_HOST => 'il nome del server non si risolve (DNS assente o indirizzo sbagliato)',
+            CURLE_COULDNT_CONNECT => 'la connessione al server e stata rifiutata',
+            CURLE_OPERATION_TIMEDOUT => sprintf('il server non ha risposto entro %d secondi', $this->timeoutSeconds),
+            CURLE_SSL_CACERT,
+            CURLE_SSL_CACERT_BADFILE,
+            CURLE_PEER_FAILED_VERIFICATION => 'il certificato del server non e verificabile: '
+                . 'sul server manca l elenco delle autorita di certificazione (curl.cainfo nel php.ini)',
+            CURLE_SSL_CONNECT_ERROR => 'la connessione cifrata non e riuscita',
+            default => 'il server non ha risposto',
+        };
+
+        return $messaggio === '' ? $frase : $frase . ' - ' . $messaggio;
     }
 
     /**

@@ -1,15 +1,64 @@
 {#
-  L'ingresso del pannello: volutamente vuoto.
+  L'ingresso del pannello.
 
-  Il lavoro sta nelle sezioni del menu, e questa pagina non ha niente da
-  aggiungere. L'unica riga che resta serve a chi arriva da telefono, dove il
-  menu e chiuso dietro il pulsante in alto: senza, si troverebbe davanti uno
-  schermo bianco senza sapere dove andare.
+  Non c'e una bacheca con contatori e avvisi: era una pagina che si guarda una
+  volta e poi si attraversa soltanto, e ogni suo riquadro era una query in piu
+  a ogni accesso. Il lavoro sta nelle sezioni del menu.
+
+  Resta pero il dovere di dire dove si e finiti: uno schermo bianco appena dopo
+  aver inserito la password sembra un guasto, non una scelta.
 #}
 {% extends 'layouts/admin.twig' %}
 
 {% block content %}
-    <p class="text-sm text-sabbia-500 lg:hidden">
-        Apri il menu in alto a sinistra e scegli una sezione.
-    </p>
+    {% set me = current_user() %}
+
+    <div class="mx-auto max-w-xl py-10 text-center sm:py-16">
+        <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-viola-100 text-viola-700">
+            {{ include('components/icon.twig', { name: 'shield', class: 'h-7 w-7' }) }}
+        </span>
+
+        <h1 class="mt-5 font-display text-2xl font-bold text-viola-900">
+            Ciao {{ me.name|split(' ')|first }}
+        </h1>
+
+        {# Sul telefono il menu e chiuso dietro il pulsante in alto, sul
+           computer sta sempre aperto a sinistra: la frase cambia di
+           conseguenza, perche "a sinistra" a chi guarda uno schermo da sei
+           pollici non dice niente. #}
+        <p class="mt-2 text-sabbia-600">
+            <span class="lg:hidden">
+                Apri il menu con il pulsante in alto a sinistra e scegli la sezione
+                su cui vuoi intervenire.
+            </span>
+            <span class="hidden lg:inline">
+                Scegli dal menu a sinistra la sezione su cui vuoi intervenire.
+            </span>
+        </p>
+
+        {# Le tre porte da cui si entra quasi sempre. Non sono un riassunto del
+           menu: sono le cose che si vengono a fare qui dentro. #}
+        <div class="mt-8 flex flex-wrap justify-center gap-2">
+            {% if can('news.manage') %}
+                <a href="{{ route('admin.news.create') }}" class="btn-secondario">
+                    {{ include('components/icon.twig', { name: 'news', class: 'h-4 w-4' }) }}
+                    Scrivi una notizia
+                </a>
+            {% endif %}
+
+            {% if can('events.manage') %}
+                <a href="{{ route('admin.events.create') }}" class="btn-secondario">
+                    {{ include('components/icon.twig', { name: 'calendar', class: 'h-4 w-4' }) }}
+                    Crea un evento
+                </a>
+            {% endif %}
+
+            {% if can('gallery.manage') %}
+                <a href="{{ route('admin.gallery.index') }}" class="btn-secondario">
+                    {{ include('components/icon.twig', { name: 'image', class: 'h-4 w-4' }) }}
+                    Carica fotografie
+                </a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

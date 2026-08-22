@@ -674,6 +674,16 @@ corrispondere a una casella realmente esistente sul dominio.
 Verifica che OPCache sia attivo e che `storage/cache/twig/` sia scrivibile: se
 non lo e, ogni pagina ricompila i template da zero.
 
+**La sincronizzazione del calendario partite fallisce sempre**
+Guarda `storage/logs/app-*.log`: il messaggio dice cosa è successo davvero.
+Se parla del certificato che non si riesce a verificare, al PHP del server
+manca l'elenco delle autorita di certificazione: si sistema indicando un file
+`cacert.pem` in `curl.cainfo` dentro il `.php.ini`. In locale, attenzione a
+una cosa che sembra magia nera: il server di sviluppo legge il `php.ini` una
+volta sola, all'avvio. Se hai aggiunto `curl.cainfo` mentre era gia acceso,
+continuera a fallire finche non lo riavvii, e la riga di comando funzionera
+benissimo nel frattempo.
+
 **Ho perso la password di amministratore**
 Usa "Password dimenticata" nella pagina di accesso. Se anche la casella email
 non e raggiungibile, ripeti la procedura manuale del punto 13 aggiornando la
