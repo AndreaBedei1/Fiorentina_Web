@@ -24,13 +24,15 @@
             <div class="absolute inset-0 bg-gradient-to-r from-viola-950/90 via-viola-950/40 to-transparent"></div>
         </div>
 
-        {# Il giglio di Firenze, grande e appena accennato: decorazione, non
+        {# Il logo del gruppo, grande e appena accennato: decorazione, non
            informazione. Sta a sinistra, dietro al titolo, dove il fondo resta
            scuro: a destra finirebbe sotto le card e non si vedrebbe.
            Sconfina oltre il bordo di proposito, come un timbro. #}
-        <div class="pointer-events-none absolute -left-20 top-6 text-white opacity-[0.07] sm:-left-14 lg:top-10 lg:opacity-[0.09]" aria-hidden="true">
-            {{ include('components/giglio.twig', { class: 'h-[20rem] w-auto sm:h-[26rem] lg:h-[32rem]' }) }}
-        </div>
+        {{ include('components/logo-sfondo.twig', {
+            wrapper: '-left-24 top-4 sm:-left-16 lg:top-8',
+            class: 'h-[20rem] w-auto sm:h-[26rem] lg:h-[32rem]',
+            opacita: 'opacity-[0.11] lg:opacity-[0.14]'
+        }) }}
 
         {# Lo stemma viola dall'altra parte, ancora piu in sordina: qui sopra
            passano le card, e un fondo troppo carico le renderebbe illeggibili. #}
@@ -197,9 +199,11 @@
             <div class="absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-viola-400 blur-3xl"></div>
         </div>
 
-        <div class="pointer-events-none absolute -left-16 top-1/2 hidden -translate-y-1/2 text-white opacity-[0.08] sm:block" aria-hidden="true">
-            {{ include('components/giglio.twig', { class: 'h-64 w-auto' }) }}
-        </div>
+        {{ include('components/logo-sfondo.twig', {
+            wrapper: '-left-16 top-1/2 hidden -translate-y-1/2 sm:block',
+            class: 'h-64 w-auto',
+            opacita: 'opacity-[0.12]'
+        }) }}
 
         {{ include('components/stemma-fiorentina.twig', {
             wrapper: '-right-16 top-1/2 -translate-y-1/2 hidden sm:block',

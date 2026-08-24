@@ -43,6 +43,9 @@ $misure = [
     'public/favicon/apple-touch-icon.png' => 180,
     'public/favicon/icon-192.png' => 192,
     'public/favicon/icon-512.png' => 512,
+    // La filigrana viene poi rimpicciolita al 18% del lato lungo della foto:
+    // 512 le lascia margine anche sulle immagini piu grandi.
+    'resources/images/watermark.png' => 512,
 ];
 
 $originale = $app->basePath('resources/images/logo-originale.png');

@@ -1,0 +1,24 @@
+{#
+  Il logo del gruppo come decorazione di fondo.
+
+  Sta a sinistra delle fasce viola, grande e appena accennato, e sconfina oltre
+  il bordo come un timbro. E il segno del gruppo, quindi il posto migliore ce
+  l'ha lui: lo stemma della Fiorentina gli fa da controcanto dall'altra parte,
+  piu in sordina ancora.
+
+  Porta aria-hidden perche non aggiunge niente a chi ascolta la pagina: il nome
+  del gruppo e scritto in testata, nel titolo e nel piede.
+
+  Parametri:
+    opacita   classe di opacita (default 'opacity-[0.07]')
+    class     misura dell'immagine
+    wrapper   posizionamento del contenitore
+#}
+<div class="pointer-events-none absolute select-none {{ wrapper|default('-left-20 top-1/2 -translate-y-1/2') }}"
+     aria-hidden="true">
+    <img src="/assets/logo.png"
+         alt=""
+         loading="lazy"
+         decoding="async"
+         class="{{ opacita|default('opacity-[0.07]') }} {{ class|default('h-72 w-auto') }}">
+</div>

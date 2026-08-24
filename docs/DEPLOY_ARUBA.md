@@ -558,12 +558,13 @@ Dopo un aggiornamento dei template, svuota la cache: cancella il contenuto di
 | `resources/images/logo-originale.png` | l'originale ad alta risoluzione, da cui si rigenerano gli altri |
 | `public/favicon/` | l'icona nella scheda del browser e sulla schermata iniziale del telefono |
 | `resources/static/hero.svg` | immagine di apertura della homepage |
-| `resources/images/watermark.png` | filigrana applicata alle fotografie (PNG con trasparenza) |
-| `resources/views/components/giglio.twig` | giglio fiorentino usato come decorazione di sfondo |
+| `resources/images/watermark.png` | filigrana applicata alle fotografie |
 | `resources/static/stemma-fiorentina.svg` | stemma della ACF Fiorentina, decorazione delle fasce viola |
 
-> Il giglio non è un segnaposto: è un disegno originale dello stemma civico di
-> Firenze, simbolo araldico di pubblico dominio.
+> La filigrana non si sostituisce a mano: la ricava `composer logo:genera` dal
+> logo originale, insieme a tutte le altre misure. Le fotografie già caricate
+> però conservano quella vecchia: per rifarle si usa il pulsante *Rielabora
+> tutte* nella pagina dell'album.
 
 #### Lo stemma della Fiorentina
 
@@ -587,15 +588,17 @@ la pagina non aggiunge niente.
 vuoto, nessuna immagine rotta. Le stesse fasce viola restano esattamente come
 sono oggi.
 
-Le trasparenze sono tarate sullo stemma a colori oggi in uso: 16%
-nell'apertura, 12% nel richiamo, 9% nel piede di pagina. Sembrano valori
-alti rispetto al giglio, che sta al 7-9%, ma il giglio è bianco su viola
-mentre lo stemma è quasi dello stesso viola del fondo, e sotto il 10%
-sparirebbe del tutto. Se un giorno arrivasse una versione monocromatica
-bianca, quei tre valori vanno riportati intorno al 5-7%: si cambiano in
-`resources/views/site/home.twig` e
-`resources/views/components/site-footer.twig`, dove il componente viene
-richiamato.
+Le trasparenze sono tarate guardando la pagina, non scelte a tavolino: lo
+stemma della Fiorentina sta al 16% nell'apertura, 12% nel richiamo e 9% nel
+piede di pagina, il logo del gruppo al 14% e 12%. I numeri non si possono
+confrontare fra loro: lo stemma è quasi dello stesso viola del fondo e sotto
+il 10% sparirebbe, il logo del gruppo è un tondo bianco e alla stessa
+percentuale si vedrebbe il doppio. Quello che conta è il risultato, ed è che
+il segno del gruppo si legga un poco piu di quello della squadra.
+
+Si cambiano in `resources/views/site/home.twig` e
+`resources/views/components/site-footer.twig`, dove i due componenti vengono
+richiamati.
 
 Dopo aver sostituito logo e immagine di apertura serve `npm run build` e un
 nuovo caricamento di `public/assets/`. La filigrana invece si applica alle
