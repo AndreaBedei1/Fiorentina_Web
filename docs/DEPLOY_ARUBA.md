@@ -554,7 +554,9 @@ Dopo un aggiornamento dei template, svuota la cache: cancella il contenuto di
 
 | File | Cosa e |
 |---|---|
-| `resources/static/logo.svg` | logo nell'intestazione e nel piede di pagina |
+| `resources/static/logo.png` | logo del gruppo: testata, piede di pagina, pannello, pagine d'errore |
+| `resources/images/logo-originale.png` | l'originale ad alta risoluzione, da cui si rigenerano gli altri |
+| `public/favicon/` | l'icona nella scheda del browser e sulla schermata iniziale del telefono |
 | `resources/static/hero.svg` | immagine di apertura della homepage |
 | `resources/images/watermark.png` | filigrana applicata alle fotografie (PNG con trasparenza) |
 | `resources/views/components/giglio.twig` | giglio fiorentino usato come decorazione di sfondo |

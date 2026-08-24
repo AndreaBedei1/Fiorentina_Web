@@ -323,7 +323,12 @@ composer lint                     # i due controlli qui sotto, uno dopo l'altro
 composer lint:views               # sintassi di tutti i template Twig
 composer lint:rotte               # collegamenti route() scritti nei template
 php scripts/check-contrast.php    # contrasti WCAG 2.1 AA della palette
+composer logo:genera              # rifa le misure del logo e le icone del browser
 ```
+
+`logo:genera` parte da `resources/images/logo-originale.png` e ne ricava la
+copia che il sito serve ai visitatori piu le icone del browser. Si lancia
+quando il logo cambia, seguito da `npm run build`.
 
 `lint:rotte` esiste per un tipo di errore che nient'altro intercetta:
 `route('shop.show', { slug: ... })` è sintatticamente perfetto, ma se quella
@@ -415,8 +420,8 @@ docs/              architettura e procedura di deploy
 public/            UNICA cartella esposta sul web
 resources/
   css/ js/         sorgenti compilate da Vite
-  static/          logo, immagini segnaposto (copiati cosi come sono)
-  images/          filigrana
+  static/          logo e immagini, copiati cosi come sono in public/assets/
+  images/          filigrana e originale del logo, non pubblicati
   views/           template Twig
 routes/            definizione delle rotte
 scripts/           comandi CLI: migrazioni, seed, cron, deploy
